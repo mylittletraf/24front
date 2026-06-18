@@ -1,12 +1,18 @@
 import { getLocale, getTranslations } from "next-intl/server";
-import { ActiveFilters } from "@/components/catalog/refine-block";
+import { ActiveFilters, RefineBlock } from "@/components/catalog/refine-block";
 import { FiltersDialog } from "@/components/catalog/filters-dialog";
 import { SortSelect } from "@/components/catalog/sort-select";
 import { Container } from "@/components/layout/container";
 import { InfiniteVideoFeed } from "@/components/video/infinite-video-feed";
 import type { QueryValue } from "@/lib/api/fetcher";
+import { getCatalogRelatedFilters } from "@/lib/api/related";
 import { getVideos } from "@/lib/api/videos";
-import { filtersToApiParams, filtersToSearchString, parseFilters } from "@/lib/filters";
+import {
+  filtersToApiParams,
+  filtersToSearchString,
+  hasActiveFilters,
+  parseFilters,
+} from "@/lib/filters";
 
 export const revalidate = 60;
 
@@ -20,13 +26,19 @@ export default async function HomePage({
   const t = await getTranslations("catalog");
 
   const filters = parseFilters(sp);
+  const filterParams = filtersToApiParams(filters);
   const apiParams: Record<string, QueryValue> = {
     lang: locale,
     page_size: 24,
-    ...filtersToApiParams(filters),
+    ...filterParams,
   };
 
-  const initialPage = await getVideos(apiParams, { revalidate: 60 });
+  // Refine is shown only on a *filtered* list (not the bare home).
+  const active = hasActiveFilters(filters);
+  const [initialPage, related] = await Promise.all([
+    getVideos(apiParams, { revalidate: 60 }),
+    active ? getCatalogRelatedFilters({ lang: locale, ...filterParams }) : Promise.resolve(null),
+  ]);
   const queryKey = ["videos", "catalog", locale, filtersToSearchString(filters)];
 
   return (
@@ -40,6 +52,7 @@ export default async function HomePage({
       </div>
 
       <ActiveFilters filters={filters} basePath="/" />
+      {related ? <RefineBlock related={related} filters={filters} basePath="/" /> : null}
 
       <InfiniteVideoFeed
         queryKey={queryKey}

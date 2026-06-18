@@ -248,3 +248,14 @@ Blocked by the API today:
 
 With (1) + (2) the frontend can render the attribute chips and link them to the catalog.
 Until then this can't be built. (Distinct from §8, which is filtering the *actors* list.)
+
+---
+
+## 10. related-filters ignores actor_* params (low)
+
+`GET /videos/related-filters/?actor_country=rossiya` returns the same `total_videos` and
+groups as the unfiltered call (71), i.e. the new `actor_*` filters aren't applied there.
+So the "Уточнить выборку" block on a list filtered by an actor attribute shows global
+related items rather than ones scoped to that actor filter. The refine still works
+functionally (clicking a tag adds `include_tags` and /videos/ honors both); only the
+suggested set isn't scoped. Please apply the same `actor_*` params to related-filters.
