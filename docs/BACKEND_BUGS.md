@@ -167,3 +167,33 @@ Frontend was **not** adapted — attribute-tag chips currently 404 on click unti
 
 (Related: `/tags/?page_size=300` returns only 200 items though `count` is 302 — page size
 seems capped at 200; large pulls are truncated.)
+
+---
+
+## 7. No source to populate the actor attribute filters (high)
+
+The actors filter (FRONTEND_SPEC §8.1) needs the list of values for: country, body type,
+bra size, breast type, hair color, eye color. The spec says to read them from
+`GET /tags/?page_size=200` filtered by the `is_country` / `is_body_type` / … flags.
+
+That no longer works:
+
+```bash
+curl -s ".../tags/?page_size=100" | …   # all 302 tags have is_country=false, is_body_type=false, …
+curl -s ".../tags/?is_country=true"     # ignored — still returns all 302
+curl -s -o /dev/null -w "%{http_code}" ".../attributes/"        # 404
+curl -s -o /dev/null -w "%{http_code}" ".../actor-attributes/"  # 404
+```
+
+Attribute tags are now excluded from `/tags/` (good — that's the §6 leak), but **nothing
+replaced them** as the source of attribute values, so the actor attribute dropdowns are empty.
+The values clearly exist — every actor carries them as `{uuid,name,slug}`
+(`country`, `body_type`, `bra_size`, `boobs_type`, `hair_color`, `eye_color`).
+
+Fix (pick one):
+- make the flag filters work, e.g. `GET /tags/?is_country=true` returns the country tags, or
+- add an endpoint, e.g. `GET /actor-attributes/` →
+  `{ "country": [{uuid,name,slug}], "body_type": [...], "bra_size": [...], "boobs_type": [...], "hair_color": [...], "eye_color": [...] }`.
+
+Frontend was **not** adapted — the attribute dropdowns stay empty until a source is provided.
+(Gender / country-by-actor-filter still work where applicable.)
