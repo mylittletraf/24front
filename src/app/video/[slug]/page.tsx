@@ -1,7 +1,9 @@
 import { Eye } from "lucide-react";
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { Fragment } from "react";
 import { Container } from "@/components/layout/container";
 import { JsonLd } from "@/components/seo/json-ld";
 import { LanguageSwitcher } from "@/components/seo/language-switcher";
@@ -99,29 +101,31 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
           </div>
 
           {detail.actors.length > 0 ? (
-            <section className="flex flex-col gap-1.5">
-              <h2 className="text-muted text-sm font-semibold">{t("actorsTitle")}:</h2>
-              <div className="flex flex-wrap gap-2">
-                {detail.actors.map((actor) => (
-                  <Chip key={actor.uuid} href={`/actor/${actor.slug}`}>
+            <p className="text-sm">
+              <span className="text-muted font-semibold">{t("actorsTitle")}: </span>
+              {detail.actors.map((actor, i) => (
+                <Fragment key={actor.uuid}>
+                  {i > 0 ? ", " : ""}
+                  <Link href={`/actor/${actor.slug}`} className="text-link hover:underline">
                     {actor.name}
-                  </Chip>
-                ))}
-              </div>
-            </section>
+                  </Link>
+                </Fragment>
+              ))}
+            </p>
           ) : null}
 
           {detail.categories.length > 0 ? (
-            <section className="flex flex-col gap-1.5">
-              <h2 className="text-muted text-sm font-semibold">{t("categoriesTitle")}:</h2>
-              <div className="flex flex-wrap gap-2">
-                {detail.categories.map((category) => (
-                  <Chip key={category.uuid} href={`/category/${category.slug}`}>
+            <p className="text-sm">
+              <span className="text-muted font-semibold">{t("categoriesTitle")}: </span>
+              {detail.categories.map((category, i) => (
+                <Fragment key={category.uuid}>
+                  {i > 0 ? ", " : ""}
+                  <Link href={`/category/${category.slug}`} className="text-link hover:underline">
                     {category.name}
-                  </Chip>
-                ))}
-              </div>
-            </section>
+                  </Link>
+                </Fragment>
+              ))}
+            </p>
           ) : null}
 
           {detail.description ? (
@@ -132,16 +136,13 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
           ) : null}
 
           {detail.tags.length > 0 ? (
-            <section className="flex flex-col gap-1.5">
-              <h2 className="text-muted text-sm font-semibold">{t("tagsTitle")}:</h2>
-              <div className="flex flex-wrap gap-2">
-                {detail.tags.map((tag) => (
-                  <Chip key={tag.uuid} href={`/tag/${tag.slug}`}>
-                    #{tag.name}
-                  </Chip>
-                ))}
-              </div>
-            </section>
+            <div className="flex flex-wrap gap-2">
+              {detail.tags.map((tag) => (
+                <Chip key={tag.uuid} href={`/tag/${tag.slug}`}>
+                  #{tag.name}
+                </Chip>
+              ))}
+            </div>
           ) : null}
 
           <CommentsSection videoUuid={detail.uuid} commentsCount={detail.comments_count} />
