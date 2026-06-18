@@ -38,7 +38,7 @@ export function MobileDrawer({ categories }: { categories: Tag[] }) {
 
         <div className="border-border flex flex-col gap-3 border-b pb-4">
           {isAuthenticated ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 pr-9">
               <span className="bg-accent grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-semibold text-white">
                 {displayName.charAt(0).toUpperCase()}
               </span>
@@ -46,7 +46,7 @@ export function MobileDrawer({ categories }: { categories: Tag[] }) {
               <ThemeToggle />
             </div>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 pr-9">
               <Button
                 variant="secondary"
                 size="sm"
