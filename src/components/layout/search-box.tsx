@@ -70,6 +70,9 @@ export function SearchBox({
     <div ref={containerRef} className={cn("relative w-full", className)}>
       <form onSubmit={submit} className="relative flex items-center">
         <input
+          // Browser extensions (form fillers) inject attributes like wfd-id before
+          // hydration; ignore those attribute mismatches on this input.
+          suppressHydrationWarning
           autoFocus={autoFocus}
           value={value}
           onChange={(e) => {
