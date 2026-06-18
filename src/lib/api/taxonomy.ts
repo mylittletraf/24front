@@ -36,3 +36,16 @@ export async function getTags({ lang, pageSize = 200 }: ListOpts = {}): Promise<
     return [];
   }
 }
+
+/** Tag or category detail by slug (throws ApiError on 404). */
+export async function getTaxonomyDetail(
+  kind: "tags" | "categories",
+  slug: string,
+  lang?: Locale,
+): Promise<Tag> {
+  const data = await apiFetch<unknown>(`/${kind}/${slug}/`, {
+    params: { lang },
+    revalidate: 300,
+  });
+  return TagSchema.parse(data);
+}

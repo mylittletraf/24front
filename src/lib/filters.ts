@@ -14,6 +14,13 @@ export interface VideoFilters {
   sort?: VideoSort;
 }
 
+export const emptyFilters: VideoFilters = {
+  include_tags: [],
+  exclude_tags: [],
+  categories: [],
+  actors: [],
+};
+
 export const SORT_OPTIONS: { value: VideoSort; labelKey: string }[] = [
   { value: "newest", labelKey: "newest" },
   { value: "oldest", labelKey: "oldest" },

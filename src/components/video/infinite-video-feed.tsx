@@ -4,7 +4,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import type { QueryValue } from "@/lib/api/fetcher";
-import { getVideoPageByUrl, getVideos } from "@/lib/api/videos";
+import { getVideoList, getVideoPageByUrl } from "@/lib/api/videos";
 import type { CursorPage, VideoCard as VideoCardData } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/common/empty-state";
@@ -15,12 +15,14 @@ import { VideoGrid } from "./video-grid";
 
 export function InfiniteVideoFeed({
   queryKey,
+  endpoint = "/videos/",
   params,
   initialPage,
   priorityCount = 4,
   emptyTitle,
 }: {
   queryKey: readonly unknown[];
+  endpoint?: string;
   params: Record<string, QueryValue>;
   initialPage: CursorPage<VideoCardData>;
   priorityCount?: number;
@@ -30,7 +32,8 @@ export function InfiniteVideoFeed({
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isError } = useInfiniteQuery({
     queryKey,
-    queryFn: ({ pageParam }) => (pageParam ? getVideoPageByUrl(pageParam) : getVideos(params)),
+    queryFn: ({ pageParam }) =>
+      pageParam ? getVideoPageByUrl(pageParam) : getVideoList(endpoint, params),
     initialPageParam: null as string | null,
     getNextPageParam: (last) => last.next,
     initialData: { pages: [initialPage], pageParams: [null] },

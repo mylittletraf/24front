@@ -103,5 +103,48 @@
   },
   "empty": {
     "title": "Nothing found"
+  },
+  "actor": {
+    "country": "Country",
+    "bodyType": "Body type",
+    "braSize": "Bra size",
+    "boobsType": "Breast type",
+    "height": "Height",
+    "weight": "Weight",
+    "hairColor": "Hair color",
+    "eyeColor": "Eye color",
+    "birthDate": "Birth date",
+    "aliases": "Aliases",
+    "videosWith": "Videos with {name}",
+    "cm": "cm",
+    "kg": "kg"
+  },
+  "actorsFilters": {
+    "title": "Actors",
+    "gender": "Gender",
+    "any": "Any",
+    "women": "Women",
+    "men": "Men",
+    "country": "Country",
+    "bodyType": "Body type",
+    "braSize": "Bra size",
+    "boobsType": "Breast type",
+    "hairColor": "Hair color",
+    "eyeColor": "Eye color",
+    "height": "Height",
+    "weight": "Weight",
+    "sortPopular": "Popular",
+    "sortName": "A–Z",
+    "sortNewest": "Newest"
+  },
+  "collections": {
+    "title": "Collections",
+    "videos": "Collection videos",
+    "empty": "No collections yet"
+  },
+  "categoriesPage": {
+    "categories": "Categories",
+    "tags": "Tags",
+    "videosCount": "{count} videos"
   }
 }

@@ -103,5 +103,48 @@
   },
   "empty": {
     "title": "Ничего не найдено"
+  },
+  "actor": {
+    "country": "Страна",
+    "bodyType": "Телосложение",
+    "braSize": "Размер бюста",
+    "boobsType": "Тип груди",
+    "height": "Рост",
+    "weight": "Вес",
+    "hairColor": "Цвет волос",
+    "eyeColor": "Цвет глаз",
+    "birthDate": "Дата рождения",
+    "aliases": "Псевдонимы",
+    "videosWith": "Видео с {name}",
+    "cm": "см",
+    "kg": "кг"
+  },
+  "actorsFilters": {
+    "title": "Актёры",
+    "gender": "Пол",
+    "any": "Любой",
+    "women": "Женщины",
+    "men": "Мужчины",
+    "country": "Страна",
+    "bodyType": "Телосложение",
+    "braSize": "Размер бюста",
+    "boobsType": "Тип груди",
+    "hairColor": "Цвет волос",
+    "eyeColor": "Цвет глаз",
+    "height": "Рост",
+    "weight": "Вес",
+    "sortPopular": "Популярные",
+    "sortName": "По алфавиту",
+    "sortNewest": "Новые"
+  },
+  "collections": {
+    "title": "Подборки",
+    "videos": "Видео подборки",
+    "empty": "Подборок пока нет"
+  },
+  "categoriesPage": {
+    "categories": "Категории",
+    "tags": "Теги",
+    "videosCount": "{count} видео"
   }
 }

@@ -21,16 +21,25 @@ function parsePage(data: unknown): CursorPage<VideoCard> {
   return { next: null, previous: null, results: [] };
 }
 
-/** Catalog / filtered listing (cursor). Params are passed straight to /videos/. */
-export async function getVideos(
+/** Cursor video listing from any endpoint (e.g. /videos/, /tags/{slug}/videos/). */
+export async function getVideoList(
+  endpoint: string,
   params: Record<string, QueryValue> = {},
   opts: { revalidate?: number } = {},
 ): Promise<CursorPage<VideoCard>> {
-  const data = await apiFetch<unknown>("/videos/", {
+  const data = await apiFetch<unknown>(endpoint, {
     params,
     revalidate: opts.revalidate ?? 60,
   });
   return parsePage(data);
+}
+
+/** Catalog / filtered listing (cursor). Params are passed straight to /videos/. */
+export function getVideos(
+  params: Record<string, QueryValue> = {},
+  opts: { revalidate?: number } = {},
+): Promise<CursorPage<VideoCard>> {
+  return getVideoList("/videos/", params, opts);
 }
 
 /** Named feed: /videos/trending|popular|new|recommended/. */
