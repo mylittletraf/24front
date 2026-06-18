@@ -18,7 +18,7 @@ export function DropdownMenuContent({
         sideOffset={sideOffset}
         align={align}
         className={cn(
-          "border-border bg-background z-50 min-w-[180px] rounded-lg border p-1 shadow-xl",
+          "border-border bg-background z-50 flex min-w-[180px] flex-col rounded-lg border p-1 shadow-xl",
           className,
         )}
         {...props}
@@ -34,7 +34,7 @@ export function DropdownMenuItem({
   return (
     <DropdownMenuPrimitive.Item
       className={cn(
-        "hover:bg-surface focus:bg-surface cursor-pointer rounded-md px-3 py-2 text-sm outline-none",
+        "hover:bg-surface focus:bg-surface block w-full cursor-pointer rounded-md px-3 py-2 text-sm outline-none",
         className,
       )}
       {...props}
