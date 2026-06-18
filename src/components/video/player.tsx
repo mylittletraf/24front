@@ -37,25 +37,37 @@ function loadImaSdk(): Promise<void> {
   return imaSdkPromise;
 }
 
-/** Wire VAST pre/post-roll. Any failure (no SDK, 204, plugin error) leaves content playing. */
-async function setupVastAds(player: Player, uuid: string): Promise<void> {
+type VastTags = { pre: string | null; post: string | null };
+
+/**
+ * Fetch the VAST tags and load the IMA SDK + plugins — done BEFORE the player is created so the
+ * ads plugin can be initialized in the same tick (contrib-ads requirement). Returns null = no ads.
+ */
+async function prepareVastAds(uuid: string): Promise<VastTags | null> {
   try {
-    const [preroll, postroll] = await Promise.all([
-      getVast(uuid, "pre_roll"),
-      getVast(uuid, "post_roll"),
-    ]);
-    if (!preroll && !postroll) return; // 204/204 — no ads
+    const [pre, post] = await Promise.all([getVast(uuid, "pre_roll"), getVast(uuid, "post_roll")]);
+    if (!pre && !post) return null; // 204/204 — no ads
     await loadImaSdk();
     await import("videojs-contrib-ads");
     await import("videojs-ima");
-    const p = player as ImaPlayer;
-    if (typeof p.ima !== "function") return;
-    p.ima({ adTagUrl: preroll ?? (postroll as string) });
-    if (preroll && postroll) {
+    return { pre, post };
+  } catch {
+    return null;
+  }
+}
+
+/** Initialize IMA synchronously (must run in the same tick as player creation, before loadstart). */
+function initVastAds(player: Player, tags: VastTags): void {
+  const p = player as ImaPlayer;
+  if (typeof p.ima !== "function") return;
+  try {
+    p.ima({ adTagUrl: tags.pre ?? (tags.post as string) });
+    if (tags.pre && tags.post) {
+      const post = tags.post;
       // Postroll: swap the tag and request a fresh ad when the content ends.
       player.one("ended", () => {
         try {
-          p.ima?.changeAdTag(postroll);
+          p.ima?.changeAdTag(post);
           p.ima?.requestAds();
         } catch {
           // ignore
@@ -112,6 +124,11 @@ export function VideoPlayer({
       const videojs = (await import("video.js")).default;
       if (disposed || !containerRef.current) return;
 
+      // Resolve ads (tag + SDK + plugins) BEFORE creating the player so IMA can init in the
+      // same tick as the source — otherwise contrib-ads warns "initialized too late".
+      const adTags = await prepareVastAds(uuid);
+      if (disposed || !containerRef.current) return;
+
       const videoEl = document.createElement("video-js");
       videoEl.classList.add("video-js", "vjs-big-play-centered");
       containerRef.current.appendChild(videoEl);
@@ -124,12 +141,12 @@ export function VideoPlayer({
         aspectRatio: "16:9",
         poster: poster ?? undefined,
         playbackRates: [0.5, 1, 1.5, 2],
-        sources: [{ src: hls, type: "application/x-mpegURL" }],
       });
       playerRef.current = player;
 
-      // VAST pre/post-roll (no-op when the backend returns 204).
-      void setupVastAds(player, uuid);
+      // Same tick: init ads (if any) BEFORE setting the source, then load the content.
+      if (adTags) initVastAds(player, adTags);
+      player.src({ src: hls, type: "application/x-mpegURL" });
 
       if (resumeSeconds > 0) {
         player.one("loadedmetadata", () => player.currentTime(resumeSeconds));
