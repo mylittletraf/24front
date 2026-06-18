@@ -15,11 +15,21 @@ const CLICKUNDER_COOLDOWN_MS = 15 * 60 * 1000; // then no more often than every 
 
 // --- VAST via Google IMA (videojs-contrib-ads + videojs-ima) -----------------------------
 interface ImaApi {
-  (opts: { adTagUrl: string }): void;
+  (opts: { adTagUrl: string; vpaidMode?: number }): void;
   changeAdTag: (url: string) => void;
   requestAds: () => void;
 }
 type ImaPlayer = Player & { ima?: ImaApi };
+
+/** VpaidMode.INSECURE from the loaded IMA SDK — lets VPAID creatives (common on ad networks) run. */
+function vpaidInsecure(): number | undefined {
+  const ima = (
+    window as unknown as {
+      google?: { ima?: { ImaSdkSettings?: { VpaidMode?: { INSECURE?: number } } } };
+    }
+  ).google?.ima;
+  return ima?.ImaSdkSettings?.VpaidMode?.INSECURE;
+}
 
 let imaSdkPromise: Promise<void> | null = null;
 function loadImaSdk(): Promise<void> {
@@ -61,7 +71,7 @@ function initVastAds(player: Player, tags: VastTags): void {
   const p = player as ImaPlayer;
   if (typeof p.ima !== "function") return;
   try {
-    p.ima({ adTagUrl: tags.pre ?? (tags.post as string) });
+    p.ima({ adTagUrl: tags.pre ?? (tags.post as string), vpaidMode: vpaidInsecure() });
     if (tags.pre && tags.post) {
       const post = tags.post;
       // Postroll: swap the tag and request a fresh ad when the content ends.
