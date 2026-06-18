@@ -6,9 +6,12 @@ import {
 } from "@/components/actor/actors-filters";
 import { ActorsGrid } from "@/components/actor/actors-grid";
 import { Container } from "@/components/layout/container";
-import { getActors, type ActorListParams, type ActorSort } from "@/lib/api/actors";
-import type { Tag } from "@/lib/api/types";
-import { getTags } from "@/lib/api/taxonomy";
+import {
+  getActorAttributes,
+  getActors,
+  type ActorListParams,
+  type ActorSort,
+} from "@/lib/api/actors";
 import { resolveLocale, type Locale } from "@/lib/i18n/locales";
 
 export const revalidate = 300;
@@ -25,10 +28,6 @@ function num(value: string | string[] | undefined): number | undefined {
   if (!v) return undefined;
   const n = Number(v);
   return Number.isFinite(n) ? n : undefined;
-}
-
-function options(tags: Tag[], flag: keyof Tag): { slug: string; name: string }[] {
-  return tags.filter((t) => t[flag]).map((t) => ({ slug: t.slug, name: t.name }));
 }
 
 export default async function ActorsPage({ searchParams }: { searchParams: Promise<SP> }) {
@@ -56,15 +55,15 @@ export default async function ActorsPage({ searchParams }: { searchParams: Promi
     page_size: 30,
   };
 
-  const [initialPage, tags] = await Promise.all([getActors(params), getTags({ lang })]);
+  const [initialPage, attrs] = await Promise.all([getActors(params), getActorAttributes(lang)]);
 
   const attributes: ActorAttributes = {
-    countries: options(tags, "is_country"),
-    bodyTypes: options(tags, "is_body_type"),
-    braSizes: options(tags, "is_bra_size"),
-    boobsTypes: options(tags, "is_boobs_type"),
-    hairColors: options(tags, "is_hair_color"),
-    eyeColors: options(tags, "is_eye_color"),
+    countries: attrs.country,
+    bodyTypes: attrs.body_type,
+    braSizes: attrs.bra_size,
+    boobsTypes: attrs.boobs_type,
+    hairColors: attrs.hair_color,
+    eyeColors: attrs.eye_color,
   };
 
   const current = {

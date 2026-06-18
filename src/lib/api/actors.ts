@@ -1,7 +1,14 @@
 import type { Locale } from "@/lib/i18n/locales";
 import { apiFetch, toProxyUrl, type QueryValue } from "./fetcher";
 import { ApiError } from "./errors";
-import { ActorSchema, parseList, type Actor, type PageNumberPage } from "./types";
+import {
+  ActorSchema,
+  NamedRefSchema,
+  parseList,
+  type Actor,
+  type NamedRef,
+  type PageNumberPage,
+} from "./types";
 
 export type ActorSort = "popular" | "name" | "videos_count" | "newest";
 
@@ -57,4 +64,42 @@ export async function getActor(slug: string, lang?: Locale): Promise<Actor> {
     revalidate: 300,
   });
   return ActorSchema.parse(data);
+}
+
+export interface ActorAttributeGroups {
+  country: NamedRef[];
+  body_type: NamedRef[];
+  bra_size: NamedRef[];
+  boobs_type: NamedRef[];
+  hair_color: NamedRef[];
+  eye_color: NamedRef[];
+}
+
+/** Attribute value options for the actor filters (/actors/attributes/). */
+export async function getActorAttributes(lang?: Locale): Promise<ActorAttributeGroups> {
+  const empty: ActorAttributeGroups = {
+    country: [],
+    body_type: [],
+    bra_size: [],
+    boobs_type: [],
+    hair_color: [],
+    eye_color: [],
+  };
+  try {
+    const data = await apiFetch<unknown>("/actors/attributes/", {
+      params: { lang },
+      revalidate: 3600,
+    });
+    const obj = (data && typeof data === "object" ? data : {}) as Record<string, unknown>;
+    return {
+      country: parseList(NamedRefSchema, obj.country).results,
+      body_type: parseList(NamedRefSchema, obj.body_type).results,
+      bra_size: parseList(NamedRefSchema, obj.bra_size).results,
+      boobs_type: parseList(NamedRefSchema, obj.boobs_type).results,
+      hair_color: parseList(NamedRefSchema, obj.hair_color).results,
+      eye_color: parseList(NamedRefSchema, obj.eye_color).results,
+    };
+  } catch {
+    return empty;
+  }
 }
