@@ -11,19 +11,17 @@ export function SortSelect({ filters, basePath }: { filters: VideoFilters; baseP
   const value = filters.sort ?? "newest";
 
   return (
-    <label className="flex items-center gap-2 text-sm">
-      <span className="text-muted">{t("label")}:</span>
-      <select
-        value={value}
-        onChange={(e) => setSort(e.target.value as VideoSort)}
-        className="border-border bg-surface focus:border-muted h-9 rounded-full border px-3 text-sm outline-none"
-      >
-        {SORT_OPTIONS.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {t(opt.labelKey)}
-          </option>
-        ))}
-      </select>
-    </label>
+    <select
+      aria-label={t("label")}
+      value={value}
+      onChange={(e) => setSort(e.target.value as VideoSort)}
+      className="border-border bg-surface focus:border-muted h-9 rounded-full border px-3 text-sm outline-none"
+    >
+      {SORT_OPTIONS.map((opt) => (
+        <option key={opt.value} value={opt.value}>
+          {t(opt.labelKey)}
+        </option>
+      ))}
+    </select>
   );
 }
