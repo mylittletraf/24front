@@ -36,9 +36,12 @@ export default async function ActorsPage({ searchParams }: { searchParams: Promi
   const lang = sp.lang ? resolveLocale(str(sp.lang)) : ((await getLocale()) as Locale);
   const t = await getTranslations("actorsFilters");
 
+  // Default to women; "any" explicitly clears the gender filter.
+  const genderValue = str(sp.gender) ?? "woman";
+
   const params: ActorListParams = {
     lang,
-    gender: str(sp.gender) as ActorListParams["gender"],
+    gender: genderValue === "any" ? undefined : (genderValue as ActorListParams["gender"]),
     country: str(sp.country),
     body_type: str(sp.body_type),
     bra_size: str(sp.bra_size),
@@ -65,7 +68,7 @@ export default async function ActorsPage({ searchParams }: { searchParams: Promi
   };
 
   const current = {
-    gender: str(sp.gender),
+    gender: genderValue,
     country: str(sp.country),
     body_type: str(sp.body_type),
     bra_size: str(sp.bra_size),

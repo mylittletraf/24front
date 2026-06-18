@@ -235,7 +235,8 @@ function FilterControls({
   const { update, reset } = useActorsNav(current);
   const [added, setAdded] = useState<string[]>([]);
 
-  const isWoman = current.gender === "woman";
+  const gender = current.gender ?? "woman";
+  const isWoman = gender === "woman";
 
   const numAt = (key: string, fallback: number) => {
     const v = current[key];
@@ -305,16 +306,16 @@ function FilterControls({
         <span className="text-muted px-0.5 text-xs font-medium">{t("gender")}</span>
         <div className="border-border bg-surface inline-flex rounded-lg border p-0.5">
           {[
-            { v: "", l: t("any") },
             { v: "woman", l: t("women") },
             { v: "man", l: t("men") },
+            { v: "any", l: t("any") },
           ].map((opt) => {
-            const active = (current.gender ?? "") === opt.v;
+            const active = gender === opt.v;
             return (
               <button
-                key={opt.v || "any"}
+                key={opt.v}
                 type="button"
-                onClick={() => update({ gender: opt.v || undefined })}
+                onClick={() => update({ gender: opt.v })}
                 className={cn(
                   "rounded-md px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
                   active
