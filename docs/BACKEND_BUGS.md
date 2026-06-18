@@ -224,3 +224,25 @@ names as the `/actors/attributes/` keys (`body_type`, `bra_size`, `boobs_type`,
 
 Frontend was **not** adapted — the filters are wired and will work as soon as `/actors/`
 honors these params.
+
+---
+
+## 9. Actor-attribute tags on videos + filtering videos by them (feature request)
+
+Desired UX: on a video page show the actors' attributes (country, body type, hair
+color, …) as chips; clicking e.g. "Германия" opens all videos that have an actor from
+Germany — like a tag, but driven by actor attributes. Optionally group these chips by
+attribute type on the video page.
+
+Blocked by the API today:
+
+1. `GET /videos/{slug}/` `actors[]` only returns `{uuid, name, slug}` — no attributes.
+   The frontend would need actor attributes per video without N extra requests, e.g.:
+   - add attributes to each actor in the video payload (`actors[].country`, `.body_type`, …), or
+   - add an aggregated field, e.g. `actor_attributes: { country: [{name,slug}], hair_color: […], … }`.
+2. `GET /videos/` has no filter by actor attribute. Need params such as
+   `?actor_country=germaniya`, `?actor_hair_color=blondinka`, … (slug values) so clicking a
+   chip can open `/videos/?actor_country=…`.
+
+With (1) + (2) the frontend can render the attribute chips and link them to the catalog.
+Until then this can't be built. (Distinct from §8, which is filtering the *actors* list.)

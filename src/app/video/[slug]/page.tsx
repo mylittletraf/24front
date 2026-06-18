@@ -90,50 +90,52 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
             </div>
           </div>
 
-          {detail.actors.length > 0 ? (
-            <p className="text-sm">
-              <span className="text-muted font-semibold">{t("actorsTitle")}: </span>
-              {detail.actors.map((actor, i) => (
-                <Fragment key={actor.uuid}>
-                  {i > 0 ? ", " : ""}
-                  <Link href={`/actor/${actor.slug}`} className="text-link hover:underline">
-                    {actor.name}
-                  </Link>
-                </Fragment>
-              ))}
-            </p>
-          ) : null}
+          <div className="border-border bg-surface/40 flex flex-col gap-3 rounded-2xl border p-4">
+            {detail.actors.length > 0 ? (
+              <p className="text-sm">
+                <span className="text-muted font-semibold">{t("actorsTitle")}: </span>
+                {detail.actors.map((actor, i) => (
+                  <Fragment key={actor.uuid}>
+                    {i > 0 ? ", " : ""}
+                    <Link href={`/actor/${actor.slug}`} className="text-link hover:underline">
+                      {actor.name}
+                    </Link>
+                  </Fragment>
+                ))}
+              </p>
+            ) : null}
 
-          {detail.categories.length > 0 ? (
-            <p className="text-sm">
-              <span className="text-muted font-semibold">{t("categoriesTitle")}: </span>
-              {detail.categories.map((category, i) => (
-                <Fragment key={category.uuid}>
-                  {i > 0 ? ", " : ""}
-                  <Link href={`/category/${category.slug}`} className="text-link hover:underline">
-                    {category.name}
-                  </Link>
-                </Fragment>
-              ))}
-            </p>
-          ) : null}
+            {detail.categories.length > 0 ? (
+              <p className="text-sm">
+                <span className="text-muted font-semibold">{t("categoriesTitle")}: </span>
+                {detail.categories.map((category, i) => (
+                  <Fragment key={category.uuid}>
+                    {i > 0 ? ", " : ""}
+                    <Link href={`/category/${category.slug}`} className="text-link hover:underline">
+                      {category.name}
+                    </Link>
+                  </Fragment>
+                ))}
+              </p>
+            ) : null}
 
-          {detail.description ? (
-            <section className="flex flex-col gap-1.5">
-              <h2 className="text-muted text-sm font-semibold">{t("descriptionTitle")}:</h2>
-              <Description text={detail.description} />
-            </section>
-          ) : null}
+            {detail.description ? (
+              <div className="flex flex-col gap-1.5">
+                <h2 className="text-muted text-sm font-semibold">{t("descriptionTitle")}:</h2>
+                <Description text={detail.description} />
+              </div>
+            ) : null}
 
-          {detail.tags.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {detail.tags.map((tag) => (
-                <Chip key={tag.uuid} href={`/tag/${tag.slug}`}>
-                  #{tag.name}
-                </Chip>
-              ))}
-            </div>
-          ) : null}
+            {detail.tags.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {detail.tags.map((tag) => (
+                  <Chip key={tag.uuid} href={`/tag/${tag.slug}`}>
+                    #{tag.name}
+                  </Chip>
+                ))}
+              </div>
+            ) : null}
+          </div>
 
           <CommentsSection videoUuid={detail.uuid} commentsCount={detail.comments_count} />
 
