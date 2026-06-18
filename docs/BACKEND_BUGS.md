@@ -76,3 +76,32 @@ PY
 
 Impact: a strict client parsing the list as a whole would drop the entire response.
 (The frontend now parses leniently and skips invalid rows, but the data should be cleaned.)
+
+---
+
+## 4. No per-video "is_favorited" / "my_reaction" flag (medium, feature request)
+
+To show whether the current user has already favorited (or liked/disliked) a video, the
+frontend needs per-user state. Today the only source is paging the entire `/me/favorites/`
+list — which the frontend now does on login and caches client-side, but that doesn't scale
+to large favorite lists and can't cheaply annotate arbitrary cards.
+
+Neither the video card nor `/videos/{slug}/` returns `is_favorited` / `my_reaction`, even
+when called with `Authorization`:
+
+```bash
+curl -s -H "Authorization: Bearer <token>" ".../videos/{slug}/?lang=ru"   # no favorite/reaction field
+curl -s -H "Authorization: Bearer <token>" ".../videos/?page_size=1"      # no is_favorited on cards
+```
+
+Public list/detail responses are cached anonymously, so adding per-user fields there would
+fight the cache. Suggested options (pick one):
+
+- A small batch endpoint, e.g. `POST /me/videos/state { "uuids": [...] }` →
+  `{ "<uuid>": { "favorited": true, "reaction": "like" | "dislike" | null }, ... }`.
+  Cheap, per-user, uncached — lets the frontend annotate exactly the cards on screen.
+- Or include `is_favorited` / `my_reaction` on `/videos/{slug}/` (detail) and on `/me/*`
+  feeds when the request is authenticated.
+
+This also affects like/dislike state (currently the UI starts "neutral" after reload since
+the user's existing reaction isn't returned).

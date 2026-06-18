@@ -33,6 +33,18 @@ export async function getMeVideoPageByUrl(
   return toVideoPage(await res.json());
 }
 
+/** Collect the user's favorited video UUIDs (paging through /me/favorites/, bounded). */
+export async function getFavoriteVideoIds(token: string, maxPages = 10): Promise<string[]> {
+  const ids: string[] = [];
+  let page = await getMeVideoFeed("/me/favorites/?page_size=100", token);
+  for (let i = 0; i < maxPages; i++) {
+    for (const video of page.results) ids.push(video.uuid);
+    if (!page.next) break;
+    page = await getMeVideoPageByUrl(page.next, token);
+  }
+  return ids;
+}
+
 export async function clearHistory(token: string): Promise<void> {
   await apiFetch("/me/history/", { method: "DELETE", token });
 }

@@ -2,16 +2,10 @@
 
 import { Bookmark, ThumbsDown, ThumbsUp } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import { useAuthUI } from "@/components/auth/auth-ui";
+import { useFavorites } from "@/components/video/favorites-context";
 import { Button } from "@/components/ui/button";
-import {
-  addFavorite,
-  clearReaction,
-  postGuestLike,
-  removeFavorite,
-  setReaction,
-} from "@/lib/api/video-actions";
+import { clearReaction, postGuestLike, setReaction } from "@/lib/api/video-actions";
 import { useAuth } from "@/lib/auth/auth-context";
 import { useReaction } from "@/lib/hooks/use-reaction";
 import { cn } from "@/lib/utils/cn";
@@ -39,10 +33,10 @@ export function VideoActions({
 }) {
   const { isAuthenticated, getToken } = useAuth();
   const { open: openAuth } = useAuthUI();
+  const { isFavorite, toggleFavorite } = useFavorites();
 
-  const [favorites, setFavorites] = useState(favoritesCount);
-  const [favorited, setFavorited] = useState(false);
   const [guestLiked, setGuestLiked] = useState(() => guestLikedRecently(uuid));
+  const favorited = isAuthenticated && isFavorite(uuid);
 
   const {
     reaction: myReaction,
@@ -85,25 +79,12 @@ export function VideoActions({
     dislike();
   }
 
-  async function handleFavorite() {
+  function handleFavorite() {
     if (!isAuthenticated) {
       openAuth("login");
       return;
     }
-    const token = getToken();
-    if (!token) return;
-    const next = !favorited;
-    setFavorited(next);
-    setFavorites((n) => n + (next ? 1 : -1));
-    try {
-      if (next) await addFavorite(uuid, token);
-      else await removeFavorite(uuid, token);
-      toast.success(next ? "Добавлено в избранное" : "Удалено из избранного");
-    } catch (error) {
-      setFavorited(!next);
-      setFavorites((n) => n + (next ? -1 : 1));
-      toastApiError(error, { onUnauthorized: () => openAuth("login") });
-    }
+    toggleFavorite(uuid);
   }
 
   return (
@@ -136,7 +117,7 @@ export function VideoActions({
 
       <Button variant={favorited ? "primary" : "secondary"} onClick={handleFavorite}>
         <Bookmark size={18} fill={favorited ? "currentColor" : "none"} />
-        {formatCount(favorites)}
+        {formatCount(favoritesCount + (favorited ? 1 : 0))}
       </Button>
     </div>
   );
