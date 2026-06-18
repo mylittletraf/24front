@@ -1,7 +1,10 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { LoginForm } from "./login-form";
+import { RegisterForm } from "./register-form";
 
 export type AuthView = "login" | "register";
 
@@ -18,11 +21,8 @@ export function useAuthUI(): AuthUIContextValue {
   return ctx;
 }
 
-/**
- * Hosts the auth modal. Phase 1 ships the open/close plumbing and a placeholder body;
- * Phase 5 replaces the body with real login/register forms.
- */
 export function AuthUIProvider({ children }: { children: ReactNode }) {
+  const t = useTranslations("auth");
   const [view, setView] = useState<AuthView | null>(null);
 
   const value = useMemo<AuthUIContextValue>(
@@ -33,15 +33,21 @@ export function AuthUIProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const close = () => setView(null);
+
   return (
     <AuthUIContext.Provider value={value}>
       {children}
       <Dialog open={view !== null} onOpenChange={(o) => !o && setView(null)}>
-        <DialogContent side="center">
+        <DialogContent side="center" className="gap-4">
           <DialogTitle className="text-lg font-semibold">
-            {view === "register" ? "Регистрация" : "Вход"}
+            {view === "register" ? t("register") : t("login")}
           </DialogTitle>
-          <p className="text-muted mt-4 text-sm">Скоро будет доступно.</p>
+          {view === "register" ? (
+            <RegisterForm onSuccess={close} onSwitch={() => setView("login")} />
+          ) : (
+            <LoginForm onSuccess={close} onSwitch={() => setView("register")} />
+          )}
         </DialogContent>
       </Dialog>
     </AuthUIContext.Provider>

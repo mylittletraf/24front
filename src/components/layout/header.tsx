@@ -69,7 +69,7 @@ export function Header({ categories }: { categories: Tag[] }) {
 
         <div className="desktop:flex hidden items-center gap-1">
           <Link
-            href="/me/favorites"
+            href="/me?tab=favorites"
             aria-label={t("placeholder")}
             className="text-foreground hover:bg-surface grid h-9 w-9 place-items-center rounded-full"
           >

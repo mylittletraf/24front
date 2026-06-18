@@ -16,10 +16,10 @@ export function MobileDrawer({ categories }: { categories: Tag[] }) {
   const [open, setOpen] = useState(false);
 
   const accountLinks = [
-    { href: "/me", label: t("profile.title"), icon: User },
-    { href: "/me/favorites", label: t("profile.favorites"), icon: Star },
-    { href: "/me/history", label: t("profile.history"), icon: History },
-    { href: "/me/favorites", label: t("nav.collections"), icon: Bookmark },
+    { href: "/me?tab=settings", label: t("profile.title"), icon: User },
+    { href: "/me?tab=favorites", label: t("profile.favorites"), icon: Star },
+    { href: "/me?tab=history", label: t("profile.history"), icon: History },
+    { href: "/me?tab=liked", label: t("profile.liked"), icon: Bookmark },
   ];
 
   return (

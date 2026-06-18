@@ -31,7 +31,18 @@
     "email": "Email",
     "displayName": "Display name",
     "noAccount": "No account? Sign up",
-    "haveAccount": "Already have an account? Log in"
+    "haveAccount": "Already have an account? Log in",
+    "registerDone": "Registration complete",
+    "done": "Done"
+  },
+  "quickLogin": {
+    "title": "Quick login link",
+    "hint": "Password-free login link — use it on a trusted device",
+    "dontShare": "Do not share this link with anyone",
+    "get": "Get link",
+    "refresh": "Refresh link",
+    "loggingIn": "Signing in…",
+    "failed": "Could not sign in with this link"
   },
   "profile": {
     "title": "Profile",
