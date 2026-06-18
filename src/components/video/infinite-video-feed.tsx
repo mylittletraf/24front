@@ -2,16 +2,21 @@
 
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { useEffect } from "react";
+import { Fragment, useEffect } from "react";
+import { AdSlotRender } from "@/components/ads/ad-slot-render";
 import type { QueryValue } from "@/lib/api/fetcher";
 import { getVideoList, getVideoPageByUrl } from "@/lib/api/videos";
 import type { CursorPage, VideoCard as VideoCardData } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/common/empty-state";
 import { VideoCardSkeleton } from "@/components/ui/skeleton";
+import { useAdSlot } from "@/lib/hooks/use-ad-slot";
 import { useInView } from "@/lib/hooks/use-in-view";
+import { useMediaQuery, useMounted } from "@/lib/hooks/use-media-query";
 import { VideoCard } from "./video-card";
 import { VideoGrid } from "./video-grid";
+
+const NATIVE_EVERY = 15;
 
 export function InfiniteVideoFeed({
   queryKey,
@@ -47,6 +52,11 @@ export function InfiniteVideoFeed({
 
   const videos = data.pages.flatMap((p) => p.results);
 
+  // Native ad block every 15 cards — mobile only.
+  const nativeSlot = useAdSlot("native_in_video_feed");
+  const isMobile = useMediaQuery("(max-width: 1023px)");
+  const showNative = useMounted() && isMobile && !!nativeSlot;
+
   if (videos.length === 0) {
     return <EmptyState title={emptyTitle ?? t("empty.title")} />;
   }
@@ -55,7 +65,12 @@ export function InfiniteVideoFeed({
     <>
       <VideoGrid>
         {videos.map((video, i) => (
-          <VideoCard key={video.uuid} video={video} priority={i < priorityCount} />
+          <Fragment key={video.uuid}>
+            <VideoCard video={video} priority={i < priorityCount} />
+            {showNative && (i + 1) % NATIVE_EVERY === 0 ? (
+              <AdSlotRender slot={nativeSlot!} className="col-span-full" />
+            ) : null}
+          </Fragment>
         ))}
         {isFetchingNextPage
           ? Array.from({ length: 4 }).map((_, i) => <VideoCardSkeleton key={`s-${i}`} />)

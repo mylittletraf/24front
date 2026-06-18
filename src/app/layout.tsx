@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
+import { AdLayer } from "@/components/ads/ad-layer";
 import { Analytics } from "@/components/analytics";
 import { Footer } from "@/components/layout/footer";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -33,6 +34,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             <SiteHeader />
             <div className="flex flex-1 flex-col">{children}</div>
             <Footer />
+            <AdLayer />
           </Providers>
         </NextIntlClientProvider>
         <Analytics />
