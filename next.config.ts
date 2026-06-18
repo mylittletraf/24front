@@ -5,9 +5,12 @@ const withNextIntl = createNextIntlPlugin("./src/lib/i18n/request.ts");
 
 const nextConfig: NextConfig = {
   images: {
+    // The dev backend serves images from localhost (a private IP); Next 16's SSRF
+    // guard blocks optimizing those, so allow local IPs in development only.
+    dangerouslyAllowLocalIP: process.env.NODE_ENV === "development",
     remotePatterns: [
-      { protocol: "http", hostname: "localhost" },
-      { protocol: "http", hostname: "127.0.0.1" },
+      { protocol: "http", hostname: "localhost", port: "8000" },
+      { protocol: "http", hostname: "127.0.0.1", port: "8000" },
       { protocol: "https", hostname: "**" },
     ],
   },
