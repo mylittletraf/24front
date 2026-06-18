@@ -58,7 +58,8 @@ export function VideoPlayer({
         controls: true,
         preload: "auto",
         responsive: true,
-        fluid: false,
+        fluid: true,
+        aspectRatio: "16:9",
         poster: poster ?? undefined,
         playbackRates: [0.5, 1, 1.5, 2],
         sources: [{ src: hls, type: "application/x-mpegURL" }],
@@ -108,8 +109,8 @@ export function VideoPlayer({
   }
 
   return (
-    <div data-vjs-player className="overflow-hidden rounded-xl bg-black">
-      <div ref={containerRef} className="aspect-video w-full" />
+    <div data-vjs-player className="w-full overflow-hidden rounded-xl bg-black">
+      <div ref={containerRef} className="w-full" />
     </div>
   );
 }

@@ -30,6 +30,33 @@ export type PageNumberPage<T> = {
   results: T[];
 };
 
+export interface ListResult<T> {
+  count?: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
+
+/**
+ * Parse a paginated (or bare-array) list leniently: invalid items are dropped
+ * instead of failing the whole response (defensive against bad backend rows).
+ */
+export function parseList<S extends z.ZodTypeAny>(item: S, data: unknown): ListResult<z.infer<S>> {
+  const obj = (data && typeof data === "object" ? data : {}) as Record<string, unknown>;
+  const raw = Array.isArray(data) ? data : Array.isArray(obj.results) ? obj.results : [];
+  const results: z.infer<S>[] = [];
+  for (const row of raw) {
+    const parsed = item.safeParse(row);
+    if (parsed.success) results.push(parsed.data);
+  }
+  return {
+    count: typeof obj.count === "number" ? obj.count : undefined,
+    next: typeof obj.next === "string" ? obj.next : null,
+    previous: typeof obj.previous === "string" ? obj.previous : null,
+    results,
+  };
+}
+
 /** Video card — element of feeds and catalog (FRONTEND_SPEC §2.1). */
 export const VideoCardSchema = z.object({
   uuid: z.string(),

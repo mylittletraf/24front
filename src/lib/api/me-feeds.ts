@@ -1,12 +1,16 @@
 import { z } from "zod";
-import { apiFetch } from "./fetcher";
+import { apiFetch, toProxyUrl } from "./fetcher";
 import { ApiError } from "./errors";
-import { pageNumberPage, VideoCardSchema, type PageNumberPage, type VideoCard } from "./types";
+import { parseList, VideoCardSchema, type PageNumberPage, type VideoCard } from "./types";
 
-const VideoFeedPageSchema = pageNumberPage(VideoCardSchema);
-
-function emptyPage<T>(): PageNumberPage<T> {
-  return { count: 0, next: null, previous: null, results: [] };
+function toVideoPage(data: unknown): PageNumberPage<VideoCard> {
+  const r = parseList(VideoCardSchema, data);
+  return {
+    count: r.count ?? r.results.length,
+    next: r.next,
+    previous: r.previous,
+    results: r.results,
+  };
 }
 
 /** A page-number /me/* video feed (favorites, liked, history, continue-watching). */
@@ -15,17 +19,7 @@ export async function getMeVideoFeed(
   token: string,
 ): Promise<PageNumberPage<VideoCard>> {
   const data = await apiFetch<unknown>(path, { token, cache: "no-store" });
-  const parsed = VideoFeedPageSchema.safeParse(data);
-  return parsed.success ? parsed.data : emptyPage();
-}
-
-/** Rewrite an absolute backend URL to the same-origin proxy (for authed pagination). */
-function toProxyUrl(absolute: string): string {
-  const marker = "/api/v1/";
-  const idx = absolute.indexOf(marker);
-  const rest = idx >= 0 ? absolute.slice(idx + marker.length) : absolute;
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
-  return `${origin}/api/proxy/${rest}`;
+  return toVideoPage(data);
 }
 
 export async function getMeVideoPageByUrl(
@@ -36,8 +30,7 @@ export async function getMeVideoPageByUrl(
     headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
   });
   if (!res.ok) throw new ApiError(res.status, res.statusText);
-  const parsed = VideoFeedPageSchema.safeParse(await res.json());
-  return parsed.success ? parsed.data : emptyPage();
+  return toVideoPage(await res.json());
 }
 
 export async function clearHistory(token: string): Promise<void> {
@@ -60,6 +53,11 @@ export type Report = z.infer<typeof ReportSchema>;
 
 export async function getMeReports(token: string): Promise<PageNumberPage<Report>> {
   const data = await apiFetch<unknown>("/me/reports/", { token, cache: "no-store" });
-  const parsed = pageNumberPage(ReportSchema).safeParse(data);
-  return parsed.success ? parsed.data : emptyPage();
+  const r = parseList(ReportSchema, data);
+  return {
+    count: r.count ?? r.results.length,
+    next: r.next,
+    previous: r.previous,
+    results: r.results,
+  };
 }

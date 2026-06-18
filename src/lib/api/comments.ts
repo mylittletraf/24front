@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { apiFetch } from "./fetcher";
-import { cursorPage, type CursorPage } from "./types";
+import { apiFetch, toProxyUrl } from "./fetcher";
+import { parseList, type CursorPage } from "./types";
 import { ApiError } from "./errors";
 
 export type CommentSort = "top" | "new" | "old";
@@ -15,8 +15,6 @@ export const CommentSchema = z.object({
 });
 export type Comment = z.infer<typeof CommentSchema>;
 
-const CommentPageSchema = cursorPage(CommentSchema);
-
 export async function getComments(
   videoUuid: string,
   sort: CommentSort = "top",
@@ -25,15 +23,15 @@ export async function getComments(
     params: { sort },
     cache: "no-store",
   });
-  const parsed = CommentPageSchema.safeParse(data);
-  return parsed.success ? parsed.data : { next: null, previous: null, results: [] };
+  const { next, previous, results } = parseList(CommentSchema, data);
+  return { next, previous, results };
 }
 
 export async function getCommentsPageByUrl(url: string): Promise<CursorPage<Comment>> {
-  const res = await fetch(url, { headers: { Accept: "application/json" } });
+  const res = await fetch(toProxyUrl(url), { headers: { Accept: "application/json" } });
   if (!res.ok) throw new ApiError(res.status, res.statusText);
-  const parsed = CommentPageSchema.safeParse(await res.json());
-  return parsed.success ? parsed.data : { next: null, previous: null, results: [] };
+  const { next, previous, results } = parseList(CommentSchema, await res.json());
+  return { next, previous, results };
 }
 
 export async function postComment(

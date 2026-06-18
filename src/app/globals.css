@@ -81,6 +81,15 @@ body {
   animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
 
+/* Video.js: fill the container width (fluid) and never crop the frame */
+.video-js {
+  width: 100% !important;
+  height: 100% !important;
+}
+.video-js .vjs-tech {
+  object-fit: contain;
+}
+
 /* Hide scrollbars for horizontal chip rails while keeping scroll */
 .no-scrollbar {
   -ms-overflow-style: none;

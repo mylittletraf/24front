@@ -1,9 +1,7 @@
 import type { Locale } from "@/lib/i18n/locales";
-import { apiFetch, type QueryValue } from "./fetcher";
+import { apiFetch, toProxyUrl, type QueryValue } from "./fetcher";
 import { ApiError } from "./errors";
-import { ActorSchema, pageNumberPage, type Actor, type PageNumberPage } from "./types";
-
-const ActorPageSchema = pageNumberPage(ActorSchema);
+import { ActorSchema, parseList, type Actor, type PageNumberPage } from "./types";
 
 export type ActorSort = "popular" | "name" | "videos_count" | "newest";
 
@@ -27,8 +25,13 @@ export interface ActorListParams {
 }
 
 function parseActorPage(data: unknown): PageNumberPage<Actor> {
-  const parsed = ActorPageSchema.safeParse(data);
-  return parsed.success ? parsed.data : { count: 0, next: null, previous: null, results: [] };
+  const r = parseList(ActorSchema, data);
+  return {
+    count: r.count ?? r.results.length,
+    next: r.next,
+    previous: r.previous,
+    results: r.results,
+  };
 }
 
 export async function getActors(
@@ -43,7 +46,7 @@ export async function getActors(
 }
 
 export async function getActorsPageByUrl(url: string): Promise<PageNumberPage<Actor>> {
-  const res = await fetch(url, { headers: { Accept: "application/json" } });
+  const res = await fetch(toProxyUrl(url), { headers: { Accept: "application/json" } });
   if (!res.ok) throw new ApiError(res.status, res.statusText);
   return parseActorPage(await res.json());
 }

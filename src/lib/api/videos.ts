@@ -1,7 +1,7 @@
 import type { Locale } from "@/lib/i18n/locales";
-import { apiFetch, type QueryValue } from "./fetcher";
+import { apiFetch, toProxyUrl, type QueryValue } from "./fetcher";
 import { ApiError } from "./errors";
-import { VideoCardPageSchema, type CursorPage, type VideoCard } from "./types";
+import { parseList, VideoCardSchema, type CursorPage, type VideoCard } from "./types";
 
 export type VideoSort =
   | "newest"
@@ -16,9 +16,8 @@ export type VideoSort =
 export type VideoFeed = "trending" | "popular" | "new" | "recommended";
 
 function parsePage(data: unknown): CursorPage<VideoCard> {
-  const parsed = VideoCardPageSchema.safeParse(data);
-  if (parsed.success) return parsed.data;
-  return { next: null, previous: null, results: [] };
+  const { next, previous, results } = parseList(VideoCardSchema, data);
+  return { next, previous, results };
 }
 
 /** Cursor video listing from any endpoint (e.g. /videos/, /tags/{slug}/videos/). */
@@ -59,7 +58,7 @@ export async function getVideoFeed(
 
 /** Fetch a cursor page by its absolute `next`/`previous` URL (client-side load-more). */
 export async function getVideoPageByUrl(url: string): Promise<CursorPage<VideoCard>> {
-  const res = await fetch(url, { headers: { Accept: "application/json" } });
+  const res = await fetch(toProxyUrl(url), { headers: { Accept: "application/json" } });
   if (!res.ok) throw new ApiError(res.status, res.statusText);
   return parsePage(await res.json());
 }

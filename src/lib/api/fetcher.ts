@@ -1,4 +1,4 @@
-import { CLIENT_API_BASE, SERVER_API_BASE } from "./config";
+import { SERVER_API_BASE } from "./config";
 import { ApiError, extractApiMessage } from "./errors";
 
 export type QueryValue = string | number | boolean | undefined | null;
@@ -42,22 +42,26 @@ function safeJson(text: string): unknown {
   }
 }
 
+/** Rewrite an absolute backend URL (cursor/page `next`) to the same-origin proxy. */
+export function toProxyUrl(absolute: string): string {
+  const marker = "/api/v1/";
+  const idx = absolute.indexOf(marker);
+  const rest =
+    idx >= 0 ? absolute.slice(idx + marker.length) : absolute.replace(/^https?:\/\/[^/]+\//, "");
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  return `${origin}/api/proxy/${rest}`;
+}
+
 /**
  * Isomorphic API fetch. Returns parsed JSON, throws {@link ApiError} on non-2xx.
  * 204/205 resolve to `undefined`.
  */
 export async function apiFetch<T>(path: string, opts: ApiRequestOptions = {}): Promise<T> {
-  let base = opts.base;
-  if (!base) {
-    if (typeof window === "undefined") {
-      base = SERVER_API_BASE;
-    } else if (opts.token) {
-      // Authenticated calls go through the same-origin BFF proxy to avoid CORS.
-      base = `${window.location.origin}/api/proxy`;
-    } else {
-      base = CLIENT_API_BASE;
-    }
-  }
+  // Server: hit the backend directly. Browser: always go through the same-origin
+  // BFF proxy to avoid CORS (the backend doesn't reliably allow cross-origin reads).
+  const base =
+    opts.base ??
+    (typeof window === "undefined" ? SERVER_API_BASE : `${window.location.origin}/api/proxy`);
   const url = buildUrl(path, opts.params, base);
 
   const headers: Record<string, string> = { Accept: "application/json", ...opts.headers };
