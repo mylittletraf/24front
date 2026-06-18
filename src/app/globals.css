@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+/* next-themes toggles the `.dark` class on <html>; make Tailwind's dark: variant
+   follow that class instead of the OS preference. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---- Design tokens (UI_SPEC §1.1) ---- */
+:root {
+  --bg-primary: #ffffff;
+  --bg-surface: #f2f2f2;
+  --bg-surface-2: #e5e5e5;
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+  --text-primary: #0f0f0f;
+  --text-secondary: #606060;
+  --text-link: #065fd4;
+  --accent: #ff0000;
+  --accent-hover: #cc0000;
+  --border: #e5e5e5;
+  --skeleton: #e0e0e0;
+}
+
+.dark {
+  --bg-primary: #0f0f0f;
+  --bg-surface: #212121;
+  --bg-surface-2: #2d2d2d;
+  --bg-overlay: rgba(0, 0, 0, 0.7);
+  --text-primary: #f1f1f1;
+  --text-secondary: #aaaaaa;
+  --text-link: #3ea6ff;
+  --accent: #ff0000;
+  --accent-hover: #cc0000;
+  --border: #3d3d3d;
+  --skeleton: #2a2a2a;
+}
+
+/* ---- Map tokens to Tailwind theme so `bg-surface`, `text-muted`, … work ---- */
+@theme inline {
+  --color-background: var(--bg-primary);
+  --color-surface: var(--bg-surface);
+  --color-surface-2: var(--bg-surface-2);
+  --color-overlay: var(--bg-overlay);
+  --color-foreground: var(--text-primary);
+  --color-muted: var(--text-secondary);
+  --color-link: var(--text-link);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-border: var(--border);
+  --color-skeleton: var(--skeleton);
+
+  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --breakpoint-tablet: 40rem; /* 640px */
+  --breakpoint-desktop: 64rem; /* 1024px */
+  --breakpoint-wide: 90rem; /* 1440px */
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- Skeleton pulse (UI_SPEC §1.4) ---- */
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.skeleton {
+  background: var(--skeleton);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+/* Hide scrollbars for horizontal chip rails while keeping scroll */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

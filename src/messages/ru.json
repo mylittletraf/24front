@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "videos": "Видео",
+    "actors": "Актёры",
+    "collections": "Подборки",
+    "categories": "Категории",
+    "allCategories": "Все категории",
+    "home": "Главная",
+    "contacts": "Контакты"
+  },
+  "search": {
+    "placeholder": "Поиск",
+    "clear": "Очистить",
+    "nothingFound": "Ничего не найдено",
+    "resultsFor": "Результаты по запросу «{query}»",
+    "noResultsFor": "По запросу «{query}» ничего не найдено",
+    "tabs": {
+      "all": "Все",
+      "videos": "Видео",
+      "tags": "Теги",
+      "categories": "Категории",
+      "actors": "Актёры"
+    }
+  },
+  "auth": {
+    "login": "Войти",
+    "register": "Зарегистрироваться",
+    "logout": "Выйти",
+    "username": "Имя пользователя",
+    "password": "Пароль",
+    "email": "Email",
+    "displayName": "Отображаемое имя",
+    "noAccount": "Нет аккаунта? Зарегистрироваться",
+    "haveAccount": "Уже есть аккаунт? Войти"
+  },
+  "profile": {
+    "title": "Профиль",
+    "favorites": "Избранное",
+    "liked": "Понравилось",
+    "history": "История",
+    "continueWatching": "Продолжить просмотр",
+    "reports": "Мои жалобы",
+    "settings": "Профиль",
+    "deleteAccount": "Удалить аккаунт"
+  },
+  "video": {
+    "like": "Нравится",
+    "dislike": "Не нравится",
+    "save": "Сохранить",
+    "report": "Пожаловаться",
+    "more": "Ещё",
+    "less": "Скрыть",
+    "comments": "Комментарии",
+    "related": "Похожие видео",
+    "popular": "Популярное",
+    "unavailable": "Видео недоступно",
+    "sentForModeration": "Комментарий отправлен на модерацию"
+  },
+  "common": {
+    "loadMore": "Загрузить ещё",
+    "reset": "Сбросить",
+    "filters": "Фильтры",
+    "copy": "Копировать",
+    "copied": "Скопировано",
+    "retry": "Попробуйте позже",
+    "networkError": "Ошибка сети. Проверьте соединение",
+    "noAccess": "Нет доступа",
+    "showCategories": "Категории",
+    "hideCategories": "Скрыть"
+  },
+  "refine": {
+    "title": "Уточнить выборку"
+  },
+  "empty": {
+    "title": "Ничего не найдено"
+  }
+}

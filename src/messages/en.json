@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "videos": "Videos",
+    "actors": "Actors",
+    "collections": "Collections",
+    "categories": "Categories",
+    "allCategories": "All categories",
+    "home": "Home",
+    "contacts": "Contacts"
+  },
+  "search": {
+    "placeholder": "Search",
+    "clear": "Clear",
+    "nothingFound": "Nothing found",
+    "resultsFor": "Results for “{query}”",
+    "noResultsFor": "Nothing found for “{query}”",
+    "tabs": {
+      "all": "All",
+      "videos": "Videos",
+      "tags": "Tags",
+      "categories": "Categories",
+      "actors": "Actors"
+    }
+  },
+  "auth": {
+    "login": "Log in",
+    "register": "Sign up",
+    "logout": "Log out",
+    "username": "Username",
+    "password": "Password",
+    "email": "Email",
+    "displayName": "Display name",
+    "noAccount": "No account? Sign up",
+    "haveAccount": "Already have an account? Log in"
+  },
+  "profile": {
+    "title": "Profile",
+    "favorites": "Favorites",
+    "liked": "Liked",
+    "history": "History",
+    "continueWatching": "Continue watching",
+    "reports": "My reports",
+    "settings": "Profile",
+    "deleteAccount": "Delete account"
+  },
+  "video": {
+    "like": "Like",
+    "dislike": "Dislike",
+    "save": "Save",
+    "report": "Report",
+    "more": "More",
+    "less": "Less",
+    "comments": "Comments",
+    "related": "Related videos",
+    "popular": "Popular",
+    "unavailable": "Video unavailable",
+    "sentForModeration": "Comment sent for moderation"
+  },
+  "common": {
+    "loadMore": "Load more",
+    "reset": "Reset",
+    "filters": "Filters",
+    "copy": "Copy",
+    "copied": "Copied",
+    "retry": "Try again later",
+    "networkError": "Network error. Check your connection",
+    "noAccess": "No access",
+    "showCategories": "Categories",
+    "hideCategories": "Hide"
+  },
+  "refine": {
+    "title": "Refine"
+  },
+  "empty": {
+    "title": "Nothing found"
+  }
+}
