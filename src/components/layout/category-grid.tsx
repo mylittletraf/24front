@@ -25,7 +25,7 @@ export function CategoryGrid({ categories }: { categories: Tag[] }) {
             type="button"
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
-            className="flex items-center gap-2 rounded-full border border-border px-4 py-1.5 text-sm font-medium transition-colors hover:bg-surface"
+            className="border-border hover:bg-surface flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors"
           >
             <LayoutGrid size={16} className="text-accent" />
             {t("nav.categories")}
