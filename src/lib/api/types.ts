@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { toMediaUrl } from "@/lib/media";
+import { toProxyPath } from "./fetcher";
 
 // Image/video URL fields: masked to the same-origin /media prefix (hides the storage host).
 export const NullableMedia = z.string().nullable().transform(toMediaUrl);
@@ -9,11 +10,17 @@ export const MediaArray = z
   .default([])
   .transform((arr) => arr.map((u) => toMediaUrl(u)));
 
+// Pagination next/previous: masked to the same-origin proxy path (hides the API host).
+const ProxyLink = z
+  .string()
+  .nullable()
+  .transform((v) => (v ? toProxyPath(v) : v));
+
 /** Cursor pagination envelope (video feeds, comments). */
 export const cursorPage = <T extends z.ZodTypeAny>(item: T) =>
   z.object({
-    next: z.string().nullable(),
-    previous: z.string().nullable(),
+    next: ProxyLink,
+    previous: ProxyLink,
     results: z.array(item),
   });
 
@@ -21,8 +28,8 @@ export const cursorPage = <T extends z.ZodTypeAny>(item: T) =>
 export const pageNumberPage = <T extends z.ZodTypeAny>(item: T) =>
   z.object({
     count: z.number(),
-    next: z.string().nullable(),
-    previous: z.string().nullable(),
+    next: ProxyLink,
+    previous: ProxyLink,
     results: z.array(item),
   });
 
@@ -60,8 +67,8 @@ export function parseList<S extends z.ZodTypeAny>(item: S, data: unknown): ListR
   }
   return {
     count: typeof obj.count === "number" ? obj.count : undefined,
-    next: typeof obj.next === "string" ? obj.next : null,
-    previous: typeof obj.previous === "string" ? obj.previous : null,
+    next: typeof obj.next === "string" ? toProxyPath(obj.next) : null,
+    previous: typeof obj.previous === "string" ? toProxyPath(obj.previous) : null,
     results,
   };
 }

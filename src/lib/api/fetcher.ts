@@ -42,14 +42,23 @@ function safeJson(text: string): unknown {
   }
 }
 
-/** Rewrite an absolute backend URL (cursor/page `next`) to the same-origin proxy. */
-export function toProxyUrl(absolute: string): string {
+/**
+ * Same-origin proxy *path* (relative) for a backend list URL. Used to mask the API host in
+ * SSR payloads (cursor/page `next`/`previous`). Idempotent: already-proxied paths pass through.
+ */
+export function toProxyPath(url: string): string {
+  const proxyIdx = url.indexOf("/api/proxy/");
+  if (proxyIdx >= 0) return url.slice(proxyIdx);
   const marker = "/api/v1/";
-  const idx = absolute.indexOf(marker);
-  const rest =
-    idx >= 0 ? absolute.slice(idx + marker.length) : absolute.replace(/^https?:\/\/[^/]+\//, "");
+  const idx = url.indexOf(marker);
+  const rest = idx >= 0 ? url.slice(idx + marker.length) : url.replace(/^https?:\/\/[^/]+\//, "");
+  return `/api/proxy/${rest}`;
+}
+
+/** Absolute same-origin proxy URL for a backend list URL (adds the browser origin). Idempotent. */
+export function toProxyUrl(absolute: string): string {
   const origin = typeof window !== "undefined" ? window.location.origin : "";
-  return `${origin}/api/proxy/${rest}`;
+  return `${origin}${toProxyPath(absolute)}`;
 }
 
 /**
