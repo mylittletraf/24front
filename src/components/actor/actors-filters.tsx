@@ -173,22 +173,48 @@ function FieldRange({
   );
 }
 
-/** Sort control — rendered separately (right side on desktop). */
-function SortControl({ current }: { current: Current }) {
+/** Sort control — rendered separately (right side on desktop, beside Filters on mobile). */
+function SortControl({ current, compact = false }: { current: Current; compact?: boolean }) {
   const t = useTranslations("actorsFilters");
   const tSort = useTranslations("sort");
   const { update } = useActorsNav(current);
+  const value = current.sort ?? "popular";
+  const options = [
+    { slug: "popular", name: t("sortPopular") },
+    { slug: "name", name: t("sortName") },
+    { slug: "newest", name: t("sortNewest") },
+  ];
+
+  if (compact) {
+    return (
+      <div className="relative shrink-0">
+        <select
+          aria-label={tSort("label")}
+          value={value}
+          onChange={(e) => update({ sort: (e.target.value as ActorSort) || undefined })}
+          className="border-border bg-surface focus:border-muted h-9 appearance-none rounded-full border pr-8 pl-3 text-sm outline-none"
+        >
+          {options.map((o) => (
+            <option key={o.slug} value={o.slug}>
+              {o.name}
+            </option>
+          ))}
+        </select>
+        <ChevronDown
+          size={15}
+          className="text-muted pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2"
+        />
+      </div>
+    );
+  }
+
   return (
     <FieldSelect
       label={tSort("label")}
       placeholder={t("sortPopular")}
-      value={current.sort ?? "popular"}
+      value={value}
       allowEmpty={false}
-      options={[
-        { slug: "popular", name: t("sortPopular") },
-        { slug: "name", name: t("sortName") },
-        { slug: "newest", name: t("sortNewest") },
-      ]}
+      options={options}
       onChange={(v) => update({ sort: (v as ActorSort) || undefined })}
     />
   );
@@ -378,12 +404,13 @@ export function ActorsFiltersBar(props: { attributes: ActorAttributes; current: 
   );
 }
 
-/** Narrow-screen "Filters" button + modal (sort included inside). Place next to the heading. */
+/** Narrow-screen sort + "Filters" button (modal holds the attribute filters). Place next to the heading. */
 export function ActorsFiltersTrigger(props: { attributes: ActorAttributes; current: Current }) {
   const tCommon = useTranslations("common");
   const [open, setOpen] = useState(false);
   return (
-    <div className="desktop:hidden">
+    <div className="desktop:hidden flex items-center gap-2">
+      <SortControl current={props.current} compact />
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button variant="secondary" size="md">
@@ -394,7 +421,6 @@ export function ActorsFiltersTrigger(props: { attributes: ActorAttributes; curre
         <DialogContent side="bottom" className="gap-4 pt-10">
           <DialogTitle className="text-lg font-semibold">{tCommon("filters")}</DialogTitle>
           <FilterControls {...props} layout="wrap" />
-          <SortControl current={props.current} />
         </DialogContent>
       </Dialog>
     </div>

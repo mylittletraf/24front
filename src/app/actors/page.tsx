@@ -81,7 +81,7 @@ export default async function ActorsPage({ searchParams }: { searchParams: Promi
 
   return (
     <Container className="desktop:py-6 flex flex-col gap-4 py-4">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-bold">
           {t("title")} <span className="text-muted text-base font-normal">{initialPage.count}</span>
         </h1>
