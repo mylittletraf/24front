@@ -29,6 +29,9 @@ export function MeVideoFeed({ path, emptyTitle }: { path: string; emptyTitle: st
       },
       initialPageParam: null as string | null,
       getNextPageParam: (last) => last.next,
+      // Private feed — always refetch on mount so it reflects recent favorites/likes/history.
+      staleTime: 0,
+      refetchOnMount: "always",
     });
 
   const { ref, inView } = useInView<HTMLDivElement>({ rootMargin: "1000px" });

@@ -4,9 +4,11 @@ import { apiFetch, apiFetchStatus } from "./fetcher";
 export type Reaction = "like" | "dislike";
 export type AdPlacement = "pre_roll" | "mid_roll" | "post_roll";
 
-/** Count a view (deduped server-side). Anonymous-friendly. */
-export async function postView(videoUuid: string): Promise<void> {
-  await apiFetch(`/videos/${videoUuid}/view/`, { method: "POST" }).catch(() => undefined);
+/** Count a view (deduped server-side). Anonymous-friendly; pass token to attribute to the user (history). */
+export async function postView(videoUuid: string, token?: string | null): Promise<void> {
+  await apiFetch(`/videos/${videoUuid}/view/`, { method: "POST", token: token ?? undefined }).catch(
+    () => undefined,
+  );
 }
 
 /** Anonymous like (deduped 7d by IP server-side). */

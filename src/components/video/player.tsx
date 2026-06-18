@@ -73,7 +73,7 @@ export function VideoPlayer({
       player.one("play", () => {
         if (!viewedRef.current) {
           viewedRef.current = true;
-          void postView(uuid);
+          void postView(uuid, getToken());
         }
       });
 

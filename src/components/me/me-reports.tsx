@@ -19,6 +19,8 @@ export function MeReports() {
       if (!token) return { count: 0, next: null, previous: null, results: [] };
       return getMeReports(token);
     },
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 
   if (isLoading) return null;
