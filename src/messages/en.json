@@ -71,6 +71,27 @@
   "refine": {
     "title": "Refine"
   },
+  "sort": {
+    "label": "Sort",
+    "newest": "Newest",
+    "oldest": "Oldest",
+    "popular": "Popular",
+    "trending": "Trending",
+    "most_liked": "Most liked",
+    "most_viewed": "Most viewed",
+    "duration_short": "Shortest",
+    "duration_long": "Longest"
+  },
+  "catalog": {
+    "title": "Videos",
+    "filters": "Filters",
+    "durationFrom": "Duration from (s)",
+    "durationTo": "to (s)",
+    "dateFrom": "Date from",
+    "dateTo": "to",
+    "apply": "Apply",
+    "empty": "No videos found"
+  },
   "empty": {
     "title": "Nothing found"
   }

@@ -71,6 +71,27 @@
   "refine": {
     "title": "Уточнить выборку"
   },
+  "sort": {
+    "label": "Сортировка",
+    "newest": "Новые",
+    "oldest": "Старые",
+    "popular": "Популярные",
+    "trending": "В тренде",
+    "most_liked": "Больше лайков",
+    "most_viewed": "Больше просмотров",
+    "duration_short": "Короткие",
+    "duration_long": "Длинные"
+  },
+  "catalog": {
+    "title": "Видео",
+    "filters": "Фильтры",
+    "durationFrom": "Длительность от (сек)",
+    "durationTo": "до (сек)",
+    "dateFrom": "Дата от",
+    "dateTo": "до",
+    "apply": "Применить",
+    "empty": "Видео не найдены"
+  },
   "empty": {
     "title": "Ничего не найдено"
   }
