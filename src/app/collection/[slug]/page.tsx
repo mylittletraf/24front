@@ -4,7 +4,6 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { notFound, redirect } from "next/navigation";
 import { Container } from "@/components/layout/container";
 import { JsonLd } from "@/components/seo/json-ld";
-import { LanguageSwitcher } from "@/components/seo/language-switcher";
 import { InfiniteVideoFeed } from "@/components/video/infinite-video-feed";
 import { getCollection } from "@/lib/api/collections";
 import { ApiError } from "@/lib/api/errors";
@@ -64,15 +63,6 @@ export default async function CollectionPage({
   return (
     <Container className="desktop:py-6 flex flex-col gap-6 py-4">
       <JsonLd data={seo?.json_ld} />
-      {seo ? (
-        <div className="flex justify-end">
-          <LanguageSwitcher
-            alternates={seo.alternates}
-            current={collection.language ?? lang}
-            fallbackLanguage={collection.fallback_language}
-          />
-        </div>
-      ) : null}
       <section className="desktop:min-h-[400px] relative min-h-[250px] overflow-hidden rounded-2xl">
         {collection.cover_image ? (
           <Image

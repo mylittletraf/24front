@@ -13,9 +13,12 @@ export function resolveLocale(value: unknown): Locale {
   return isLocale(value) ? value : DEFAULT_LOCALE;
 }
 
-/** Persist the chosen UI locale (client-only). */
-export function setLocaleCookie(locale: string): void {
-  if (typeof document !== "undefined") {
-    document.cookie = `${LOCALE_COOKIE}=${locale}; path=/; max-age=31536000`;
+/** Pick the first supported locale from an Accept-Language header. */
+export function localeFromAcceptLanguage(header: string | null | undefined): Locale | null {
+  if (!header) return null;
+  for (const part of header.split(",")) {
+    const code = part.split(";")[0].trim().slice(0, 2).toLowerCase();
+    if (isLocale(code)) return code;
   }
+  return null;
 }

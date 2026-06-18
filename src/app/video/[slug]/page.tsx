@@ -6,7 +6,6 @@ import { notFound, redirect } from "next/navigation";
 import { Fragment } from "react";
 import { Container } from "@/components/layout/container";
 import { JsonLd } from "@/components/seo/json-ld";
-import { LanguageSwitcher } from "@/components/seo/language-switcher";
 import { Chip } from "@/components/ui/chip";
 import { CommentsSection } from "@/components/video/comments";
 import { Description } from "@/components/video/description";
@@ -73,16 +72,7 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
         <div className="flex min-w-0 flex-1 flex-col gap-4">
           <VideoPlayer uuid={detail.uuid} hls={detail.sources.hls} poster={detail.poster} />
 
-          <div className="flex flex-wrap items-start justify-between gap-2">
-            <h1 className="text-xl font-bold">{detail.seo_h1 || detail.title}</h1>
-            {seo ? (
-              <LanguageSwitcher
-                alternates={seo.alternates}
-                current={detail.language}
-                fallbackLanguage={detail.fallback_language}
-              />
-            ) : null}
-          </div>
+          <h1 className="text-xl font-bold">{detail.seo_h1 || detail.title}</h1>
 
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span className="text-muted flex items-center gap-1.5 text-sm">

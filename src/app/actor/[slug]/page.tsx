@@ -4,7 +4,6 @@ import { notFound, redirect } from "next/navigation";
 import { ActorHero } from "@/components/actor/actor-hero";
 import { Container } from "@/components/layout/container";
 import { JsonLd } from "@/components/seo/json-ld";
-import { LanguageSwitcher } from "@/components/seo/language-switcher";
 import { InfiniteVideoFeed } from "@/components/video/infinite-video-feed";
 import { getActor } from "@/lib/api/actors";
 import { ApiError } from "@/lib/api/errors";
@@ -65,15 +64,6 @@ export default async function ActorPage({
   return (
     <Container className="desktop:py-6 flex flex-col gap-6 py-4">
       <JsonLd data={seo?.json_ld} />
-      {seo ? (
-        <div className="flex justify-end">
-          <LanguageSwitcher
-            alternates={seo.alternates}
-            current={actor.language ?? lang}
-            fallbackLanguage={actor.fallback_language}
-          />
-        </div>
-      ) : null}
       <ActorHero actor={actor} />
       <section className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold">

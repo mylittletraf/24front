@@ -6,7 +6,6 @@ import { ActiveFilters, RefineBlock } from "@/components/catalog/refine-block";
 import { FiltersDialog } from "@/components/catalog/filters-dialog";
 import { SortSelect } from "@/components/catalog/sort-select";
 import { JsonLd } from "@/components/seo/json-ld";
-import { LanguageSwitcher } from "@/components/seo/language-switcher";
 import { Description } from "@/components/video/description";
 import { InfiniteVideoFeed } from "@/components/video/infinite-video-feed";
 import { ApiError } from "@/lib/api/errors";
@@ -100,13 +99,6 @@ export async function EntityVideoPage({
             {detail.videos_count.toLocaleString()} {t("title").toLowerCase()}
           </p>
         </div>
-        {seo ? (
-          <LanguageSwitcher
-            alternates={seo.alternates}
-            current={detail.language ?? lang}
-            fallbackLanguage={detail.fallback_language}
-          />
-        ) : null}
       </header>
 
       {detail.description ? <Description text={detail.description} /> : null}
