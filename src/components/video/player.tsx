@@ -10,6 +10,7 @@ import { frequencyOk } from "@/lib/ads";
 import { useAdSlot } from "@/lib/hooks/use-ad-slot";
 
 const PROGRESS_INTERVAL_MS = 15000;
+const CLICKUNDER_ON_NTH_PLAY = 3; // open the clickunder on the Nth play, not the first
 
 // --- VAST via Google IMA (videojs-contrib-ads + videojs-ima) -----------------------------
 interface ImaApi {
@@ -82,9 +83,10 @@ export function VideoPlayer({
   const { getToken } = useAuth();
   const viewedRef = useRef(false);
 
-  // Clickunder (popunder) — direct link in the slot's `script`, opened on first Play.
+  // Clickunder (popunder) — direct link in the slot's `script`, opened on the Nth Play.
   const clickunder = useAdSlot("clickander_play");
   const clickunderRef = useRef<string | null>(null);
+  const playCountRef = useRef(0);
   useEffect(() => {
     clickunderRef.current = clickunder?.script || null;
   }, [clickunder]);
@@ -137,22 +139,26 @@ export function VideoPlayer({
           viewedRef.current = true;
           void postView(uuid, getToken());
         }
-        // Clickunder: open the direct link once per day on first play (popunder).
-        const link = clickunderRef.current;
-        if (link && frequencyOk("clickander_play", 1)) {
-          const w = window.open(link, "_blank", "noopener");
-          try {
-            w?.blur?.();
-            window.focus();
-          } catch {
-            // ignore
-          }
-        }
       });
 
       player.on("play", () => {
         clearInterval(progressTimer);
         progressTimer = setInterval(sendProgress, PROGRESS_INTERVAL_MS);
+
+        // Clickunder: open the direct link on the Nth play, once per day (popunder).
+        playCountRef.current += 1;
+        if (playCountRef.current === CLICKUNDER_ON_NTH_PLAY) {
+          const link = clickunderRef.current;
+          if (link && frequencyOk("clickander_play", 1)) {
+            const w = window.open(link, "_blank", "noopener");
+            try {
+              w?.blur?.();
+              window.focus();
+            } catch {
+              // ignore
+            }
+          }
+        }
       });
       player.on("pause", () => {
         clearInterval(progressTimer);
