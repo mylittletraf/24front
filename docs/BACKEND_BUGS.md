@@ -197,3 +197,30 @@ Fix (pick one):
 
 Frontend was **not** adapted — the attribute dropdowns stay empty until a source is provided.
 (Gender / country-by-actor-filter still work where applicable.)
+
+---
+
+## 8. `/actors/` ignores most attribute filters (high)
+
+`/actors/attributes/` now provides the values (✅ §7 fixed), but `GET /actors/` only
+actually filters by `gender` and `country`. The other attribute params are accepted and
+silently ignored — the result set is unchanged:
+
+```bash
+# total = 53
+.../actors/?gender=woman          -> 40   ✅ filters
+.../actors/?country=rossiya       -> 3    ✅ filters
+.../actors/?body_type=stroynaya   -> 53   ✗ ignored
+.../actors/?bra_size=75a          -> 53   ✗ ignored
+.../actors/?boobs_type=naturalnaya-> 53   ✗ ignored
+.../actors/?hair_color=blondinka  -> 53   ✗ ignored
+.../actors/?eye_color=karie       -> 53   ✗ ignored
+```
+
+So selecting body type / bra size / breast type / hair color / eye color in the actor
+filter does nothing. Please add filtering for these on `/actors/`, using the same param
+names as the `/actors/attributes/` keys (`body_type`, `bra_size`, `boobs_type`,
+`hair_color`, `eye_color`) and `slug` values.
+
+Frontend was **not** adapted — the filters are wired and will work as soon as `/actors/`
+honors these params.
