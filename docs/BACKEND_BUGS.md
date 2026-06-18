@@ -132,3 +132,38 @@ recomputed when videos are assigned.
 Impact: newly filled categories/tags don't appear in the header strip or `/categories`
 until counts are recalculated. (Their refine block is also empty because a 1-video
 category has no co-occurring tags with `intersection_count ≥ 2` — that part is expected.)
+
+---
+
+## 6. Actor-attribute tags leak into a video's `tags` and 404 when opened (high)
+
+`GET /videos/{slug}/` returns a `tags: [{uuid,name,slug}]` array that mixes content tags
+**and actor-attribute tags** (country, body type, bra size, breast type, hair color, eye
+color). Example: video `33w535w5` has 59 `tags` including `rossiya`, `ssha`, `stroynaya`,
+`75a`, `blondinka`, `golubye`, … . The items carry **no `is_*` flags and no `type`**, so the
+frontend cannot tell content tags from attribute tags.
+
+Those attribute slugs have no tag page — `/tags/{slug}/` returns **404** (and `/categories/{slug}/`
+too):
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" ".../tags/rossiya/?lang=ru"   # 404
+curl -s -o /dev/null -w "%{http_code}\n" ".../tags/75a/?lang=ru"       # 404
+```
+
+So rendering them as `/tag/{slug}` chips (the documented behavior for `tags`) leads to a 404
+when clicked. The `/tags/` list endpoint **excludes** attribute tags, so the frontend can't
+even build an allow-list to filter them out from the detail payload.
+
+Per FRONTEND_SPEC §0.1/§4.1 the `is_*` flags exist "для различения атрибутов актёра от
+контент-тегов при отображении" — but they're absent from video-detail `tags`.
+
+Fix (pick one):
+- exclude actor-attribute tags from the video `tags` array (keep them only on the actor), or
+- include `is_*` flags (or a `type: "tag" | "country" | "body_type" | …`) on each item in
+  the detail `tags` so the frontend can skip/route them (e.g. attributes → `/actors?country=…`).
+
+Frontend was **not** adapted — attribute-tag chips currently 404 on click until this is fixed.
+
+(Related: `/tags/?page_size=300` returns only 200 items though `count` is 302 — page size
+seems capped at 200; large pulls are truncated.)
