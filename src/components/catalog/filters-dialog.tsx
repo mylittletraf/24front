@@ -23,15 +23,11 @@ export function FiltersDialog({ filters, basePath }: { filters: VideoFilters; ba
   const [open, setOpen] = useState(false);
   const [durationMin, setDurationMin] = useState(filters.duration_min?.toString() ?? "");
   const [durationMax, setDurationMax] = useState(filters.duration_max?.toString() ?? "");
-  const [after, setAfter] = useState(filters.published_after ?? "");
-  const [before, setBefore] = useState(filters.published_before ?? "");
 
   function apply() {
     setRange({
       duration_min: durationMin ? Number(durationMin) : undefined,
       duration_max: durationMax ? Number(durationMax) : undefined,
-      published_after: after || undefined,
-      published_before: before || undefined,
     });
     setOpen(false);
   }
@@ -65,24 +61,6 @@ export function FiltersDialog({ filters, basePath }: { filters: VideoFilters; ba
               min={0}
               value={durationMax}
               onChange={(e) => setDurationMax(e.target.value)}
-              className={inputClass}
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="text-muted">{t("dateFrom")}</span>
-            <input
-              type="date"
-              value={after}
-              onChange={(e) => setAfter(e.target.value)}
-              className={inputClass}
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="text-muted">{t("dateTo")}</span>
-            <input
-              type="date"
-              value={before}
-              onChange={(e) => setBefore(e.target.value)}
               className={inputClass}
             />
           </label>
