@@ -3,6 +3,9 @@ import type { Locale } from "@/lib/i18n/locales";
 import { apiFetch } from "./fetcher";
 import { NamedRefSchema, VideoCardSchema, type VideoCard } from "./types";
 
+/** Actor ref embedded in a video; gender is optional (shown as a ♀/♂ icon when present). */
+const ActorRefSchema = NamedRefSchema.extend({ gender: z.string().optional() });
+
 export const VideoDetailSchema = z.object({
   uuid: z.string(),
   duration: z.number(),
@@ -31,7 +34,7 @@ export const VideoDetailSchema = z.object({
   poster: z.string().nullable(),
   categories: z.array(NamedRefSchema).default([]),
   tags: z.array(NamedRefSchema).default([]),
-  actors: z.array(NamedRefSchema).default([]),
+  actors: z.array(ActorRefSchema).default([]),
   slugs: z.record(z.string(), z.string()).default({}),
 });
 export type VideoDetail = z.infer<typeof VideoDetailSchema>;

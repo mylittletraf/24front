@@ -236,10 +236,12 @@ attribute type on the video page.
 
 Blocked by the API today:
 
-1. `GET /videos/{slug}/` `actors[]` only returns `{uuid, name, slug}` — no attributes.
-   The frontend would need actor attributes per video without N extra requests, e.g.:
-   - add attributes to each actor in the video payload (`actors[].country`, `.body_type`, …), or
-   - add an aggregated field, e.g. `actor_attributes: { country: [{name,slug}], hair_color: […], … }`.
+1. `GET /videos/{slug}/` `actors[]` only returns `{uuid, name, slug}` — no `gender`, no attributes.
+   - Add `gender` to each actor (needed just to show a ♀/♂ icon next to actor names on the
+     video page — the frontend already renders it when present).
+   - For the attribute chips, add attributes per actor in the payload
+     (`actors[].country`, `.body_type`, …) or an aggregated
+     `actor_attributes: { country: [{name,slug}], hair_color: […], … }`.
 2. `GET /videos/` has no filter by actor attribute. Need params such as
    `?actor_country=germaniya`, `?actor_hair_color=blondinka`, … (slug values) so clicking a
    chip can open `/videos/?actor_country=…`.

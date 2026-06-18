@@ -98,6 +98,7 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
                   <Fragment key={actor.uuid}>
                     {i > 0 ? ", " : ""}
                     <Link href={`/actor/${actor.slug}`} className="text-link hover:underline">
+                      {actor.gender === "woman" ? "♀ " : actor.gender === "man" ? "♂ " : ""}
                       {actor.name}
                     </Link>
                   </Fragment>
