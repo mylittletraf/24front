@@ -13,6 +13,7 @@ import {
   getCommentsPageByUrl,
   postComment,
   reactToComment,
+  removeCommentReaction,
   type Comment,
 } from "@/lib/api/comments";
 import { useAuth } from "@/lib/auth/auth-context";
@@ -133,6 +134,7 @@ function CommentItem({ comment }: { comment: Comment }) {
 
   const [likes, setLikes] = useState(comment.likes_count);
   const [dislikes, setDislikes] = useState(comment.dislikes_count);
+  const [myReaction, setMyReaction] = useState<"like" | "dislike" | null>(null);
   const [removed, setRemoved] = useState(false);
 
   const canDelete =
@@ -144,13 +146,35 @@ function CommentItem({ comment }: { comment: Comment }) {
       openAuth("login");
       return;
     }
-    if (reaction === "like") setLikes((n) => n + 1);
-    else setDislikes((n) => n + 1);
-    try {
-      await reactToComment(comment.uuid, reaction, token);
-    } catch (error) {
+
+    const prev = myReaction;
+    const prevLikes = likes;
+    const prevDislikes = dislikes;
+
+    if (prev === reaction) {
+      // Toggle off the current reaction.
+      setMyReaction(null);
       if (reaction === "like") setLikes((n) => n - 1);
       else setDislikes((n) => n - 1);
+    } else {
+      // Switch to (or set) this reaction, clearing the opposite one.
+      setMyReaction(reaction);
+      if (reaction === "like") {
+        setLikes((n) => n + 1);
+        if (prev === "dislike") setDislikes((n) => n - 1);
+      } else {
+        setDislikes((n) => n + 1);
+        if (prev === "like") setLikes((n) => n - 1);
+      }
+    }
+
+    try {
+      if (prev === reaction) await removeCommentReaction(comment.uuid, token);
+      else await reactToComment(comment.uuid, reaction, token);
+    } catch (error) {
+      setMyReaction(prev);
+      setLikes(prevLikes);
+      setDislikes(prevDislikes);
       toastApiError(error, { onUnauthorized: () => openAuth("login") });
     }
   }
@@ -183,7 +207,10 @@ function CommentItem({ comment }: { comment: Comment }) {
         <button
           type="button"
           onClick={() => react("like")}
-          className="hover:text-foreground flex items-center gap-1 text-xs"
+          className={cn(
+            "hover:text-foreground flex items-center gap-1 text-xs",
+            myReaction === "like" && "text-accent",
+          )}
         >
           <ThumbsUp size={14} />
           {formatCount(likes)}
@@ -191,7 +218,10 @@ function CommentItem({ comment }: { comment: Comment }) {
         <button
           type="button"
           onClick={() => react("dislike")}
-          className="hover:text-foreground flex items-center gap-1 text-xs"
+          className={cn(
+            "hover:text-foreground flex items-center gap-1 text-xs",
+            myReaction === "dislike" && "text-accent",
+          )}
         >
           <ThumbsDown size={14} />
           {formatCount(dislikes)}
