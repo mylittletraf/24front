@@ -86,7 +86,11 @@
     "networkError": "Network error. Check your connection",
     "noAccess": "No access",
     "showCategories": "Categories",
-    "hideCategories": "Hide"
+    "hideCategories": "Hide",
+    "otherLanguage": "Content in another language",
+    "pageNotFound": "Page not found",
+    "backHome": "Back home",
+    "somethingWrong": "Something went wrong"
   },
   "refine": {
     "title": "Refine"

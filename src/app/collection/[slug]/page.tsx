@@ -1,17 +1,34 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { getLocale, getTranslations } from "next-intl/server";
 import { notFound, redirect } from "next/navigation";
 import { Container } from "@/components/layout/container";
+import { JsonLd } from "@/components/seo/json-ld";
+import { LanguageSwitcher } from "@/components/seo/language-switcher";
 import { InfiniteVideoFeed } from "@/components/video/infinite-video-feed";
 import { getCollection } from "@/lib/api/collections";
 import { ApiError } from "@/lib/api/errors";
 import type { QueryValue } from "@/lib/api/fetcher";
+import { getSeo, seoToMetadata } from "@/lib/api/seo";
 import { getRedirect } from "@/lib/api/video-detail";
 import { getVideoList } from "@/lib/api/videos";
 import { resolveLocale, type Locale } from "@/lib/i18n/locales";
 import { sanitizeHtml } from "@/lib/utils/sanitize";
 
 export const revalidate = 300;
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ lang?: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const sp = await searchParams;
+  const lang = sp.lang ? resolveLocale(sp.lang) : ((await getLocale()) as Locale);
+  return seoToMetadata(await getSeo("collection", slug, lang));
+}
 
 export default async function CollectionPage({
   params,
@@ -39,10 +56,23 @@ export default async function CollectionPage({
 
   const endpoint = `/collections/${slug}/videos/`;
   const apiParams: Record<string, QueryValue> = { lang, page_size: 24 };
-  const initialPage = await getVideoList(endpoint, apiParams, { revalidate: 60 });
+  const [initialPage, seo] = await Promise.all([
+    getVideoList(endpoint, apiParams, { revalidate: 60 }),
+    getSeo("collection", slug, lang),
+  ]);
 
   return (
     <Container className="desktop:py-6 flex flex-col gap-6 py-4">
+      <JsonLd data={seo?.json_ld} />
+      {seo ? (
+        <div className="flex justify-end">
+          <LanguageSwitcher
+            alternates={seo.alternates}
+            current={collection.language ?? lang}
+            fallbackLanguage={collection.fallback_language}
+          />
+        </div>
+      ) : null}
       <section className="desktop:min-h-[400px] relative min-h-[250px] overflow-hidden rounded-2xl">
         {collection.cover_image ? (
           <Image

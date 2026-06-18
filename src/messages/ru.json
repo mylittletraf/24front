@@ -86,7 +86,11 @@
     "networkError": "Ошибка сети. Проверьте соединение",
     "noAccess": "Нет доступа",
     "showCategories": "Категории",
-    "hideCategories": "Скрыть"
+    "hideCategories": "Скрыть",
+    "otherLanguage": "Контент на другом языке",
+    "pageNotFound": "Страница не найдена",
+    "backHome": "На главную",
+    "somethingWrong": "Что-то пошло не так"
   },
   "refine": {
     "title": "Уточнить выборку"

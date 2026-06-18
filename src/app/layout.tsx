@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
+import { Analytics } from "@/components/analytics";
 import { Footer } from "@/components/layout/footer";
 import { MobileTabBar } from "@/components/layout/mobile-tab-bar";
 import { SiteHeader } from "@/components/layout/site-header";
+import { SITE_URL } from "@/lib/api/config";
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -15,6 +17,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: { default: "24front", template: "%s — 24front" },
   description: "Tube site",
 };
@@ -34,6 +37,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             <MobileTabBar />
           </Providers>
         </NextIntlClientProvider>
+        <Analytics />
       </body>
     </html>
   );

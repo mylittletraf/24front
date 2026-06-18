@@ -3,9 +3,12 @@ import { getTranslations } from "next-intl/server";
 import { notFound, redirect } from "next/navigation";
 import { Container } from "@/components/layout/container";
 import { RefineBlock } from "@/components/catalog/refine-block";
+import { JsonLd } from "@/components/seo/json-ld";
+import { LanguageSwitcher } from "@/components/seo/language-switcher";
 import { Description } from "@/components/video/description";
 import { InfiniteVideoFeed } from "@/components/video/infinite-video-feed";
 import { ApiError } from "@/lib/api/errors";
+import { getSeo } from "@/lib/api/seo";
 import { getEntityRelatedFilters } from "@/lib/api/related";
 import { getTaxonomyDetail } from "@/lib/api/taxonomy";
 import { getRedirect } from "@/lib/api/video-detail";
@@ -41,9 +44,10 @@ export async function EntityVideoPage({
   const endpoint = `/${kind}/${slug}/videos/`;
   const params: Record<string, QueryValue> = { lang, page_size: 24 };
 
-  const [initialPage, related] = await Promise.all([
+  const [initialPage, related, seo] = await Promise.all([
     getVideoList(endpoint, params, { revalidate: 60 }),
     getEntityRelatedFilters(kind, slug, { lang }),
+    getSeo(isCategory ? "category" : "tag", slug, lang),
   ]);
 
   // Selecting refine chips moves the user to the catalog with combined filters.
@@ -53,6 +57,7 @@ export async function EntityVideoPage({
 
   return (
     <Container className="desktop:py-6 flex flex-col gap-4 py-4">
+      <JsonLd data={seo?.json_ld} />
       <header className="flex items-center gap-4">
         {detail.preview_image ? (
           <Image
@@ -63,7 +68,7 @@ export async function EntityVideoPage({
             className="h-16 w-16 shrink-0 rounded-full object-cover"
           />
         ) : null}
-        <div>
+        <div className="flex-1">
           <h1 className="desktop:text-2xl text-xl font-bold">
             {isCategory ? detail.name : `#${detail.name}`}
           </h1>
@@ -71,6 +76,13 @@ export async function EntityVideoPage({
             {detail.videos_count.toLocaleString()} {t("title").toLowerCase()}
           </p>
         </div>
+        {seo ? (
+          <LanguageSwitcher
+            alternates={seo.alternates}
+            current={detail.language ?? lang}
+            fallbackLanguage={detail.fallback_language}
+          />
+        ) : null}
       </header>
 
       {detail.description ? <Description text={detail.description} /> : null}

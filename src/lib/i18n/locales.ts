@@ -12,3 +12,10 @@ export function isLocale(value: unknown): value is Locale {
 export function resolveLocale(value: unknown): Locale {
   return isLocale(value) ? value : DEFAULT_LOCALE;
 }
+
+/** Persist the chosen UI locale (client-only). */
+export function setLocaleCookie(locale: string): void {
+  if (typeof document !== "undefined") {
+    document.cookie = `${LOCALE_COOKIE}=${locale}; path=/; max-age=31536000`;
+  }
+}
