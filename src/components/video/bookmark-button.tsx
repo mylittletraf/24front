@@ -1,8 +1,9 @@
 "use client";
 
 import { Bookmark } from "lucide-react";
+import { useEffect } from "react";
 import { useAuthUI } from "@/components/auth/auth-ui";
-import { useFavorites } from "@/components/video/favorites-context";
+import { useVideoState } from "@/components/video/video-state-context";
 import { useAuth } from "@/lib/auth/auth-context";
 import { cn } from "@/lib/utils/cn";
 
@@ -10,7 +11,9 @@ import { cn } from "@/lib/utils/cn";
 export function BookmarkButton({ uuid, className }: { uuid: string; className?: string }) {
   const { isAuthenticated } = useAuth();
   const { open: openAuth } = useAuthUI();
-  const { isFavorite, toggleFavorite } = useFavorites();
+  const { register, isFavorite, toggleFavorite } = useVideoState();
+
+  useEffect(() => register([uuid]), [uuid, register]);
 
   const favorited = isAuthenticated && isFavorite(uuid);
 

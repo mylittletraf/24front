@@ -1,13 +1,13 @@
 "use client";
 
 import { Bookmark, ThumbsDown, ThumbsUp } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuthUI } from "@/components/auth/auth-ui";
-import { useFavorites } from "@/components/video/favorites-context";
+import { useVideoState } from "@/components/video/video-state-context";
 import { Button } from "@/components/ui/button";
 import { clearReaction, postGuestLike, setReaction } from "@/lib/api/video-actions";
 import { useAuth } from "@/lib/auth/auth-context";
-import { useReaction } from "@/lib/hooks/use-reaction";
+import { useReaction, type Reaction } from "@/lib/hooks/use-reaction";
 import { cn } from "@/lib/utils/cn";
 import { formatCount } from "@/lib/utils/format";
 import { toastApiError } from "@/lib/toast-error";
@@ -20,23 +20,21 @@ function guestLikedRecently(uuid: string): boolean {
   return raw ? Date.now() - Number(raw) < GUEST_LIKE_TTL : false;
 }
 
-export function VideoActions({
+function ReactionBar({
   uuid,
   likesCount,
   dislikesCount,
-  favoritesCount,
+  initialReaction,
 }: {
   uuid: string;
   likesCount: number;
   dislikesCount: number;
-  favoritesCount: number;
+  initialReaction: Reaction;
 }) {
   const { isAuthenticated, getToken } = useAuth();
   const { open: openAuth } = useAuthUI();
-  const { isFavorite, toggleFavorite } = useFavorites();
-
+  const { setReaction: cacheReaction } = useVideoState();
   const [guestLiked, setGuestLiked] = useState(() => guestLikedRecently(uuid));
-  const favorited = isAuthenticated && isFavorite(uuid);
 
   const {
     reaction: myReaction,
@@ -47,6 +45,7 @@ export function VideoActions({
   } = useReaction({
     likesCount,
     dislikesCount,
+    initial: initialReaction,
     sync: (next) => {
       const token = getToken();
       if (!token) return Promise.reject(new Error("unauthorized"));
@@ -54,6 +53,15 @@ export function VideoActions({
     },
     onError: (error) => toastApiError(error, { onUnauthorized: () => openAuth("login") }),
   });
+
+  // Keep the shared cache in sync once the user changes their reaction.
+  const lastCached = useRef(initialReaction);
+  useEffect(() => {
+    if (myReaction !== lastCached.current) {
+      lastCached.current = myReaction;
+      cacheReaction(uuid, myReaction);
+    }
+  }, [myReaction, uuid, cacheReaction]);
 
   const likes = reactionLikes + (guestLiked ? 1 : 0);
 
@@ -79,6 +87,55 @@ export function VideoActions({
     dislike();
   }
 
+  return (
+    <div className="bg-surface flex overflow-hidden rounded-full">
+      <button
+        type="button"
+        onClick={handleLike}
+        className={cn(
+          "hover:bg-surface-2 flex items-center gap-1.5 px-4 py-2 text-sm font-medium",
+          myReaction === "like" && "text-accent",
+        )}
+      >
+        <ThumbsUp size={18} />
+        {formatCount(likes)}
+      </button>
+      <span className="bg-border my-2 w-px" />
+      <button
+        type="button"
+        onClick={handleDislike}
+        className={cn(
+          "hover:bg-surface-2 flex items-center gap-1.5 px-4 py-2 text-sm font-medium",
+          myReaction === "dislike" && "text-accent",
+        )}
+      >
+        <ThumbsDown size={18} />
+        {formatCount(dislikes)}
+      </button>
+    </div>
+  );
+}
+
+export function VideoActions({
+  uuid,
+  likesCount,
+  dislikesCount,
+  favoritesCount,
+}: {
+  uuid: string;
+  likesCount: number;
+  dislikesCount: number;
+  favoritesCount: number;
+}) {
+  const { isAuthenticated } = useAuth();
+  const { open: openAuth } = useAuthUI();
+  const { register, isFavorite, getReaction, toggleFavorite } = useVideoState();
+
+  useEffect(() => register([uuid]), [uuid, register]);
+
+  const favorited = isAuthenticated && isFavorite(uuid);
+  const initialReaction = getReaction(uuid);
+
   function handleFavorite() {
     if (!isAuthenticated) {
       openAuth("login");
@@ -89,35 +146,18 @@ export function VideoActions({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <div className="bg-surface flex overflow-hidden rounded-full">
-        <button
-          type="button"
-          onClick={handleLike}
-          className={cn(
-            "hover:bg-surface-2 flex items-center gap-1.5 px-4 py-2 text-sm font-medium",
-            myReaction === "like" && "text-accent",
-          )}
-        >
-          <ThumbsUp size={18} />
-          {formatCount(likes)}
-        </button>
-        <span className="bg-border my-2 w-px" />
-        <button
-          type="button"
-          onClick={handleDislike}
-          className={cn(
-            "hover:bg-surface-2 flex items-center gap-1.5 px-4 py-2 text-sm font-medium",
-            myReaction === "dislike" && "text-accent",
-          )}
-        >
-          <ThumbsDown size={18} />
-          {formatCount(dislikes)}
-        </button>
-      </div>
+      {/* Re-seed the reaction once the user's state loads (key changes null -> like/dislike). */}
+      <ReactionBar
+        key={`${uuid}:${initialReaction ?? "none"}`}
+        uuid={uuid}
+        likesCount={likesCount}
+        dislikesCount={dislikesCount}
+        initialReaction={initialReaction}
+      />
 
       <Button variant={favorited ? "primary" : "secondary"} onClick={handleFavorite}>
         <Bookmark size={18} fill={favorited ? "currentColor" : "none"} />
-        {formatCount(favoritesCount + (favorited ? 1 : 0))}
+        {formatCount(favoritesCount)}
       </Button>
     </div>
   );
