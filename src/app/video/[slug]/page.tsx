@@ -45,6 +45,7 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
   const { slug } = await params;
   const lang = await resolvePageLocale(searchParams);
   const t = await getTranslations("video");
+  const tAttr = await getTranslations("actor");
 
   let detail;
   try {
@@ -64,6 +65,17 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
     getVideoFeed("popular", { lang, page_size: 5 }),
     getSeo("video", slug, lang),
   ]);
+
+  // Aggregated actor attributes → chips that filter the catalog by /videos/?actor_<group>=.
+  const aa = detail.actor_attributes ?? {};
+  const attrGroups = [
+    { items: aa.country, param: "actor_country", label: tAttr("country") },
+    { items: aa.body_type, param: "actor_body_type", label: tAttr("bodyType") },
+    { items: aa.bra_size, param: "actor_bra_size", label: tAttr("braSize") },
+    { items: aa.boobs_type, param: "actor_boobs_type", label: tAttr("boobsType") },
+    { items: aa.hair_color, param: "actor_hair_color", label: tAttr("hairColor") },
+    { items: aa.eye_color, param: "actor_eye_color", label: tAttr("eyeColor") },
+  ].filter((g) => g.items && g.items.length > 0);
 
   return (
     <Container className="desktop:py-6 py-4">
@@ -119,6 +131,17 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
                 ))}
               </p>
             ) : null}
+
+            {attrGroups.map((g) => (
+              <p key={g.param} className="flex flex-wrap items-center gap-1.5 text-sm">
+                <span className="text-muted font-semibold">{g.label}:</span>
+                {g.items!.map((it) => (
+                  <Chip key={it.uuid} href={`/?${g.param}=${it.slug}`}>
+                    {it.name}
+                  </Chip>
+                ))}
+              </p>
+            ))}
 
             {detail.description ? (
               <div className="flex flex-col gap-1.5">

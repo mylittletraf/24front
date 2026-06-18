@@ -12,7 +12,24 @@ export interface VideoFilters {
   published_after?: string;
   published_before?: string;
   sort?: VideoSort;
+  // Filter videos by an attribute of their actors (slug from /actors/attributes/).
+  actor_country?: string;
+  actor_body_type?: string;
+  actor_bra_size?: string;
+  actor_boobs_type?: string;
+  actor_hair_color?: string;
+  actor_eye_color?: string;
 }
+
+/** Actor-attribute filter keys (group -> ?actor_<group> param). */
+export const ACTOR_ATTR_KEYS = [
+  "actor_country",
+  "actor_body_type",
+  "actor_bra_size",
+  "actor_boobs_type",
+  "actor_hair_color",
+  "actor_eye_color",
+] as const;
 
 export const emptyFilters: VideoFilters = {
   include_tags: [],
@@ -67,6 +84,12 @@ export function parseFilters(sp: RawParams): VideoFilters {
     published_after: str(sp.published_after),
     published_before: str(sp.published_before),
     sort: (str(sp.sort) as VideoSort) ?? undefined,
+    actor_country: str(sp.actor_country),
+    actor_body_type: str(sp.actor_body_type),
+    actor_bra_size: str(sp.actor_bra_size),
+    actor_boobs_type: str(sp.actor_boobs_type),
+    actor_hair_color: str(sp.actor_hair_color),
+    actor_eye_color: str(sp.actor_eye_color),
   };
 }
 
@@ -83,6 +106,12 @@ export function filtersToApiParams(f: VideoFilters): Record<string, QueryValue> 
     published_after: f.published_after,
     published_before: f.published_before,
     sort: f.sort,
+    actor_country: f.actor_country,
+    actor_body_type: f.actor_body_type,
+    actor_bra_size: f.actor_bra_size,
+    actor_boobs_type: f.actor_boobs_type,
+    actor_hair_color: f.actor_hair_color,
+    actor_eye_color: f.actor_eye_color,
   };
 }
 
@@ -103,6 +132,7 @@ export function hasActiveFilters(f: VideoFilters): boolean {
     f.exclude_tags.length > 0 ||
     f.categories.length > 0 ||
     f.actors.length > 0 ||
+    ACTOR_ATTR_KEYS.some((k) => f[k]) ||
     Boolean(f.q || f.duration_min || f.duration_max || f.published_after || f.published_before)
   );
 }

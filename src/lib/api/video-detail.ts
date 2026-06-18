@@ -6,6 +6,20 @@ import { NamedRefSchema, VideoCardSchema, type VideoCard } from "./types";
 /** Actor ref embedded in a video; gender is optional (shown as a ♀/♂ icon when present). */
 const ActorRefSchema = NamedRefSchema.extend({ gender: z.string().optional() });
 
+// One bad attribute row shouldn't break the whole video detail.
+const AttrList = z.array(NamedRefSchema).catch([]);
+const ActorAttributesSchema = z
+  .object({
+    country: AttrList,
+    body_type: AttrList,
+    bra_size: AttrList,
+    boobs_type: AttrList,
+    hair_color: AttrList,
+    eye_color: AttrList,
+  })
+  .partial()
+  .optional();
+
 export const VideoDetailSchema = z.object({
   uuid: z.string(),
   duration: z.number(),
@@ -35,6 +49,7 @@ export const VideoDetailSchema = z.object({
   categories: z.array(NamedRefSchema).default([]),
   tags: z.array(NamedRefSchema).default([]),
   actors: z.array(ActorRefSchema).default([]),
+  actor_attributes: ActorAttributesSchema,
   slugs: z.record(z.string(), z.string()).default({}),
 });
 export type VideoDetail = z.infer<typeof VideoDetailSchema>;

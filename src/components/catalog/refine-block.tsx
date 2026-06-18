@@ -3,7 +3,7 @@
 import { Check, Minus, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { RelatedFilters } from "@/lib/api/related";
-import type { VideoFilters } from "@/lib/filters";
+import { ACTOR_ATTR_KEYS, type VideoFilters } from "@/lib/filters";
 import { Chip } from "@/components/ui/chip";
 import { useFilterNav } from "./use-filter-nav";
 
@@ -68,7 +68,7 @@ export function RefineBlock({
 
 export function ActiveFilters({ filters, basePath }: { filters: VideoFilters; basePath: string }) {
   const t = useTranslations("common");
-  const { removeFrom, reset } = useFilterNav(basePath, filters);
+  const { removeFrom, setRange, reset } = useFilterNav(basePath, filters);
 
   const chips: { key: keyof VideoFilters; slug: string; label: string; exclude?: boolean }[] = [
     ...filters.include_tags.map((s) => ({ key: "include_tags" as const, slug: s, label: `#${s}` })),
@@ -82,7 +82,13 @@ export function ActiveFilters({ filters, basePath }: { filters: VideoFilters; ba
     ...filters.actors.map((s) => ({ key: "actors" as const, slug: s, label: s })),
   ];
 
-  if (chips.length === 0) return null;
+  // Scalar actor-attribute filters (single value each).
+  const attrChips = ACTOR_ATTR_KEYS.filter((k) => filters[k]).map((k) => ({
+    key: k,
+    value: filters[k] as string,
+  }));
+
+  if (chips.length === 0 && attrChips.length === 0) return null;
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -94,6 +100,12 @@ export function ActiveFilters({ filters, basePath }: { filters: VideoFilters; ba
         >
           {c.exclude ? <Minus size={14} /> : null}
           {c.label}
+          <span aria-hidden>×</span>
+        </Chip>
+      ))}
+      {attrChips.map((c) => (
+        <Chip key={c.key} state="active" onClick={() => setRange({ [c.key]: undefined })}>
+          {c.value}
           <span aria-hidden>×</span>
         </Chip>
       ))}
