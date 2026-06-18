@@ -28,7 +28,7 @@ export default async function CategoriesPage({
       {categories.length > 0 ? (
         <section className="flex flex-col gap-4">
           <h1 className="desktop:text-2xl text-xl font-bold">{t("categories")}</h1>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="desktop:grid-cols-8 grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
             {categories.map((cat) => (
               <Link
                 key={cat.uuid}
