@@ -14,7 +14,6 @@ import {
   postComment,
   reactToComment,
   type Comment,
-  type CommentSort,
 } from "@/lib/api/comments";
 import { useAuth } from "@/lib/auth/auth-context";
 import type { Locale } from "@/lib/i18n/locales";
@@ -31,47 +30,23 @@ export function CommentsSection({
 }) {
   const t = useTranslations("video");
   const tCommon = useTranslations("common");
-  const [sort, setSort] = useState<CommentSort>("top");
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, refetch } =
     useInfiniteQuery({
-      queryKey: ["comments", videoUuid, sort],
+      queryKey: ["comments", videoUuid],
       queryFn: ({ pageParam }) =>
-        pageParam ? getCommentsPageByUrl(pageParam) : getComments(videoUuid, sort),
+        pageParam ? getCommentsPageByUrl(pageParam) : getComments(videoUuid),
       initialPageParam: null as string | null,
       getNextPageParam: (last) => last.next,
     });
 
   const comments = data?.pages.flatMap((p) => p.results) ?? [];
 
-  const sorts: { value: CommentSort; label: string }[] = [
-    { value: "top", label: t("sortTop") },
-    { value: "new", label: t("sortNew") },
-    { value: "old", label: t("sortOld") },
-  ];
-
   return (
     <section className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">
-          {t("comments")} ({commentsCount})
-        </h2>
-        <div className="flex gap-1">
-          {sorts.map((s) => (
-            <button
-              key={s.value}
-              type="button"
-              onClick={() => setSort(s.value)}
-              className={cn(
-                "rounded-full px-3 py-1 text-sm",
-                sort === s.value ? "bg-surface-2 font-medium" : "text-muted hover:bg-surface",
-              )}
-            >
-              {s.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <h2 className="text-lg font-semibold">
+        {t("comments")} ({commentsCount})
+      </h2>
 
       <CommentForm videoUuid={videoUuid} onPosted={() => refetch()} />
 
