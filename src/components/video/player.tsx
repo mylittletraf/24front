@@ -8,6 +8,7 @@ import { getVast, postProgress, postView } from "@/lib/api/video-actions";
 import { useAuth } from "@/lib/auth/auth-context";
 import { cooldownOk } from "@/lib/ads";
 import { useAdSlot } from "@/lib/hooks/use-ad-slot";
+import { setupQualityMenu } from "./quality-menu";
 
 const PROGRESS_INTERVAL_MS = 15000;
 const CLICKUNDER_ON_NTH_PLAY = 3; // first clickunder fires on the Nth play, not the first
@@ -150,13 +151,19 @@ export function VideoPlayer({
         fluid: true,
         aspectRatio: "16:9",
         poster: poster ?? undefined,
-        playbackRates: [0.5, 1, 1.5, 2],
       });
       playerRef.current = player;
 
       // Same tick: init ads (if any) BEFORE setting the source, then load the content.
       if (adTags) initVastAds(player, adTags);
       player.src({ src: hls, type: "application/x-mpegURL" });
+
+      // HLS resolution selector in the control bar (replaces the playback-speed menu).
+      try {
+        setupQualityMenu(videojs, player);
+      } catch {
+        // ignore — quality menu is best-effort
+      }
 
       if (resumeSeconds > 0) {
         player.one("loadedmetadata", () => player.currentTime(resumeSeconds));
