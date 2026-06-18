@@ -90,7 +90,9 @@
     "otherLanguage": "Content in another language",
     "pageNotFound": "Page not found",
     "backHome": "Back home",
-    "somethingWrong": "Something went wrong"
+    "somethingWrong": "Something went wrong",
+    "addFilter": "Add filter",
+    "select": "Select"
   },
   "refine": {
     "title": "Refine"
