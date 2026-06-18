@@ -27,9 +27,15 @@ curl -s ".../actors/{slug}/videos/?lang=ru"         # -> 0
 curl -s ".../videos/?actors={slug}&lang=ru"         # -> 24 results  ✅ works
 ```
 
-Impact: `/tag/{slug}`, `/category/{slug}`, `/actor/{slug}` pages show no videos.
-These endpoints are the documented contract (FRONTEND_SPEC §4.1–4.2); the frontend
-uses them as specified.
+Impact: `/tag/{slug}`, `/category/{slug}`, `/actor/{slug}` pages show no videos via
+these endpoints. They are the documented contract (FRONTEND_SPEC §4.1–4.2).
+
+Update: because in-page refine (FRONTEND_SPEC §10.2) is defined via
+`GET /videos/?categories=…&include_tags=…`, the tag/category pages now build their
+listing from that working catalog filter (entity slug as the base filter), and the
+actor page from `/videos/?actors=…`. The dedicated `/{entity}/{slug}/videos/`
+endpoints are therefore currently unused by the frontend and should be fixed or
+formally deprecated in favor of the catalog filter.
 
 ---
 

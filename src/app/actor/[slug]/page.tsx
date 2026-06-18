@@ -53,8 +53,10 @@ export default async function ActorPage({
     throw error;
   }
 
-  const endpoint = `/actors/${slug}/videos/`;
-  const apiParams: Record<string, QueryValue> = { lang, page_size: 24 };
+  // The dedicated /actors/{slug}/videos/ endpoint is broken (returns 0); use the
+  // working catalog filter instead. See docs/BACKEND_BUGS.md.
+  const endpoint = "/videos/";
+  const apiParams: Record<string, QueryValue> = { lang, page_size: 24, actors: slug };
   const [initialPage, seo] = await Promise.all([
     getVideoList(endpoint, apiParams, { revalidate: 60 }),
     getSeo("actor", slug, lang),

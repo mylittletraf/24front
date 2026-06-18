@@ -4,7 +4,6 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { Analytics } from "@/components/analytics";
 import { Footer } from "@/components/layout/footer";
-import { MobileTabBar } from "@/components/layout/mobile-tab-bar";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SITE_URL } from "@/lib/api/config";
 import { Providers } from "./providers";
@@ -32,9 +31,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers>
             <SiteHeader />
-            <div className="desktop:pb-0 flex flex-1 flex-col pb-16">{children}</div>
+            <div className="flex flex-1 flex-col">{children}</div>
             <Footer />
-            <MobileTabBar />
           </Providers>
         </NextIntlClientProvider>
         <Analytics />

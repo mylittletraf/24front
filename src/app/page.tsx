@@ -1,22 +1,51 @@
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { ActiveFilters } from "@/components/catalog/refine-block";
+import { FiltersDialog } from "@/components/catalog/filters-dialog";
+import { SortSelect } from "@/components/catalog/sort-select";
 import { Container } from "@/components/layout/container";
 import { InfiniteVideoFeed } from "@/components/video/infinite-video-feed";
 import type { QueryValue } from "@/lib/api/fetcher";
 import { getVideos } from "@/lib/api/videos";
+import { filtersToApiParams, filtersToSearchString, parseFilters } from "@/lib/filters";
 
 export const revalidate = 60;
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const sp = await searchParams;
   const locale = await getLocale();
-  const params: Record<string, QueryValue> = { lang: locale, sort: "newest", page_size: 24 };
-  const initialPage = await getVideos(params, { revalidate: 60 });
+  const t = await getTranslations("catalog");
+
+  const filters = parseFilters(sp);
+  const apiParams: Record<string, QueryValue> = {
+    lang: locale,
+    page_size: 24,
+    ...filtersToApiParams(filters),
+  };
+
+  const initialPage = await getVideos(apiParams, { revalidate: 60 });
+  const queryKey = ["videos", "catalog", locale, filtersToSearchString(filters)];
 
   return (
-    <Container className="desktop:py-6 py-4">
+    <Container className="desktop:py-6 flex flex-col gap-4 py-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-xl font-bold">{t("title")}</h1>
+        <div className="flex items-center gap-2">
+          <FiltersDialog filters={filters} basePath="/" />
+          <SortSelect filters={filters} basePath="/" />
+        </div>
+      </div>
+
+      <ActiveFilters filters={filters} basePath="/" />
+
       <InfiniteVideoFeed
-        queryKey={["videos", "home", locale]}
-        params={params}
+        queryKey={queryKey}
+        params={apiParams}
         initialPage={initialPage}
+        emptyTitle={t("empty")}
       />
     </Container>
   );

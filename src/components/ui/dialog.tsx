@@ -28,9 +28,9 @@ type ContentProps = React.ComponentProps<typeof DialogPrimitive.Content> & {
 };
 
 const sideClasses: Record<NonNullable<ContentProps["side"]>, string> = {
-  // Mobile: bottom sheet (consistent with search/filters). Desktop: centered card.
+  // Classic centered modal at all breakpoints.
   center:
-    "inset-x-0 bottom-0 max-h-[85%] w-full rounded-t-2xl desktop:inset-x-auto desktop:bottom-auto desktop:top-1/2 desktop:left-1/2 desktop:max-h-[85vh] desktop:w-[calc(100%-2rem)] desktop:max-w-md desktop:-translate-x-1/2 desktop:-translate-y-1/2 desktop:rounded-2xl",
+    "top-1/2 left-1/2 max-h-[85vh] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl",
   right: "right-0 top-0 h-full w-[85%] max-w-sm",
   bottom: "bottom-0 left-0 w-full max-h-[85%] rounded-t-2xl",
 };

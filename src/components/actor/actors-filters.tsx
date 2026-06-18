@@ -417,7 +417,7 @@ export function ActorsFiltersTrigger(props: { attributes: ActorAttributes; curre
             {tCommon("filters")}
           </Button>
         </DialogTrigger>
-        <DialogContent side="bottom" className="gap-4 pt-10">
+        <DialogContent side="center" className="gap-4">
           <DialogTitle className="text-lg font-semibold">{tCommon("filters")}</DialogTitle>
           <FilterControls {...props} layout="wrap" />
         </DialogContent>

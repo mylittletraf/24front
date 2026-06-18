@@ -2,32 +2,44 @@ import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { notFound, redirect } from "next/navigation";
 import { Container } from "@/components/layout/container";
-import { RefineBlock } from "@/components/catalog/refine-block";
+import { ActiveFilters, RefineBlock } from "@/components/catalog/refine-block";
 import { JsonLd } from "@/components/seo/json-ld";
 import { LanguageSwitcher } from "@/components/seo/language-switcher";
 import { Description } from "@/components/video/description";
 import { InfiniteVideoFeed } from "@/components/video/infinite-video-feed";
 import { ApiError } from "@/lib/api/errors";
 import { getSeo } from "@/lib/api/seo";
-import { getEntityRelatedFilters } from "@/lib/api/related";
+import { getCatalogRelatedFilters } from "@/lib/api/related";
 import { getTaxonomyDetail } from "@/lib/api/taxonomy";
 import { getRedirect } from "@/lib/api/video-detail";
-import { getVideoList } from "@/lib/api/videos";
+import { getVideos } from "@/lib/api/videos";
 import type { QueryValue } from "@/lib/api/fetcher";
-import { emptyFilters, type VideoFilters } from "@/lib/filters";
+import {
+  filtersToApiParams,
+  filtersToSearchString,
+  parseFilters,
+  type VideoFilters,
+} from "@/lib/filters";
 import type { Locale } from "@/lib/i18n/locales";
+
+function uniq(values: string[]): string[] {
+  return [...new Set(values)];
+}
 
 export async function EntityVideoPage({
   kind,
   slug,
   lang,
+  searchParams,
 }: {
   kind: "tags" | "categories";
   slug: string;
   lang: Locale;
+  searchParams: Record<string, string | string[] | undefined>;
 }) {
   const t = await getTranslations("catalog");
   const isCategory = kind === "categories";
+  const basePath = `/${isCategory ? "category" : "tag"}/${slug}`;
 
   let detail;
   try {
@@ -35,25 +47,35 @@ export async function EntityVideoPage({
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) {
       const r = await getRedirect(slug, isCategory ? "category" : "tag", lang);
-      if (r.redirect && r.new_slug) redirect(`/${isCategory ? "category" : "tag"}/${r.new_slug}`);
+      if (r.redirect && r.new_slug) redirect(`${isCategory ? "/category" : "/tag"}/${r.new_slug}`);
       notFound();
     }
     throw error;
   }
 
-  const endpoint = `/${kind}/${slug}/videos/`;
-  const params: Record<string, QueryValue> = { lang, page_size: 24 };
+  // Refine selections live in this page's own query string and accumulate in place.
+  const refineFilters = parseFilters(searchParams);
+
+  // The entity itself is the fixed base filter; refine selections are added on top.
+  const combined: VideoFilters = {
+    ...refineFilters,
+    categories: isCategory ? uniq([slug, ...refineFilters.categories]) : refineFilters.categories,
+    include_tags: isCategory
+      ? refineFilters.include_tags
+      : uniq([slug, ...refineFilters.include_tags]),
+  };
+
+  const apiParams: Record<string, QueryValue> = {
+    lang,
+    page_size: 24,
+    ...filtersToApiParams(combined),
+  };
 
   const [initialPage, related, seo] = await Promise.all([
-    getVideoList(endpoint, params, { revalidate: 60 }),
-    getEntityRelatedFilters(kind, slug, { lang }),
+    getVideos(apiParams, { revalidate: 60 }),
+    getCatalogRelatedFilters({ lang, ...filtersToApiParams(combined) }),
     getSeo(isCategory ? "category" : "tag", slug, lang),
   ]);
-
-  // Selecting refine chips moves the user to the catalog with combined filters.
-  const baseFilters: VideoFilters = isCategory
-    ? { ...emptyFilters, categories: [slug] }
-    : { ...emptyFilters, include_tags: [slug] };
 
   return (
     <Container className="desktop:py-6 flex flex-col gap-4 py-4">
@@ -87,12 +109,14 @@ export async function EntityVideoPage({
 
       {detail.description ? <Description text={detail.description} /> : null}
 
-      <RefineBlock related={related} filters={baseFilters} basePath="/videos" />
+      {/* Refine in place — chips stay on this page and accumulate (basePath = this entity). */}
+      <RefineBlock related={related} filters={refineFilters} basePath={basePath} />
+      <ActiveFilters filters={refineFilters} basePath={basePath} />
 
       <InfiniteVideoFeed
-        queryKey={["videos", kind, slug, lang]}
-        endpoint={endpoint}
-        params={params}
+        queryKey={["videos", kind, slug, lang, filtersToSearchString(refineFilters)]}
+        endpoint="/videos/"
+        params={apiParams}
         initialPage={initialPage}
         emptyTitle={t("empty")}
       />

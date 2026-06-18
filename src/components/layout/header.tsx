@@ -18,14 +18,14 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const items = [
-    { href: "/videos", label: t("videos") },
+    { href: "/", label: t("videos") },
     { href: "/actors", label: t("actors") },
     { href: "/collections", label: t("collections") },
   ];
   return (
     <>
       {items.map(({ href, label }) => {
-        const active = pathname.startsWith(href);
+        const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
         return (
           <Link
             key={href}
@@ -94,13 +94,13 @@ export function Header({ categories }: { categories: Tag[] }) {
         </div>
       </div>
 
-      {/* Mobile horizontal sub-nav */}
-      <div className="border-border no-scrollbar desktop:hidden flex gap-4 overflow-x-auto border-t px-4 py-2">
+      {/* Mobile sub-nav under the header (centered) */}
+      <nav className="border-border desktop:hidden flex justify-center gap-8 border-t px-4 py-2">
         <NavLinks />
-      </div>
+      </nav>
 
       <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
-        <DialogContent side="bottom" className="rounded-t-2xl pt-10" showClose>
+        <DialogContent side="center" className="pt-8" showClose>
           <DialogTitle className="sr-only">{t("placeholder")}</DialogTitle>
           <SearchBox autoFocus onNavigate={() => setSearchOpen(false)} />
         </DialogContent>

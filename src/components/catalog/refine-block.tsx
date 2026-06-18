@@ -25,10 +25,11 @@ export function RefineBlock({
   return (
     <section className="flex flex-col gap-2">
       <h2 className="text-base font-semibold">{t("title")}</h2>
-      <div className="flex flex-wrap gap-2">
+      <div className="no-scrollbar desktop:mx-0 desktop:flex-wrap desktop:px-0 -mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
         {categories.map((c) => (
           <Chip
             key={c.uuid}
+            className="shrink-0"
             state={filters.categories.includes(c.slug) ? "active" : "default"}
             onClick={() => toggleList("categories", c.slug)}
           >
@@ -41,6 +42,7 @@ export function RefineBlock({
           return (
             <Chip
               key={tag.uuid}
+              className="shrink-0"
               state={included ? "active" : "default"}
               onClick={() => toggleTag(tag.slug)}
             >
@@ -51,6 +53,7 @@ export function RefineBlock({
         {actors.map((a) => (
           <Chip
             key={a.uuid}
+            className="shrink-0"
             state={filters.actors.includes(a.slug) ? "active" : "default"}
             onClick={() => toggleList("actors", a.slug)}
           >

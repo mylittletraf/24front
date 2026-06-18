@@ -24,10 +24,10 @@ export default async function CategoryPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ lang?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { slug } = await params;
   const sp = await searchParams;
   const lang = sp.lang ? resolveLocale(sp.lang) : ((await getLocale()) as Locale);
-  return <EntityVideoPage kind="categories" slug={slug} lang={lang} />;
+  return <EntityVideoPage kind="categories" slug={slug} lang={lang} searchParams={sp} />;
 }
