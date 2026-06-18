@@ -54,7 +54,16 @@
     "related": "Похожие видео",
     "popular": "Популярное",
     "unavailable": "Видео недоступно",
-    "sentForModeration": "Комментарий отправлен на модерацию"
+    "sentForModeration": "Комментарий отправлен на модерацию",
+    "sortTop": "Лучшие",
+    "sortNew": "Новые",
+    "sortOld": "Старые",
+    "commentPlaceholder": "Добавить комментарий…",
+    "send": "Отправить",
+    "loginToComment": "Войдите, чтобы оставить комментарий",
+    "delete": "Удалить",
+    "anon": "Аноним",
+    "noComments": "Пока нет комментариев"
   },
   "common": {
     "loadMore": "Загрузить ещё",

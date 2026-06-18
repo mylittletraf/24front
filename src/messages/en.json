@@ -54,7 +54,16 @@
     "related": "Related videos",
     "popular": "Popular",
     "unavailable": "Video unavailable",
-    "sentForModeration": "Comment sent for moderation"
+    "sentForModeration": "Comment sent for moderation",
+    "sortTop": "Top",
+    "sortNew": "New",
+    "sortOld": "Old",
+    "commentPlaceholder": "Add a comment…",
+    "send": "Send",
+    "loginToComment": "Log in to leave a comment",
+    "delete": "Delete",
+    "anon": "Anonymous",
+    "noComments": "No comments yet"
   },
   "common": {
     "loadMore": "Load more",

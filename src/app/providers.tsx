@@ -6,14 +6,17 @@ import type { ReactNode } from "react";
 import { AuthUIProvider } from "@/components/auth/auth-ui";
 import { Toaster } from "@/components/common/toaster";
 import { getQueryClient } from "@/lib/api/query-client";
+import { AuthProvider } from "@/lib/auth/auth-context";
 
 export function Providers({ children }: { children: ReactNode }) {
   const queryClient = getQueryClient();
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
       <QueryClientProvider client={queryClient}>
-        <AuthUIProvider>{children}</AuthUIProvider>
-        <Toaster />
+        <AuthProvider>
+          <AuthUIProvider>{children}</AuthUIProvider>
+          <Toaster />
+        </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );
