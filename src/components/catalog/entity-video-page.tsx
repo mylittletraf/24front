@@ -9,6 +9,7 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { Description } from "@/components/video/description";
 import { InfiniteVideoFeed } from "@/components/video/infinite-video-feed";
 import { ApiError } from "@/lib/api/errors";
+import { getFilterLabels } from "@/lib/api/filter-labels";
 import { getSeo } from "@/lib/api/seo";
 import { getCatalogRelatedFilters } from "@/lib/api/related";
 import { getTaxonomyDetail } from "@/lib/api/taxonomy";
@@ -72,10 +73,11 @@ export async function EntityVideoPage({
     ...filtersToApiParams(combined),
   };
 
-  const [initialPage, related, seo] = await Promise.all([
+  const [initialPage, related, seo, labels] = await Promise.all([
     getVideos(apiParams, { revalidate: 60 }),
     getCatalogRelatedFilters({ lang, ...filtersToApiParams(combined) }),
     getSeo(isCategory ? "category" : "tag", slug, lang),
+    getFilterLabels(refineFilters, lang),
   ]);
 
   return (
@@ -110,7 +112,7 @@ export async function EntityVideoPage({
 
       {/* Refine in place — chips stay on this page and accumulate (basePath = this entity). */}
       <RefineBlock related={related} filters={refineFilters} basePath={basePath} />
-      <ActiveFilters filters={refineFilters} basePath={basePath} />
+      <ActiveFilters filters={refineFilters} basePath={basePath} labels={labels} />
 
       <InfiniteVideoFeed
         queryKey={["videos", kind, slug, lang, filtersToSearchString(refineFilters)]}

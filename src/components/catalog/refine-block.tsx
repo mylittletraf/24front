@@ -66,26 +66,40 @@ export function RefineBlock({
   );
 }
 
-export function ActiveFilters({ filters, basePath }: { filters: VideoFilters; basePath: string }) {
+export function ActiveFilters({
+  filters,
+  basePath,
+  labels = {},
+}: {
+  filters: VideoFilters;
+  basePath: string;
+  /** slug -> localized display name (falls back to slug). */
+  labels?: Record<string, string>;
+}) {
   const t = useTranslations("common");
   const { removeFrom, setRange, reset } = useFilterNav(basePath, filters);
+  const name = (slug: string) => labels[slug] ?? slug;
 
   const chips: { key: keyof VideoFilters; slug: string; label: string; exclude?: boolean }[] = [
-    ...filters.include_tags.map((s) => ({ key: "include_tags" as const, slug: s, label: `#${s}` })),
+    ...filters.include_tags.map((s) => ({
+      key: "include_tags" as const,
+      slug: s,
+      label: `#${name(s)}`,
+    })),
     ...filters.exclude_tags.map((s) => ({
       key: "exclude_tags" as const,
       slug: s,
-      label: `#${s}`,
+      label: `#${name(s)}`,
       exclude: true,
     })),
-    ...filters.categories.map((s) => ({ key: "categories" as const, slug: s, label: s })),
-    ...filters.actors.map((s) => ({ key: "actors" as const, slug: s, label: s })),
+    ...filters.categories.map((s) => ({ key: "categories" as const, slug: s, label: name(s) })),
+    ...filters.actors.map((s) => ({ key: "actors" as const, slug: s, label: name(s) })),
   ];
 
   // Scalar actor-attribute filters (single value each).
   const attrChips = ACTOR_ATTR_KEYS.filter((k) => filters[k]).map((k) => ({
     key: k,
-    value: filters[k] as string,
+    value: name(filters[k] as string),
   }));
 
   if (chips.length === 0 && attrChips.length === 0) return null;
