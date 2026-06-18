@@ -35,19 +35,40 @@ export function ActorsGrid({
     if (inView && hasNextPage && !isFetchingNextPage && !isError) void fetchNextPage();
   }, [inView, hasNextPage, isFetchingNextPage, isError, fetchNextPage]);
 
-  const actors = data.pages.flatMap((p) => p.results);
-  if (actors.length === 0) return <EmptyState title={t("empty.title")} />;
+  // Height/weight have no server-side range filter (FRONTEND_SPEC §8.1) — filter on the client.
+  const inRange = (value: number | null | undefined, min?: number, max?: number) => {
+    if (min === undefined && max === undefined) return true;
+    if (value === null || value === undefined) return false;
+    if (min !== undefined && value < min) return false;
+    if (max !== undefined && value > max) return false;
+    return true;
+  };
+
+  const actors = data.pages
+    .flatMap((p) => p.results)
+    .filter(
+      (a) =>
+        inRange(a.height, params.height_min, params.height_max) &&
+        inRange(a.weight, params.weight_min, params.weight_max),
+    );
+
+  const isEmpty = actors.length === 0 && !isFetchingNextPage && !hasNextPage;
 
   return (
     <>
-      <div className="desktop:grid-cols-6 grid grid-cols-3 gap-x-3 gap-y-5 sm:grid-cols-4 sm:gap-x-4">
-        {actors.map((actor) => (
-          <ActorCard key={actor.uuid} actor={actor} />
-        ))}
-        {isFetchingNextPage
-          ? Array.from({ length: 5 }).map((_, i) => <ActorCardSkeleton key={`s-${i}`} />)
-          : null}
-      </div>
+      {actors.length > 0 || isFetchingNextPage ? (
+        <div className="desktop:grid-cols-6 grid grid-cols-3 gap-x-3 gap-y-5 sm:grid-cols-4 sm:gap-x-4">
+          {actors.map((actor) => (
+            <ActorCard key={actor.uuid} actor={actor} />
+          ))}
+          {isFetchingNextPage
+            ? Array.from({ length: 5 }).map((_, i) => <ActorCardSkeleton key={`s-${i}`} />)
+            : null}
+        </div>
+      ) : null}
+
+      {isEmpty ? <EmptyState title={t("empty.title")} /> : null}
+
       <div ref={ref} className="h-px w-full" />
       {isError && hasNextPage ? (
         <div className="flex justify-center py-6">
