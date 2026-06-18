@@ -6,11 +6,12 @@ import { useEffect, useRef } from "react";
 import type Player from "video.js/dist/types/player";
 import { getVast, postProgress, postView } from "@/lib/api/video-actions";
 import { useAuth } from "@/lib/auth/auth-context";
-import { frequencyOk } from "@/lib/ads";
+import { cooldownOk } from "@/lib/ads";
 import { useAdSlot } from "@/lib/hooks/use-ad-slot";
 
 const PROGRESS_INTERVAL_MS = 15000;
-const CLICKUNDER_ON_NTH_PLAY = 3; // open the clickunder on the Nth play, not the first
+const CLICKUNDER_ON_NTH_PLAY = 3; // first clickunder fires on the Nth play, not the first
+const CLICKUNDER_COOLDOWN_MS = 15 * 60 * 1000; // then no more often than every 15 minutes
 
 // --- VAST via Google IMA (videojs-contrib-ads + videojs-ima) -----------------------------
 interface ImaApi {
@@ -145,11 +146,11 @@ export function VideoPlayer({
         clearInterval(progressTimer);
         progressTimer = setInterval(sendProgress, PROGRESS_INTERVAL_MS);
 
-        // Clickunder: open the direct link on the Nth play, once per day (popunder).
+        // Clickunder (popunder): first on the Nth play, then no more often than every 15 min.
         playCountRef.current += 1;
-        if (playCountRef.current === CLICKUNDER_ON_NTH_PLAY) {
+        if (playCountRef.current >= CLICKUNDER_ON_NTH_PLAY) {
           const link = clickunderRef.current;
-          if (link && frequencyOk("clickander_play", 1)) {
+          if (link && cooldownOk("clickander_play", CLICKUNDER_COOLDOWN_MS)) {
             const w = window.open(link, "_blank", "noopener");
             try {
               w?.blur?.();

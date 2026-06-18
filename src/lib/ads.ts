@@ -4,6 +4,22 @@ export function isUrl(s: string): boolean {
 }
 
 /**
+ * Cooldown gate: returns true (and stamps "now") only if at least `ms` passed since the last
+ * success. Persisted in localStorage. Used to space out aggressive formats (e.g. clickunder).
+ */
+export function cooldownOk(key: string, ms: number): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const last = Number(localStorage.getItem(`ad:cd:${key}`) || 0);
+    if (Date.now() - last < ms) return false;
+    localStorage.setItem(`ad:cd:${key}`, String(Date.now()));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Frequency cap: returns true (and increments) while the placement is under `maxPerDay`
  * for today. Persisted in localStorage. Used for aggressive formats (push, clickunder).
  */
