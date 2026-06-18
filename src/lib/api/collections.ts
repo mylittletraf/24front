@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { Locale } from "@/lib/i18n/locales";
 import { apiFetch } from "./fetcher";
-import { pageNumberPage, type PageNumberPage } from "./types";
+import { OptionalMedia, pageNumberPage, type PageNumberPage } from "./types";
 
 // Collections are empty in the dev dataset; schemas are intentionally lenient.
 export const CollectionListItemSchema = z.object({
@@ -10,9 +10,9 @@ export const CollectionListItemSchema = z.object({
   title: z.string(),
   h1: z.string().nullable().optional(),
   short_description: z.string().nullable().optional(),
-  cover_image: z.string().nullable().optional(),
+  cover_image: OptionalMedia,
   og_image: z.string().nullable().optional(),
-  cover_poster: z.string().nullable().optional(),
+  cover_poster: OptionalMedia,
   videos_count: z.number().optional(),
 });
 export type CollectionListItem = z.infer<typeof CollectionListItemSchema>;

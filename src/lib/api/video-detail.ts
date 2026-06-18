@@ -1,7 +1,13 @@
 import { z } from "zod";
 import type { Locale } from "@/lib/i18n/locales";
 import { apiFetch } from "./fetcher";
-import { NamedRefSchema, VideoCardSchema, type VideoCard } from "./types";
+import {
+  MediaArray,
+  NamedRefSchema,
+  NullableMedia,
+  VideoCardSchema,
+  type VideoCard,
+} from "./types";
 
 /** Actor ref embedded in a video; gender is optional (shown as a ♀/♂ icon when present). */
 const ActorRefSchema = NamedRefSchema.extend({ gender: z.string().optional() });
@@ -41,11 +47,11 @@ export const VideoDetailSchema = z.object({
   fallback_language: z.string().nullable(),
   sources: z.object({
     mp4: z.unknown().optional(),
-    hls: z.string().nullable(),
-    trailer: z.string().nullable(),
+    hls: NullableMedia,
+    trailer: NullableMedia,
   }),
-  screens: z.array(z.string()).default([]),
-  poster: z.string().nullable(),
+  screens: MediaArray,
+  poster: NullableMedia,
   categories: z.array(NamedRefSchema).default([]),
   tags: z.array(NamedRefSchema).default([]),
   actors: z.array(ActorRefSchema).default([]),

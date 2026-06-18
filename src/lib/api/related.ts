@@ -1,14 +1,14 @@
 import { z } from "zod";
 import type { QueryValue } from "./fetcher";
 import { apiFetch } from "./fetcher";
-import { NamedRefSchema } from "./types";
+import { NamedRefSchema, OptionalMedia } from "./types";
 
 export const RelatedTagItemSchema = z.object({
   uuid: z.string(),
   name: z.string(),
   slug: z.string(),
   type: z.enum(["tag", "category"]).or(z.string()),
-  preview_image: z.string().nullable().optional(),
+  preview_image: OptionalMedia,
   videos_count: z.number(),
   intersection_count: z.number(),
 });
@@ -19,7 +19,7 @@ export const RelatedActorItemSchema = z.object({
   name: z.string(),
   slug: z.string(),
   type: z.literal("actor").or(z.string()),
-  photo: z.string().nullable().optional(),
+  photo: OptionalMedia,
   country: NamedRefSchema.nullable().optional(),
   videos_count: z.number(),
   intersection_count: z.number(),

@@ -1,4 +1,13 @@
 import { z } from "zod";
+import { toMediaUrl } from "@/lib/media";
+
+// Image/video URL fields: masked to the same-origin /media prefix (hides the storage host).
+export const NullableMedia = z.string().nullable().transform(toMediaUrl);
+export const OptionalMedia = z.string().nullable().optional().transform(toMediaUrl);
+export const MediaArray = z
+  .array(z.string())
+  .default([])
+  .transform((arr) => arr.map((u) => toMediaUrl(u)));
 
 /** Cursor pagination envelope (video feeds, comments). */
 export const cursorPage = <T extends z.ZodTypeAny>(item: T) =>
@@ -66,8 +75,8 @@ export const VideoCardSchema = z.object({
   dislikes_count: z.number(),
   comments_count: z.number(),
   published_at: z.string(),
-  poster: z.string().nullable(),
-  trailer: z.string().nullable(),
+  poster: NullableMedia,
+  trailer: NullableMedia,
   title: z.string(),
   slug: z.string(),
   language: z.string(),
@@ -96,7 +105,7 @@ export const TagSchema = z.object({
   is_boobs_type: z.boolean().optional(),
   is_hair_color: z.boolean().optional(),
   is_eye_color: z.boolean().optional(),
-  preview_image: z.string().nullable(),
+  preview_image: NullableMedia,
   sort_order: z.number().optional(),
   videos_count: z.number(),
   description: z.string().nullable().optional(),
@@ -117,8 +126,8 @@ export const ActorSchema = z.object({
   name: z.string(),
   slug: z.string(),
   gender: z.enum(["woman", "man", "unknown"]).or(z.string()),
-  photo: z.string().nullable(),
-  cover_image: z.string().nullable().optional(),
+  photo: NullableMedia,
+  cover_image: OptionalMedia,
   birth_date: z.string().nullable().optional(),
   height: z.number().nullable().optional(),
   weight: z.number().nullable().optional(),

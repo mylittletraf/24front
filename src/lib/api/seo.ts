@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { Metadata } from "next";
 import type { Locale } from "@/lib/i18n/locales";
+import { maskMediaDeep } from "@/lib/media";
 import { apiFetch } from "./fetcher";
 
 export type SeoEntity = "video" | "tag" | "category" | "actor" | "collection";
@@ -50,7 +51,8 @@ export async function getSeo(entity: SeoEntity, slug: string, lang?: Locale): Pr
       revalidate: 300,
     });
     const parsed = SeoSchema.safeParse(data);
-    return parsed.success ? parsed.data : null;
+    // Mask storage URLs in meta/OG/Twitter/JSON-LD (only storage-signed URLs are rewritten).
+    return parsed.success ? maskMediaDeep(parsed.data) : null;
   } catch {
     return null;
   }
