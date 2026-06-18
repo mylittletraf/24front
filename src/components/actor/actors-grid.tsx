@@ -40,7 +40,7 @@ export function ActorsGrid({
 
   return (
     <>
-      <div className="grid grid-cols-3 gap-x-3 gap-y-5 sm:grid-cols-4 sm:gap-x-4 xl:grid-cols-5">
+      <div className="grid grid-cols-3 gap-x-3 gap-y-5 sm:grid-cols-4 sm:gap-x-4 desktop:grid-cols-6">
         {actors.map((actor) => (
           <ActorCard key={actor.uuid} actor={actor} />
         ))}
