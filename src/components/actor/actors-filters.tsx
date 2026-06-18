@@ -46,6 +46,22 @@ type AttrDef =
       maxKey: string;
     };
 
+/** Build /actors navigation that preserves current params. */
+function useActorsNav(current: Current) {
+  const router = useRouter();
+  const update = (patch: Current) => {
+    const params = new URLSearchParams();
+    const next = { ...current, ...patch };
+    for (const [key, value] of Object.entries(next)) {
+      if (value) params.set(key, value);
+    }
+    const qs = params.toString();
+    router.push(qs ? `/actors?${qs}` : "/actors", { scroll: false });
+  };
+  const reset = () => router.push("/actors", { scroll: false });
+  return { update, reset };
+}
+
 function FieldShell({
   label,
   onRemove,
@@ -56,7 +72,7 @@ function FieldShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex shrink-0 flex-col gap-1">
       <span className="text-muted px-0.5 text-xs font-medium">{label}</span>
       <div className="flex items-center gap-1">
         {children}
@@ -82,6 +98,7 @@ function FieldSelect({
   options,
   onChange,
   onRemove,
+  allowEmpty = true,
 }: {
   label: string;
   placeholder: string;
@@ -89,6 +106,7 @@ function FieldSelect({
   options: AttributeOption[];
   onChange: (v: string) => void;
   onRemove?: () => void;
+  allowEmpty?: boolean;
 }) {
   return (
     <FieldShell label={label} onRemove={onRemove}>
@@ -99,7 +117,7 @@ function FieldSelect({
           onChange={(e) => onChange(e.target.value)}
           className="border-border bg-surface focus:border-muted h-9 w-44 appearance-none rounded-lg border pr-8 pl-3 text-sm outline-none"
         >
-          <option value="">{placeholder}</option>
+          {allowEmpty ? <option value="">{placeholder}</option> : null}
           {options.map((o) => (
             <option key={o.slug} value={o.slug}>
               {o.name}
@@ -155,30 +173,43 @@ function FieldRange({
   );
 }
 
-export function ActorsFilters({
+/** Sort control — rendered separately (right side on desktop). */
+function SortControl({ current }: { current: Current }) {
+  const t = useTranslations("actorsFilters");
+  const tSort = useTranslations("sort");
+  const { update } = useActorsNav(current);
+  return (
+    <FieldSelect
+      label={tSort("label")}
+      placeholder={t("sortPopular")}
+      value={current.sort ?? "popular"}
+      allowEmpty={false}
+      options={[
+        { slug: "popular", name: t("sortPopular") },
+        { slug: "name", name: t("sortName") },
+        { slug: "newest", name: t("sortNewest") },
+      ]}
+      onChange={(v) => update({ sort: (v as ActorSort) || undefined })}
+    />
+  );
+}
+
+/** Attribute filter constructor (no sort). Shared by desktop bar and mobile modal. */
+function FilterControls({
   attributes,
   current,
+  layout,
 }: {
   attributes: ActorAttributes;
   current: Current;
+  layout: "row" | "wrap";
 }) {
   const t = useTranslations("actorsFilters");
   const tCommon = useTranslations("common");
-  const router = useRouter();
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const { update, reset } = useActorsNav(current);
   const [added, setAdded] = useState<string[]>([]);
 
   const isWoman = current.gender === "woman";
-
-  function update(patch: Current) {
-    const params = new URLSearchParams();
-    const next = { ...current, ...patch };
-    for (const [key, value] of Object.entries(next)) {
-      if (value) params.set(key, value);
-    }
-    const qs = params.toString();
-    router.push(qs ? `/actors?${qs}` : "/actors", { scroll: false });
-  }
 
   const numAt = (key: string, fallback: number) => {
     const v = current[key];
@@ -236,86 +267,72 @@ export function ActorsFilters({
     else update({ [def.minKey]: undefined, [def.maxKey]: undefined });
   }
 
-  const controls = (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-end gap-x-6 gap-y-3">
-        {/* Gender — segmented */}
-        <div className="flex flex-col gap-1">
-          <span className="text-muted px-0.5 text-xs font-medium">{t("gender")}</span>
-          <div className="border-border bg-surface inline-flex rounded-lg border p-0.5">
-            {[
-              { v: "", l: t("any") },
-              { v: "woman", l: t("women") },
-              { v: "man", l: t("men") },
-            ].map((opt) => {
-              const active = (current.gender ?? "") === opt.v;
-              return (
-                <button
-                  key={opt.v || "any"}
-                  type="button"
-                  onClick={() => update({ gender: opt.v || undefined })}
-                  className={cn(
-                    "rounded-md px-3 py-1.5 text-sm transition-colors",
-                    active
-                      ? "bg-background font-medium shadow-sm"
-                      : "text-muted hover:text-foreground",
-                  )}
-                >
-                  {opt.l}
-                </button>
-              );
-            })}
-          </div>
+  return (
+    <div
+      className={cn(
+        "items-end gap-3",
+        layout === "row" ? "no-scrollbar flex overflow-x-auto pb-1" : "flex flex-wrap gap-y-3",
+      )}
+    >
+      {/* Gender — segmented */}
+      <div className="flex shrink-0 flex-col gap-1">
+        <span className="text-muted px-0.5 text-xs font-medium">{t("gender")}</span>
+        <div className="border-border bg-surface inline-flex rounded-lg border p-0.5">
+          {[
+            { v: "", l: t("any") },
+            { v: "woman", l: t("women") },
+            { v: "man", l: t("men") },
+          ].map((opt) => {
+            const active = (current.gender ?? "") === opt.v;
+            return (
+              <button
+                key={opt.v || "any"}
+                type="button"
+                onClick={() => update({ gender: opt.v || undefined })}
+                className={cn(
+                  "rounded-md px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
+                  active
+                    ? "bg-background font-medium shadow-sm"
+                    : "text-muted hover:text-foreground",
+                )}
+              >
+                {opt.l}
+              </button>
+            );
+          })}
         </div>
-
-        {/* Sort */}
-        <FieldSelect
-          label={t("sortPopular")}
-          placeholder={t("sortPopular")}
-          value={current.sort ?? "popular"}
-          options={[
-            { slug: "popular", name: t("sortPopular") },
-            { slug: "name", name: t("sortName") },
-            { slug: "newest", name: t("sortNewest") },
-          ]}
-          onChange={(v) => update({ sort: (v as ActorSort) || undefined })}
-        />
       </div>
 
-      {shown.length > 0 ? (
-        <div className="border-border flex flex-wrap items-end gap-x-6 gap-y-3 border-t pt-4">
-          {shown.map((def) =>
-            def.type === "select" ? (
-              <FieldSelect
-                key={def.key}
-                label={def.label}
-                placeholder={tCommon("select")}
-                value={current[def.key] ?? ""}
-                options={def.options}
-                onChange={(v) => update({ [def.key]: v || undefined })}
-                onRemove={() => removeField(def)}
-              />
-            ) : (
-              <FieldRange
-                key={def.key}
-                label={def.label}
-                unit={def.unit}
-                bounds={def.bounds}
-                value={[numAt(def.minKey, def.bounds.min), numAt(def.maxKey, def.bounds.max)]}
-                onCommit={([min, max]) =>
-                  update({
-                    [def.minKey]: min > def.bounds.min ? String(min) : undefined,
-                    [def.maxKey]: max < def.bounds.max ? String(max) : undefined,
-                  })
-                }
-                onRemove={() => removeField(def)}
-              />
-            ),
-          )}
-        </div>
-      ) : null}
+      {shown.map((def) =>
+        def.type === "select" ? (
+          <FieldSelect
+            key={def.key}
+            label={def.label}
+            placeholder={tCommon("select")}
+            value={current[def.key] ?? ""}
+            options={def.options}
+            onChange={(v) => update({ [def.key]: v || undefined })}
+            onRemove={() => removeField(def)}
+          />
+        ) : (
+          <FieldRange
+            key={def.key}
+            label={def.label}
+            unit={def.unit}
+            bounds={def.bounds}
+            value={[numAt(def.minKey, def.bounds.min), numAt(def.maxKey, def.bounds.max)]}
+            onCommit={([min, max]) =>
+              update({
+                [def.minKey]: min > def.bounds.min ? String(min) : undefined,
+                [def.maxKey]: max < def.bounds.max ? String(max) : undefined,
+              })
+            }
+            onRemove={() => removeField(def)}
+          />
+        ),
+      )}
 
-      <div className="flex items-center gap-3">
+      <div className="flex shrink-0 items-center gap-3 self-end pb-1">
         {remaining.length > 0 ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -338,33 +355,48 @@ export function ActorsFilters({
           type="button"
           onClick={() => {
             setAdded([]);
-            router.push("/actors", { scroll: false });
+            reset();
           }}
-          className="text-link text-sm hover:underline"
+          className="text-link text-sm whitespace-nowrap hover:underline"
         >
           {tCommon("reset")}
         </button>
       </div>
     </div>
   );
+}
 
+/** Desktop single-row filter bar with sort pinned to the right. */
+export function ActorsFiltersBar(props: { attributes: ActorAttributes; current: Current }) {
   return (
-    <>
-      <div className="desktop:block hidden">{controls}</div>
-      <div className="desktop:hidden">
-        <Dialog open={sheetOpen} onOpenChange={setSheetOpen}>
-          <DialogTrigger asChild>
-            <Button variant="secondary" size="md">
-              <SlidersHorizontal size={16} />
-              {tCommon("filters")}
-            </Button>
-          </DialogTrigger>
-          <DialogContent side="bottom" className="gap-4 pt-10">
-            <DialogTitle className="text-lg font-semibold">{tCommon("filters")}</DialogTitle>
-            {controls}
-          </DialogContent>
-        </Dialog>
+    <div className="desktop:flex hidden items-end gap-4">
+      <div className="min-w-0 flex-1">
+        <FilterControls {...props} layout="row" />
       </div>
-    </>
+      <SortControl current={props.current} />
+    </div>
+  );
+}
+
+/** Narrow-screen "Filters" button + modal (sort included inside). Place next to the heading. */
+export function ActorsFiltersTrigger(props: { attributes: ActorAttributes; current: Current }) {
+  const tCommon = useTranslations("common");
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="desktop:hidden">
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button variant="secondary" size="md">
+            <SlidersHorizontal size={16} />
+            {tCommon("filters")}
+          </Button>
+        </DialogTrigger>
+        <DialogContent side="bottom" className="gap-4 pt-10">
+          <DialogTitle className="text-lg font-semibold">{tCommon("filters")}</DialogTitle>
+          <FilterControls {...props} layout="wrap" />
+          <SortControl current={props.current} />
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

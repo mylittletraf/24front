@@ -1,5 +1,9 @@
 import { getLocale, getTranslations } from "next-intl/server";
-import { ActorsFilters, type ActorAttributes } from "@/components/actor/actors-filters";
+import {
+  ActorsFiltersBar,
+  ActorsFiltersTrigger,
+  type ActorAttributes,
+} from "@/components/actor/actors-filters";
 import { ActorsGrid } from "@/components/actor/actors-grid";
 import { Container } from "@/components/layout/container";
 import { getActors, type ActorListParams, type ActorSort } from "@/lib/api/actors";
@@ -77,13 +81,14 @@ export default async function ActorsPage({ searchParams }: { searchParams: Promi
 
   return (
     <Container className="desktop:py-6 flex flex-col gap-4 py-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3">
         <h1 className="text-xl font-bold">
           {t("title")} <span className="text-muted text-base font-normal">{initialPage.count}</span>
         </h1>
+        <ActorsFiltersTrigger attributes={attributes} current={current} />
       </div>
 
-      <ActorsFilters attributes={attributes} current={current} />
+      <ActorsFiltersBar attributes={attributes} current={current} />
 
       <ActorsGrid
         queryKey={["actors", lang, JSON.stringify(current)]}
