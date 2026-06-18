@@ -2,12 +2,18 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Play } from "lucide-react";
+import { Play, ThumbsUp } from "lucide-react";
 import { useLocale } from "next-intl";
 import type { VideoCard as VideoCardData } from "@/lib/api/types";
 import type { Locale } from "@/lib/i18n/locales";
-import { formatCount, formatDuration, formatRelativeDate } from "@/lib/utils/format";
+import {
+  formatCount,
+  formatDuration,
+  formatRelativeDate,
+  reactionRating,
+} from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
+import { BookmarkButton } from "./bookmark-button";
 
 /** Compact horizontal card for sidebars (UI_SPEC §3.3). */
 export function VideoCardHorizontal({
@@ -18,6 +24,7 @@ export function VideoCardHorizontal({
   className?: string;
 }) {
   const locale = useLocale() as Locale;
+  const rating = reactionRating(video.likes_count, video.dislikes_count);
   return (
     <Link href={`/video/${video.slug}`} className={cn("group flex gap-3", className)}>
       <div className="bg-surface relative aspect-video w-40 shrink-0 overflow-hidden rounded-lg">
@@ -35,6 +42,13 @@ export function VideoCardHorizontal({
             <Play size={24} />
           </div>
         )}
+        {rating !== null ? (
+          <span className="absolute top-1 left-1 inline-flex items-center gap-0.5 rounded bg-black/80 px-1 py-0.5 text-[11px] text-white">
+            <ThumbsUp size={10} />
+            {rating}%
+          </span>
+        ) : null}
+        <BookmarkButton uuid={video.uuid} className="absolute top-1 right-1 p-1" />
         <span className="absolute right-1 bottom-1 rounded bg-black/80 px-1 py-0.5 text-[11px] text-white">
           {formatDuration(video.duration)}
         </span>

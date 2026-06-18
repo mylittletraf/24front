@@ -47,6 +47,12 @@ export function formatRelativeDate(iso: string, locale: Locale = "ru"): string {
   return rtf.format(Math.round(duration), "year");
 }
 
+/** Like ratio as a whole percent (10/0 → 100, 5/5 → 50). Null when there are no reactions. */
+export function reactionRating(likes: number, dislikes: number): number | null {
+  const total = likes + dislikes;
+  return total > 0 ? Math.round((likes / total) * 100) : null;
+}
+
 /** ISO date → localized date like "01.01.1990". */
 export function formatDate(iso: string, locale: Locale = "ru"): string {
   return new Date(iso).toLocaleDateString(locale === "ru" ? "ru-RU" : "en-US");
