@@ -48,14 +48,22 @@ function commitSession(data: Record<string, unknown> | null, status = 200): Next
   return sessionResponse(rest, refresh, status);
 }
 
-async function refreshSession(): Promise<NextResponse> {
+/**
+ * Renew the session from the refresh cookie. `soft` (used by the on-load bootstrap) returns
+ * 200 `{ access: null }` for the anonymous/expired case so the browser doesn't log a 401;
+ * the explicit mid-session refresh keeps returning 401.
+ */
+async function refreshSession(soft = false): Promise<NextResponse> {
+  const noSession = (detail: string) =>
+    soft ? NextResponse.json({ access: null }) : NextResponse.json({ detail }, { status: 401 });
+
   const jar = await cookies();
   const refresh = jar.get(REFRESH_COOKIE)?.value;
-  if (!refresh) return NextResponse.json({ detail: "No session" }, { status: 401 });
+  if (!refresh) return noSession("No session");
 
   const { ok, data } = await backend("/auth/refresh/", { refresh });
   if (!ok || typeof data?.access !== "string" || typeof data?.refresh !== "string") {
-    const res = NextResponse.json({ detail: "Session expired" }, { status: 401 });
+    const res = noSession("Session expired");
     res.cookies.delete(REFRESH_COOKIE);
     return res;
   }
@@ -99,5 +107,5 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ action: st
 export async function GET(_req: NextRequest, ctx: { params: Promise<{ action: string }> }) {
   const { action } = await ctx.params;
   if (action !== "session") return NextResponse.json({ detail: "Not found" }, { status: 404 });
-  return refreshSession();
+  return refreshSession(true);
 }

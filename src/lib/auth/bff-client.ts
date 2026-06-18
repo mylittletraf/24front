@@ -21,8 +21,12 @@ export interface RegisterResult {
   user: User;
   quick_login_token: string;
 }
+/** Session bootstrap: access is null when not logged in (soft 200 rather than a 401). */
+export interface BootstrapResult {
+  access: string | null;
+}
 
-export const bffSession = () => bff<SessionResult>("session", undefined, "GET");
+export const bffSession = () => bff<BootstrapResult>("session", undefined, "GET");
 export const bffRefresh = () => bff<SessionResult>("refresh");
 export const bffLogin = (username: string, password: string) =>
   bff<SessionResult>("login", { username, password });

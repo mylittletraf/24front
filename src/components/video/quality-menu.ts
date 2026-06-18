@@ -11,6 +11,7 @@ interface QualityLevel {
 interface QualityLevelList {
   length: number;
   readonly [index: number]: QualityLevel;
+  selectedIndex: number; // index of the level currently being played (ABR or pinned)
   on(type: string, listener: () => void): void;
 }
 type PlayerWithQL = Player & { qualityLevels?: () => QualityLevelList };
@@ -46,6 +47,14 @@ export function setupQualityMenu(vjs: Vjs, player: Player): void {
     }
   };
 
+  // Label shown on the control-bar button: the resolution currently playing (or "Auto").
+  const currentLabel = (): string => {
+    if (selectedHeight !== -1) return `${selectedHeight}p`;
+    const i = levels.selectedIndex;
+    const h = i >= 0 && i < levels.length ? levels[i].height : undefined;
+    return h ? `${h}p` : "Auto";
+  };
+
   class QualityItem extends MenuItem {
     readonly levelHeight: number;
     constructor(label: string, height: number) {
@@ -59,18 +68,30 @@ export function setupQualityMenu(vjs: Vjs, player: Player): void {
   }
 
   class QualityMenuButton extends MenuButton {
+    private labelEl: HTMLElement | undefined;
     constructor() {
       super(player, {});
       this.addClass("vjs-quality-menu");
       this.controlText("Качество");
+      this.labelEl = document.createElement("span");
+      this.labelEl.className = "vjs-quality-label";
+      this.el().appendChild(this.labelEl);
+      this.updateLabel();
     }
     createItems() {
       const items: MenuItemType[] = [new QualityItem("Auto", -1)];
       for (const h of heights()) items.push(new QualityItem(`${h}p`, h));
       return items;
     }
+    updateLabel() {
+      if (this.labelEl) this.labelEl.textContent = currentLabel();
+    }
+    update() {
+      super.update();
+      this.updateLabel();
+    }
     buildCSSClass() {
-      return `vjs-quality-menu vjs-icon-cog ${super.buildCSSClass()}`;
+      return `vjs-quality-menu ${super.buildCSSClass()}`;
     }
   }
 
@@ -82,9 +103,10 @@ export function setupQualityMenu(vjs: Vjs, player: Player): void {
   const index = fsToggle ? controlBar.children().indexOf(fsToggle) : undefined;
   controlBar.addChild(ref.button, {}, index);
 
-  // Levels populate after the manifest loads; rebuild the menu as they arrive / change.
+  // Levels populate after the manifest loads; rebuild the menu as they arrive.
   levels.on("addqualitylevel", () => ref.button?.update());
   levels.on("removequalitylevel", () => ref.button?.update());
-  levels.on("change", () => ref.button?.update());
+  // ABR switched the active rendition → only refresh the displayed resolution.
+  levels.on("change", () => ref.button?.updateLabel());
   ref.button.update();
 }
