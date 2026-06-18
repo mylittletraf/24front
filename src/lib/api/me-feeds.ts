@@ -19,11 +19,20 @@ export async function getMeVideoFeed(
   return parsed.success ? parsed.data : emptyPage();
 }
 
+/** Rewrite an absolute backend URL to the same-origin proxy (for authed pagination). */
+function toProxyUrl(absolute: string): string {
+  const marker = "/api/v1/";
+  const idx = absolute.indexOf(marker);
+  const rest = idx >= 0 ? absolute.slice(idx + marker.length) : absolute;
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  return `${origin}/api/proxy/${rest}`;
+}
+
 export async function getMeVideoPageByUrl(
   url: string,
   token: string,
 ): Promise<PageNumberPage<VideoCard>> {
-  const res = await fetch(url, {
+  const res = await fetch(toProxyUrl(url), {
     headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
   });
   if (!res.ok) throw new ApiError(res.status, res.statusText);

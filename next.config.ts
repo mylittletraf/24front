@@ -4,6 +4,9 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./src/lib/i18n/request.ts");
 
 const nextConfig: NextConfig = {
+  // Keep trailing slashes on /api/proxy/* (DRF endpoints need them) instead of
+  // 308-redirecting them away.
+  skipTrailingSlashRedirect: true,
   images: {
     // The dev backend serves images from localhost (a private IP); Next 16's SSRF
     // guard blocks optimizing those, so allow local IPs in development only.

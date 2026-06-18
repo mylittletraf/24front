@@ -47,7 +47,17 @@ function safeJson(text: string): unknown {
  * 204/205 resolve to `undefined`.
  */
 export async function apiFetch<T>(path: string, opts: ApiRequestOptions = {}): Promise<T> {
-  const base = opts.base ?? (typeof window === "undefined" ? SERVER_API_BASE : CLIENT_API_BASE);
+  let base = opts.base;
+  if (!base) {
+    if (typeof window === "undefined") {
+      base = SERVER_API_BASE;
+    } else if (opts.token) {
+      // Authenticated calls go through the same-origin BFF proxy to avoid CORS.
+      base = `${window.location.origin}/api/proxy`;
+    } else {
+      base = CLIENT_API_BASE;
+    }
+  }
   const url = buildUrl(path, opts.params, base);
 
   const headers: Record<string, string> = { Accept: "application/json", ...opts.headers };
