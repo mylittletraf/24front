@@ -1,6 +1,6 @@
 "use client";
 
-import { Bookmark, Search } from "lucide-react";
+import { Bookmark, ChevronDown, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -9,45 +9,76 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import type { Tag } from "@/lib/api/types";
 import { cn } from "@/lib/utils/cn";
+import { useCategoriesDisclosure } from "./categories-disclosure";
 import { MobileDrawer } from "./mobile-drawer";
 import { ProfileMenu } from "./profile-menu";
 import { SearchBox } from "./search-box";
 import { ThemeToggle } from "./theme-toggle";
 
-function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
+function navLinkClass(active: boolean) {
+  return cn(
+    "border-b-2 px-1 py-1 text-sm font-medium transition-colors",
+    active
+      ? "border-accent text-foreground"
+      : "text-muted hover:text-foreground border-transparent",
+  );
+}
+
+function NavLink({
+  href,
+  label,
+  onNavigate,
+}: {
+  href: string;
+  label: string;
+  onNavigate?: () => void;
+}) {
+  const pathname = usePathname();
+  const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
+  return (
+    <Link href={href} onClick={onNavigate} className={navLinkClass(active)}>
+      {label}
+    </Link>
+  );
+}
+
+/** Desktop "Категории" — text links to /categories, the arrow toggles the on-page panel. */
+function CategoriesNavItem() {
   const t = useTranslations("nav");
   const pathname = usePathname();
-  const items = [
-    { href: "/", label: t("videos") },
-    { href: "/actors", label: t("actors") },
-    { href: "/collections", label: t("collections") },
-  ];
+  const { open, toggle } = useCategoriesDisclosure();
+  const active = pathname.startsWith("/categories") || pathname.startsWith("/category");
+  return (
+    <span className={cn("flex items-center gap-0.5", navLinkClass(active))}>
+      <Link href="/categories">{t("categories")}</Link>
+      <button
+        type="button"
+        onClick={toggle}
+        aria-expanded={open}
+        aria-label={t("categories")}
+        className="grid h-5 w-5 place-items-center"
+      >
+        <ChevronDown size={16} className={cn("transition-transform", open && "rotate-180")} />
+      </button>
+    </span>
+  );
+}
+
+/** Plain links used in the mobile sub-nav (categories live in the hamburger there). */
+function MobileNavLinks({ onNavigate }: { onNavigate?: () => void }) {
+  const t = useTranslations("nav");
   return (
     <>
-      {items.map(({ href, label }) => {
-        const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
-        return (
-          <Link
-            key={href}
-            href={href}
-            onClick={onNavigate}
-            className={cn(
-              "border-b-2 px-1 py-1 text-sm font-medium transition-colors",
-              active
-                ? "border-accent text-foreground"
-                : "text-muted hover:text-foreground border-transparent",
-            )}
-          >
-            {label}
-          </Link>
-        );
-      })}
+      <NavLink href="/" label={t("videos")} onNavigate={onNavigate} />
+      <NavLink href="/actors" label={t("actors")} onNavigate={onNavigate} />
+      <NavLink href="/collections" label={t("collections")} onNavigate={onNavigate} />
     </>
   );
 }
 
 export function Header({ categories }: { categories: Tag[] }) {
   const t = useTranslations("search");
+  const tNav = useTranslations("nav");
   const [searchOpen, setSearchOpen] = useState(false);
 
   return (
@@ -58,7 +89,10 @@ export function Header({ categories }: { categories: Tag[] }) {
         </Link>
 
         <nav className="desktop:flex hidden items-center gap-5">
-          <NavLinks />
+          <NavLink href="/" label={tNav("videos")} />
+          <CategoriesNavItem />
+          <NavLink href="/actors" label={tNav("actors")} />
+          <NavLink href="/collections" label={tNav("collections")} />
         </nav>
 
         <div className="desktop:flex hidden flex-1 justify-center">
@@ -96,7 +130,7 @@ export function Header({ categories }: { categories: Tag[] }) {
 
       {/* Mobile sub-nav under the header (centered) */}
       <nav className="border-border desktop:hidden flex justify-center gap-8 border-t px-4 py-2">
-        <NavLinks />
+        <MobileNavLinks />
       </nav>
 
       <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
