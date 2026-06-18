@@ -14,7 +14,7 @@ export async function Footer() {
 
   return (
     <footer className="border-border bg-background desktop:block mt-auto hidden border-t">
-      <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-6 py-6 text-sm">
+      <div className="flex w-full items-center justify-between gap-4 px-6 py-6 text-sm">
         <Link href="/" className="text-accent font-bold">
           24front
         </Link>

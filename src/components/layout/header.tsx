@@ -52,7 +52,7 @@ export function Header({ categories }: { categories: Tag[] }) {
 
   return (
     <header className="border-border bg-background sticky top-0 z-40 border-b">
-      <div className="desktop:px-6 mx-auto flex h-14 max-w-[1600px] items-center gap-4 px-4">
+      <div className="desktop:px-6 flex h-14 w-full items-center gap-4 px-4">
         <Link href="/" className="text-accent shrink-0 text-xl font-bold">
           24front
         </Link>

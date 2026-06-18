@@ -5,7 +5,7 @@ export function VideoGrid({ className, ...props }: React.ComponentProps<"div">) 
   return (
     <div
       className={cn(
-        "grid grid-cols-1 gap-x-3 gap-y-5 sm:grid-cols-2 sm:gap-x-4 md:grid-cols-3 xl:grid-cols-4",
+        "wide:grid-cols-5 grid grid-cols-1 gap-x-3 gap-y-5 sm:grid-cols-2 sm:gap-x-4 md:grid-cols-3 xl:grid-cols-4",
         className,
       )}
       {...props}
