@@ -3,6 +3,8 @@ import { getTranslations } from "next-intl/server";
 import { notFound, redirect } from "next/navigation";
 import { Container } from "@/components/layout/container";
 import { ActiveFilters, RefineBlock } from "@/components/catalog/refine-block";
+import { FiltersDialog } from "@/components/catalog/filters-dialog";
+import { SortSelect } from "@/components/catalog/sort-select";
 import { JsonLd } from "@/components/seo/json-ld";
 import { LanguageSwitcher } from "@/components/seo/language-switcher";
 import { Description } from "@/components/video/description";
@@ -108,6 +110,11 @@ export async function EntityVideoPage({
       </header>
 
       {detail.description ? <Description text={detail.description} /> : null}
+
+      <div className="flex items-center justify-end gap-2">
+        <FiltersDialog filters={refineFilters} basePath={basePath} />
+        <SortSelect filters={refineFilters} basePath={basePath} />
+      </div>
 
       {/* Refine in place — chips stay on this page and accumulate (basePath = this entity). */}
       <RefineBlock related={related} filters={refineFilters} basePath={basePath} />

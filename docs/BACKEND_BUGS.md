@@ -111,3 +111,24 @@ fight the cache. Suggested options (pick one):
 
 This also affects like/dislike state (currently the UI starts "neutral" after reload since
 the user's existing reaction isn't returned).
+
+---
+
+## 5. Category/tag with videos missing from list + stale `videos_count` (medium)
+
+A newly populated category `cat-1` is inconsistent across endpoints:
+
+```bash
+curl -s ".../categories/cat-1/?lang=ru"                      # videos_count: 0
+curl -s ".../videos/related-filters/?categories=cat-1"       # total_videos: 1
+curl -s ".../categories/?page_size=100"                      # cat-1 NOT in the list (count 31)
+```
+
+So the category has at least one video (`/videos/?categories=cat-1` returns it), but its
+detail reports `videos_count: 0` and it is omitted from `/categories/`. Likely the list
+filters out categories whose (stale) `videos_count` is 0, and the per-entity count isn't
+recomputed when videos are assigned.
+
+Impact: newly filled categories/tags don't appear in the header strip or `/categories`
+until counts are recalculated. (Their refine block is also empty because a 1-video
+category has no co-occurring tags with `intersection_count ≥ 2` — that part is expected.)
