@@ -49,14 +49,21 @@ function CategoriesNavItem() {
   const { open, toggle } = useCategoriesDisclosure();
   const active = pathname.startsWith("/categories") || pathname.startsWith("/category");
   return (
-    <span className={cn("flex items-center gap-0.5", navLinkClass(active))}>
-      <Link href="/categories">{t("categories")}</Link>
+    <span className="flex items-center gap-1.5">
+      <Link href="/categories" className={navLinkClass(active)}>
+        {t("categories")}
+      </Link>
       <button
         type="button"
         onClick={toggle}
         aria-expanded={open}
         aria-label={t("categories")}
-        className="grid h-5 w-5 place-items-center"
+        className={cn(
+          "grid h-7 w-7 place-items-center rounded-full border transition-colors",
+          open
+            ? "border-accent bg-accent/10 text-accent"
+            : "border-border text-muted hover:bg-surface hover:text-foreground",
+        )}
       >
         <ChevronDown size={16} className={cn("transition-transform", open && "rotate-180")} />
       </button>
