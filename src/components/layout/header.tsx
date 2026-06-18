@@ -61,8 +61,10 @@ export function Header({ categories }: { categories: Tag[] }) {
           <NavLinks />
         </nav>
 
-        <div className="desktop:block hidden max-w-[500px] flex-1">
-          <SearchBox />
+        <div className="desktop:flex hidden flex-1 justify-center">
+          <div className="w-full max-w-[520px]">
+            <SearchBox />
+          </div>
         </div>
 
         <div className="desktop:hidden flex-1" />
