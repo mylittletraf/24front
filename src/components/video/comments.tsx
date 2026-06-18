@@ -43,7 +43,7 @@ export function CommentsSection({
   const comments = data?.pages.flatMap((p) => p.results) ?? [];
 
   return (
-    <section className="flex flex-col gap-4">
+    <section className="border-border bg-surface/40 desktop:p-5 flex flex-col gap-4 rounded-2xl border p-4">
       <h2 className="text-lg font-semibold">
         {t("comments")} ({commentsCount})
       </h2>
@@ -54,7 +54,7 @@ export function CommentsSection({
         <p className="text-muted py-4 text-sm">{t("noComments")}</p>
       ) : null}
 
-      <ul className="flex flex-col gap-4">
+      <ul className="divide-border flex flex-col divide-y">
         {comments.map((comment) => (
           <CommentItem key={comment.uuid} comment={comment} />
         ))}
@@ -83,7 +83,7 @@ function CommentForm({ videoUuid, onPosted }: { videoUuid: string; onPosted: () 
       <button
         type="button"
         onClick={() => openAuth("login")}
-        className="bg-surface text-muted hover:bg-surface-2 rounded-xl p-3 text-left text-sm"
+        className="bg-background text-muted hover:bg-surface-2 border-border rounded-xl border p-3 text-left text-sm"
       >
         {t("loginToComment")}
       </button>
@@ -114,7 +114,7 @@ function CommentForm({ videoUuid, onPosted }: { videoUuid: string; onPosted: () 
         onChange={(e) => setText(e.target.value)}
         rows={2}
         placeholder={t("commentPlaceholder")}
-        className="border-border bg-surface focus:border-muted resize-none rounded-lg border p-3 text-sm outline-none"
+        className="border-border bg-background focus:border-muted resize-none rounded-lg border p-3 text-sm outline-none"
       />
       <div className="flex justify-end">
         <Button variant="primary" size="sm" onClick={submit} disabled={submitting || !text.trim()}>
@@ -171,7 +171,7 @@ function CommentItem({ comment }: { comment: Comment }) {
   if (removed) return null;
 
   return (
-    <li className="flex flex-col gap-1">
+    <li className="flex flex-col gap-1 py-3 first:pt-0">
       <div className="flex items-center gap-2 text-sm">
         <span className={cn("font-medium", comment.author === null && "text-muted")}>
           {comment.author ?? t("anon")}
