@@ -410,7 +410,6 @@ export function ActorsFiltersTrigger(props: { attributes: ActorAttributes; curre
   const [open, setOpen] = useState(false);
   return (
     <div className="desktop:hidden flex items-center gap-2">
-      <SortControl current={props.current} compact />
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button variant="secondary" size="md">
@@ -423,6 +422,7 @@ export function ActorsFiltersTrigger(props: { attributes: ActorAttributes; curre
           <FilterControls {...props} layout="wrap" />
         </DialogContent>
       </Dialog>
+      <SortControl current={props.current} compact />
     </div>
   );
 }
