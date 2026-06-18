@@ -20,22 +20,22 @@ export function CategoryGrid({ categories }: { categories: Tag[] }) {
   return (
     <div className="border-border bg-background desktop:block hidden border-b">
       <div className="w-full px-6">
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          aria-expanded={open}
-          className="flex w-full items-center justify-between gap-2 py-2.5 text-sm font-medium"
-        >
-          <span className="flex items-center gap-2">
-            <LayoutGrid size={18} className="text-accent" />
+        <div className="flex justify-center py-2">
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            className="flex items-center gap-2 rounded-full border border-border px-4 py-1.5 text-sm font-medium transition-colors hover:bg-surface"
+          >
+            <LayoutGrid size={16} className="text-accent" />
             {t("nav.categories")}
             <span className="text-muted">({items.length})</span>
-          </span>
-          <ChevronDown
-            size={18}
-            className={cn("text-muted transition-transform", open && "rotate-180")}
-          />
-        </button>
+            <ChevronDown
+              size={16}
+              className={cn("text-muted transition-transform", open && "rotate-180")}
+            />
+          </button>
+        </div>
 
         {open ? (
           <div className="wide:grid-cols-6 grid grid-cols-2 gap-2.5 pb-4 md:grid-cols-3 lg:grid-cols-4">
