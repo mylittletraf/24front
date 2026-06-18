@@ -11,6 +11,15 @@ export interface ActorListParams {
   q?: string;
   gender?: "woman" | "man" | "unknown";
   country?: string;
+  body_type?: string;
+  bra_size?: string;
+  boobs_type?: string;
+  hair_color?: string;
+  eye_color?: string;
+  height_min?: number;
+  height_max?: number;
+  weight_min?: number;
+  weight_max?: number;
   sort?: ActorSort;
   page?: number;
   page_size?: number;
