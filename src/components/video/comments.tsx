@@ -17,6 +17,7 @@ import {
   type Comment,
 } from "@/lib/api/comments";
 import { useAuth } from "@/lib/auth/auth-context";
+import { useReaction } from "@/lib/hooks/use-reaction";
 import type { Locale } from "@/lib/i18n/locales";
 import { cn } from "@/lib/utils/cn";
 import { formatCount, formatRelativeDate } from "@/lib/utils/format";
@@ -132,51 +133,37 @@ function CommentItem({ comment }: { comment: Comment }) {
   const { isAuthenticated, getToken, user } = useAuth();
   const { open: openAuth } = useAuthUI();
 
-  const [likes, setLikes] = useState(comment.likes_count);
-  const [dislikes, setDislikes] = useState(comment.dislikes_count);
-  const [myReaction, setMyReaction] = useState<"like" | "dislike" | null>(null);
   const [removed, setRemoved] = useState(false);
 
   const canDelete =
     isAuthenticated && comment.author !== null && comment.author === user?.display_name;
 
-  async function react(reaction: "like" | "dislike") {
-    const token = getToken();
-    if (!token) {
+  const {
+    reaction: myReaction,
+    likes,
+    dislikes,
+    like,
+    dislike,
+  } = useReaction({
+    likesCount: comment.likes_count,
+    dislikesCount: comment.dislikes_count,
+    sync: (next) => {
+      const token = getToken();
+      if (!token) return Promise.reject(new Error("unauthorized"));
+      return next === null
+        ? removeCommentReaction(comment.uuid, token)
+        : reactToComment(comment.uuid, next, token);
+    },
+    onError: (error) => toastApiError(error, { onUnauthorized: () => openAuth("login") }),
+  });
+
+  function react(target: "like" | "dislike") {
+    if (!isAuthenticated) {
       openAuth("login");
       return;
     }
-
-    const prev = myReaction;
-    const prevLikes = likes;
-    const prevDislikes = dislikes;
-
-    if (prev === reaction) {
-      // Toggle off the current reaction.
-      setMyReaction(null);
-      if (reaction === "like") setLikes((n) => n - 1);
-      else setDislikes((n) => n - 1);
-    } else {
-      // Switch to (or set) this reaction, clearing the opposite one.
-      setMyReaction(reaction);
-      if (reaction === "like") {
-        setLikes((n) => n + 1);
-        if (prev === "dislike") setDislikes((n) => n - 1);
-      } else {
-        setDislikes((n) => n + 1);
-        if (prev === "like") setLikes((n) => n - 1);
-      }
-    }
-
-    try {
-      if (prev === reaction) await removeCommentReaction(comment.uuid, token);
-      else await reactToComment(comment.uuid, reaction, token);
-    } catch (error) {
-      setMyReaction(prev);
-      setLikes(prevLikes);
-      setDislikes(prevDislikes);
-      toastApiError(error, { onUnauthorized: () => openAuth("login") });
-    }
+    if (target === "like") like();
+    else dislike();
   }
 
   async function remove() {

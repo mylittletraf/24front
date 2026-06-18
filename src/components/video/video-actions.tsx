@@ -11,9 +11,9 @@ import {
   postGuestLike,
   removeFavorite,
   setReaction,
-  type Reaction,
 } from "@/lib/api/video-actions";
 import { useAuth } from "@/lib/auth/auth-context";
+import { useReaction } from "@/lib/hooks/use-reaction";
 import { cn } from "@/lib/utils/cn";
 import { formatCount } from "@/lib/utils/format";
 import { toastApiError } from "@/lib/toast-error";
@@ -40,88 +40,49 @@ export function VideoActions({
   const { isAuthenticated, getToken } = useAuth();
   const { open: openAuth } = useAuthUI();
 
-  const [likes, setLikes] = useState(likesCount);
-  const [dislikes, setDislikes] = useState(dislikesCount);
   const [favorites, setFavorites] = useState(favoritesCount);
-  const [myReaction, setMyReaction] = useState<Reaction | null>(null);
   const [favorited, setFavorited] = useState(false);
   const [guestLiked, setGuestLiked] = useState(() => guestLikedRecently(uuid));
 
-  async function handleLike() {
+  const {
+    reaction: myReaction,
+    likes: reactionLikes,
+    dislikes,
+    like,
+    dislike,
+  } = useReaction({
+    likesCount,
+    dislikesCount,
+    sync: (next) => {
+      const token = getToken();
+      if (!token) return Promise.reject(new Error("unauthorized"));
+      return next === null ? clearReaction(uuid, token) : setReaction(uuid, next, token);
+    },
+    onError: (error) => toastApiError(error, { onUnauthorized: () => openAuth("login") }),
+  });
+
+  const likes = reactionLikes + (guestLiked ? 1 : 0);
+
+  function handleLike() {
     if (!isAuthenticated) {
       if (guestLiked) {
         openAuth("login");
         return;
       }
-      setLikes((n) => n + 1);
       setGuestLiked(true);
       localStorage.setItem(`gl:${uuid}`, String(Date.now()));
-      try {
-        await postGuestLike(uuid);
-      } catch (error) {
-        toastApiError(error);
-      }
+      postGuestLike(uuid).catch((error) => toastApiError(error));
       return;
     }
-    const token = getToken();
-    if (!token) return;
-    const prev = myReaction;
-    if (prev === "like") {
-      setMyReaction(null);
-      setLikes((n) => n - 1);
-      try {
-        await clearReaction(uuid, token);
-      } catch (error) {
-        setMyReaction(prev);
-        setLikes((n) => n + 1);
-        toastApiError(error, { onUnauthorized: () => openAuth("login") });
-      }
-      return;
-    }
-    setMyReaction("like");
-    setLikes((n) => n + 1);
-    if (prev === "dislike") setDislikes((n) => n - 1);
-    try {
-      await setReaction(uuid, "like", token);
-    } catch (error) {
-      setMyReaction(prev);
-      setLikes((n) => n - 1);
-      if (prev === "dislike") setDislikes((n) => n + 1);
-      toastApiError(error, { onUnauthorized: () => openAuth("login") });
-    }
+    like();
   }
 
-  async function handleDislike() {
+  function handleDislike() {
     if (!isAuthenticated) {
       openAuth("login");
       return;
     }
-    const token = getToken();
-    if (!token) return;
-    const prev = myReaction;
-    if (prev === "dislike") {
-      setMyReaction(null);
-      setDislikes((n) => n - 1);
-      try {
-        await clearReaction(uuid, token);
-      } catch (error) {
-        setMyReaction(prev);
-        setDislikes((n) => n + 1);
-        toastApiError(error, { onUnauthorized: () => openAuth("login") });
-      }
-      return;
-    }
-    setMyReaction("dislike");
-    setDislikes((n) => n + 1);
-    if (prev === "like") setLikes((n) => n - 1);
-    try {
-      await setReaction(uuid, "dislike", token);
-    } catch (error) {
-      setMyReaction(prev);
-      setDislikes((n) => n - 1);
-      if (prev === "like") setLikes((n) => n + 1);
-      toastApiError(error, { onUnauthorized: () => openAuth("login") });
-    }
+    dislike();
   }
 
   async function handleFavorite() {
