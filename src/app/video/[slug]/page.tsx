@@ -1,6 +1,6 @@
 import { Eye } from "lucide-react";
 import type { Metadata } from "next";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { notFound, redirect } from "next/navigation";
 import { Container } from "@/components/layout/container";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -43,6 +43,7 @@ export async function generateMetadata({ params, searchParams }: PageParams): Pr
 export default async function VideoPage({ params, searchParams }: PageParams) {
   const { slug } = await params;
   const lang = await resolvePageLocale(searchParams);
+  const t = await getTranslations("video");
 
   let detail;
   try {
@@ -98,26 +99,50 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
           </div>
 
           {detail.actors.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {detail.actors.map((actor) => (
-                <Chip key={actor.uuid} href={`/actor/${actor.slug}`}>
-                  {actor.name}
-                </Chip>
-              ))}
-            </div>
+            <section className="flex flex-col gap-1.5">
+              <h2 className="text-muted text-sm font-semibold">{t("actorsTitle")}:</h2>
+              <div className="flex flex-wrap gap-2">
+                {detail.actors.map((actor) => (
+                  <Chip key={actor.uuid} href={`/actor/${actor.slug}`}>
+                    {actor.name}
+                  </Chip>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          {detail.categories.length > 0 ? (
+            <section className="flex flex-col gap-1.5">
+              <h2 className="text-muted text-sm font-semibold">{t("categoriesTitle")}:</h2>
+              <div className="flex flex-wrap gap-2">
+                {detail.categories.map((category) => (
+                  <Chip key={category.uuid} href={`/category/${category.slug}`}>
+                    {category.name}
+                  </Chip>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          {detail.description ? (
+            <section className="flex flex-col gap-1.5">
+              <h2 className="text-muted text-sm font-semibold">{t("descriptionTitle")}:</h2>
+              <Description text={detail.description} />
+            </section>
           ) : null}
 
           {detail.tags.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {detail.tags.map((tag) => (
-                <Chip key={tag.uuid} href={`/tag/${tag.slug}`}>
-                  #{tag.name}
-                </Chip>
-              ))}
-            </div>
+            <section className="flex flex-col gap-1.5">
+              <h2 className="text-muted text-sm font-semibold">{t("tagsTitle")}:</h2>
+              <div className="flex flex-wrap gap-2">
+                {detail.tags.map((tag) => (
+                  <Chip key={tag.uuid} href={`/tag/${tag.slug}`}>
+                    #{tag.name}
+                  </Chip>
+                ))}
+              </div>
+            </section>
           ) : null}
-
-          {detail.description ? <Description text={detail.description} /> : null}
 
           <CommentsSection videoUuid={detail.uuid} commentsCount={detail.comments_count} />
 

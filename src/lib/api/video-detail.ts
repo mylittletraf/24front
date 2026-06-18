@@ -29,6 +29,7 @@ export const VideoDetailSchema = z.object({
   }),
   screens: z.array(z.string()).default([]),
   poster: z.string().nullable(),
+  categories: z.array(NamedRefSchema).default([]),
   tags: z.array(NamedRefSchema).default([]),
   actors: z.array(NamedRefSchema).default([]),
   slugs: z.record(z.string(), z.string()).default({}),
