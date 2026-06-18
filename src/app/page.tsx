@@ -1,5 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { ActiveFilters, RefineBlock } from "@/components/catalog/refine-block";
+import { SaveFilterButton } from "@/components/catalog/save-filter-button";
 import { FiltersDialog } from "@/components/catalog/filters-dialog";
 import { SortSelect } from "@/components/catalog/sort-select";
 import { Container } from "@/components/layout/container";
@@ -54,7 +55,10 @@ export default async function HomePage({
         </div>
       </div>
 
-      <ActiveFilters filters={filters} basePath="/" labels={labels} />
+      <div className="flex flex-wrap items-center gap-2">
+        <ActiveFilters filters={filters} basePath="/" labels={labels} />
+        {active ? <SaveFilterButton filters={filters} labels={labels} /> : null}
+      </div>
       {related ? <RefineBlock related={related} filters={filters} basePath="/" /> : null}
 
       <InfiniteVideoFeed

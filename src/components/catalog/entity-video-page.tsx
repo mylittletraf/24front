@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { notFound, redirect } from "next/navigation";
 import { Container } from "@/components/layout/container";
 import { ActiveFilters, RefineBlock } from "@/components/catalog/refine-block";
+import { SaveFilterButton } from "@/components/catalog/save-filter-button";
 import { FiltersDialog } from "@/components/catalog/filters-dialog";
 import { SortSelect } from "@/components/catalog/sort-select";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -112,7 +113,10 @@ export async function EntityVideoPage({
 
       {/* Refine in place — chips stay on this page and accumulate (basePath = this entity). */}
       <RefineBlock related={related} filters={refineFilters} basePath={basePath} />
-      <ActiveFilters filters={refineFilters} basePath={basePath} labels={labels} />
+      <div className="flex flex-wrap items-center gap-2">
+        <ActiveFilters filters={refineFilters} basePath={basePath} labels={labels} />
+        <SaveFilterButton filters={combined} labels={{ ...labels, [slug]: detail.name }} />
+      </div>
 
       <InfiniteVideoFeed
         queryKey={["videos", kind, slug, lang, filtersToSearchString(refineFilters)]}

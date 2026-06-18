@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import type { ReactNode } from "react";
 import { AuthUIProvider } from "@/components/auth/auth-ui";
 import { Toaster } from "@/components/common/toaster";
+import { FeedUnreadProvider } from "@/components/feed/feed-unread-context";
 import { VideoStateProvider } from "@/components/video/video-state-context";
 import { getQueryClient } from "@/lib/api/query-client";
 import { AuthProvider } from "@/lib/auth/auth-context";
@@ -16,7 +17,9 @@ export function Providers({ children }: { children: ReactNode }) {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <VideoStateProvider>
-            <AuthUIProvider>{children}</AuthUIProvider>
+            <FeedUnreadProvider>
+              <AuthUIProvider>{children}</AuthUIProvider>
+            </FeedUnreadProvider>
           </VideoStateProvider>
           <Toaster />
         </AuthProvider>

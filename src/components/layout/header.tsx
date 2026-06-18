@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { useFeedUnread } from "@/components/feed/feed-unread-context";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import type { Tag } from "@/lib/api/types";
@@ -71,6 +72,28 @@ function CategoriesNavItem() {
   );
 }
 
+/** "Лента" with an unseen-count badge. */
+function FeedNavLink({ onNavigate }: { onNavigate?: () => void }) {
+  const t = useTranslations("nav");
+  const pathname = usePathname();
+  const { count } = useFeedUnread();
+  const active = pathname.startsWith("/feed");
+  return (
+    <Link
+      href="/feed"
+      onClick={onNavigate}
+      className={cn(navLinkClass(active), "inline-flex items-center gap-1.5")}
+    >
+      {t("feed")}
+      {count > 0 ? (
+        <span className="bg-accent grid h-4 min-w-4 place-items-center rounded-full px-1 text-[10px] font-semibold text-white">
+          {count > 99 ? "99+" : count}
+        </span>
+      ) : null}
+    </Link>
+  );
+}
+
 /** Plain links used in the mobile sub-nav (categories live in the hamburger there). */
 function MobileNavLinks({ onNavigate }: { onNavigate?: () => void }) {
   const t = useTranslations("nav");
@@ -79,6 +102,7 @@ function MobileNavLinks({ onNavigate }: { onNavigate?: () => void }) {
       <NavLink href="/" label={t("videos")} onNavigate={onNavigate} />
       <NavLink href="/actors" label={t("actors")} onNavigate={onNavigate} />
       <NavLink href="/collections" label={t("collections")} onNavigate={onNavigate} />
+      <FeedNavLink onNavigate={onNavigate} />
     </>
   );
 }
@@ -100,6 +124,7 @@ export function Header({ categories }: { categories: Tag[] }) {
           <CategoriesNavItem />
           <NavLink href="/actors" label={tNav("actors")} />
           <NavLink href="/collections" label={tNav("collections")} />
+          <FeedNavLink />
         </nav>
 
         <div className="desktop:flex hidden flex-1 justify-center">
