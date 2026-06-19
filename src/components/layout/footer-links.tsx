@@ -5,26 +5,32 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { submitFeedback, type FeedbackType } from "@/lib/api/feedback";
+import { submitReport } from "@/lib/api/video-actions";
 import { toastApiError } from "@/lib/toast-error";
 
 type Modal = "complaint" | "info" | "advertising" | null;
 
+// Report topic slugs from /report-topics/ — auto-selected per form (no picker shown).
+const COMPLAINT_TOPIC = "abuse";
+const ADVERTISING_TOPIC = "ads";
+
 const inputClass =
   "border-border bg-background focus:border-accent w-full rounded-lg border px-3 py-2 text-sm outline-none";
 
-/** Footer form (complaint / advertising): message + optional email/url → POST /feedback/. */
-function FeedbackForm({ type, onDone }: { type: FeedbackType; onDone: () => void }) {
+/** Footer contact form: email + message are folded into the report's description. */
+function ReportForm({ topic, onDone }: { topic: string; onDone: () => void }) {
   const t = useTranslations("footer");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
 
   async function submit() {
-    if (!message.trim()) return;
+    const text = message.trim();
+    if (!text) return;
+    const description = email.trim() ? `Email: ${email.trim()}\n\n${text}` : text;
     setSending(true);
     try {
-      await submitFeedback({ type, message: message.trim(), email: email.trim() || undefined });
+      await submitReport(topic, description);
       toast.success(t("sent"));
       onDone();
     } catch (error) {
@@ -102,7 +108,7 @@ export function FooterLinks() {
           {modal === "complaint" ? (
             <>
               <DialogTitle className="text-lg font-semibold">{t("complaintTitle")}</DialogTitle>
-              <FeedbackForm type="complaint" onDone={close} />
+              <ReportForm topic={COMPLAINT_TOPIC} onDone={close} />
             </>
           ) : null}
 
@@ -117,7 +123,7 @@ export function FooterLinks() {
             <>
               <DialogTitle className="text-lg font-semibold">{t("advertisingTitle")}</DialogTitle>
               <FormattedText text={t("advertisingBody")} />
-              <FeedbackForm type="advertising" onDone={close} />
+              <ReportForm topic={ADVERTISING_TOPIC} onDone={close} />
             </>
           ) : null}
         </DialogContent>

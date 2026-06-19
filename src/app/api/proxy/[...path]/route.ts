@@ -16,6 +16,10 @@ async function handle(req: NextRequest, ctx: { params: Promise<{ path: string[] 
   if (auth) headers.Authorization = auth;
   const contentType = req.headers.get("content-type");
   if (contentType) headers["Content-Type"] = contentType;
+  // Forward the browser language so language-sensitive endpoints (e.g. /report-topics/)
+  // resolve correctly instead of falling back to the backend default.
+  const acceptLanguage = req.headers.get("accept-language");
+  if (acceptLanguage) headers["Accept-Language"] = acceptLanguage;
 
   const hasBody = req.method !== "GET" && req.method !== "HEAD";
   const body = hasBody ? await req.text() : undefined;

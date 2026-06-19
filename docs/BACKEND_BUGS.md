@@ -5,21 +5,29 @@ All commands run against `http://127.0.0.1:8000/api/v1`.
 
 ---
 
-## 2. Footer forms need a feedback endpoint (feature request)
+## 2. General (no-target) report endpoint for footer forms (feature request)
 
-The new footer has a **Complaint** form and an **Advertising** form. There's no general
-contact/complaint endpoint today (the report flow is per-video only: `/videos/{uuid}/report/`).
-The frontend posts both to:
+The footer **Complaint** and **Advertising** forms reuse the reports model (topic from
+`/report-topics/` + free text), but there's only a **per-target** report endpoint today
+(`/videos/{uuid}/report/`, `/comments/{uuid}/report/`). A general one is missing:
 
-```
-POST /api/v1/feedback/
-{ "type": "complaint" | "advertising", "message": "…", "email": "…" (optional), "url": "…" (optional) }
-→ 201/204
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" -X POST .../reports/   # 404
 ```
 
-Anonymous-friendly (no auth required), with throttling like reports. Until it exists the forms
-show an error toast on submit; the rest of the footer (text + Information popup) works regardless.
-The forms are wired and will work as soon as `/feedback/` is added.
+Need a general endpoint, same `{topic, description}` contract as the per-video report:
+
+```
+POST /api/v1/reports/
+{ "topic": "abuse" | "ads" | …, "description": "…" }   → 201
+```
+
+- Anonymous-friendly, throttled like reports.
+- The frontend auto-selects the topic slug per form (complaint → `abuse`, advertising → `ads`)
+  and folds the optional email into `description` — so only `{topic, description}` is sent.
+- Topic `name`/translations aren't needed by the frontend (slug only).
+
+The forms are wired and will work as soon as `POST /reports/` exists.
 
 ## 1. Untranslated content returns `null` title/slug instead of falling back (high)
 

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { Locale } from "@/lib/i18n/locales";
 import { apiFetch, apiFetchStatus } from "./fetcher";
 
 export type Reaction = "like" | "dislike";
@@ -68,9 +69,9 @@ export async function getVast(videoUuid: string, placement: AdPlacement): Promis
 export const ReportTopicSchema = z.object({ slug: z.string(), name: z.string() });
 export type ReportTopic = z.infer<typeof ReportTopicSchema>;
 
-export async function getReportTopics(): Promise<ReportTopic[]> {
+export async function getReportTopics(lang?: Locale): Promise<ReportTopic[]> {
   try {
-    const data = await apiFetch<unknown>("/report-topics/", { revalidate: 1800 });
+    const data = await apiFetch<unknown>("/report-topics/", { params: { lang }, revalidate: 1800 });
     const parsed = z.array(ReportTopicSchema).safeParse(data);
     return parsed.success ? parsed.data : [];
   } catch {
@@ -90,4 +91,13 @@ export async function reportComment(commentUuid: string, topic: string, descript
     method: "POST",
     body: { topic, description },
   });
+}
+
+/**
+ * General (no-target) report — used by the footer contact forms. Same {topic, description}
+ * contract as the per-video report; the topic is a slug from /report-topics/ (e.g. "abuse",
+ * "ads"). Needs backend POST /reports/.
+ */
+export async function submitReport(topic: string, description: string) {
+  await apiFetch("/reports/", { method: "POST", body: { topic, description } });
 }

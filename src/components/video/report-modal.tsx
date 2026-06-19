@@ -1,14 +1,17 @@
 "use client";
 
 import { Flag } from "lucide-react";
+import { useLocale } from "next-intl";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { getReportTopics, reportVideo, type ReportTopic } from "@/lib/api/video-actions";
+import type { Locale } from "@/lib/i18n/locales";
 import { toastApiError } from "@/lib/toast-error";
 
 export function ReportModal({ videoUuid }: { videoUuid: string }) {
+  const locale = useLocale() as Locale;
   const [open, setOpen] = useState(false);
   const [topics, setTopics] = useState<ReportTopic[]>([]);
   const [topic, setTopic] = useState("");
@@ -17,14 +20,14 @@ export function ReportModal({ videoUuid }: { videoUuid: string }) {
 
   useEffect(() => {
     if (open && topics.length === 0) {
-      getReportTopics()
+      getReportTopics(locale)
         .then((list) => {
           setTopics(list);
           if (list[0]) setTopic(list[0].slug);
         })
         .catch(() => undefined);
     }
-  }, [open, topics.length]);
+  }, [open, topics.length, locale]);
 
   async function submit() {
     if (!topic) return;
