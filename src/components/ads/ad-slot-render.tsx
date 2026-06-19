@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { track } from "@/lib/analytics/track";
 import type { AdSlot } from "@/lib/api/ads";
 import { isUrl } from "@/lib/ads";
 
@@ -35,6 +36,8 @@ export function AdSlotRender({ slot, className }: { slot: AdSlot; className?: st
     if (!host) return;
     host.innerHTML = (slot.html ?? "") + scriptToMarkup(slot.script ?? "");
     executeScripts(host);
+    // An HTML/JS slot (catfish, in_page, native, …) was activated/rendered.
+    track("ad_slot_render", { slot: slot.code });
     return () => {
       host.innerHTML = "";
     };

@@ -4,6 +4,7 @@ import "video.js/dist/video-js.css";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
 import type Player from "video.js/dist/types/player";
+import { track } from "@/lib/analytics/track";
 import { getVast, postProgress, postView, type AdPlacement } from "@/lib/api/video-actions";
 import { useAuth } from "@/lib/auth/auth-context";
 import { cooldownOk } from "@/lib/ads";
@@ -167,7 +168,13 @@ export function VideoPlayer({
       playerRef.current = player;
 
       // Same tick: init ads (if any) BEFORE setting the source, then load the content.
-      if (adTags) initVastAds(player, adTags);
+      if (adTags) {
+        initVastAds(player, adTags);
+        // Count a VAST impression when an ad actually starts (contrib-ads event).
+        player.on("ads-ad-started", () =>
+          track("ad_impression", { format: "vast", placement: vastPlacements.pre }),
+        );
+      }
       player.src({ src: hls, type: "application/x-mpegURL" });
 
       // HLS resolution selector in the control bar (replaces the playback-speed menu).
@@ -185,6 +192,7 @@ export function VideoPlayer({
         if (!viewedRef.current) {
           viewedRef.current = true;
           void postView(uuid, getToken());
+          track("video_play", { video_uuid: uuid });
         }
       });
 
@@ -197,6 +205,7 @@ export function VideoPlayer({
         if (playCountRef.current >= CLICKUNDER_ON_NTH_PLAY) {
           const link = clickunderRef.current;
           if (link && cooldownOk("clickander_play", CLICKUNDER_COOLDOWN_MS)) {
+            track("ad_clickunder", { slot: "clickander_play" });
             const w = window.open(link, "_blank", "noopener");
             try {
               w?.blur?.();
@@ -211,7 +220,10 @@ export function VideoPlayer({
         clearInterval(progressTimer);
         sendProgress();
       });
-      player.on("ended", () => clearInterval(progressTimer));
+      player.on("ended", () => {
+        clearInterval(progressTimer);
+        track("video_complete", { video_uuid: uuid });
+      });
 
       onUnload = () => sendProgress();
       window.addEventListener("pagehide", onUnload);
