@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useFeedUnread } from "@/components/feed/feed-unread-context";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { SITE_NAME } from "@/lib/api/config";
 import type { Tag } from "@/lib/api/types";
 import { cn } from "@/lib/utils/cn";
 import { useCategoriesDisclosure } from "./categories-disclosure";
@@ -116,7 +117,7 @@ export function Header({ categories }: { categories: Tag[] }) {
     <header className="border-border bg-background sticky top-0 z-40 border-b">
       <div className="desktop:px-6 flex h-14 w-full items-center gap-4 px-4">
         <Link href="/" className="text-accent shrink-0 text-xl font-bold">
-          24front
+          {SITE_NAME}
         </Link>
 
         <nav className="desktop:flex hidden items-center gap-5">

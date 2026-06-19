@@ -6,7 +6,7 @@ import { AdLayer } from "@/components/ads/ad-layer";
 import { Analytics } from "@/components/analytics";
 import { Footer } from "@/components/layout/footer";
 import { SiteHeader } from "@/components/layout/site-header";
-import { SITE_URL } from "@/lib/api/config";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/api/config";
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -18,8 +18,9 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: "24front", template: "%s — 24front" },
-  description: "Tube site",
+  title: { default: SITE_NAME, template: `%s — ${SITE_NAME}` },
+  description: SITE_DESCRIPTION,
+  openGraph: { siteName: SITE_NAME },
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

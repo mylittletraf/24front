@@ -37,7 +37,7 @@ async function resolvePageLocale(searchParams: PageParams["searchParams"]): Prom
 export async function generateMetadata({ params, searchParams }: PageParams): Promise<Metadata> {
   const { slug } = await params;
   const lang = await resolvePageLocale(searchParams);
-  return seoToMetadata(await getSeo("video", slug, lang));
+  return seoToMetadata(await getSeo("video", slug, lang), "video.other");
 }
 
 export default async function VideoPage({ params, searchParams }: PageParams) {

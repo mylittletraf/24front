@@ -58,8 +58,12 @@ export async function getSeo(entity: SeoEntity, slug: string, lang?: Locale): Pr
   }
 }
 
-/** Convert a /seo response into Next Metadata (canonical, hreflang, OG/Twitter, robots). */
-export function seoToMetadata(seo: Seo | null): Metadata {
+/**
+ * Convert a /seo response into Next Metadata (canonical, hreflang, OG/Twitter, robots).
+ * `ogType` overrides the OpenGraph type — e.g. "video.other" on the watch page so
+ * crawlers (Google, Yandex Video) classify the page as a video rather than a website.
+ */
+export function seoToMetadata(seo: Seo | null, ogType?: string): Metadata {
   if (!seo) return {};
   const { meta } = seo;
   const og = meta.open_graph ?? {};
@@ -77,7 +81,7 @@ export function seoToMetadata(seo: Seo | null): Metadata {
       title: og.title ?? meta.title ?? undefined,
       description: og.description ?? meta.description ?? undefined,
       images: og.image ?? meta.image ?? undefined,
-      type: (og.type as "website") ?? "website",
+      type: (ogType ?? og.type ?? "website") as "website",
       url: seo.canonical,
     },
     twitter: {
