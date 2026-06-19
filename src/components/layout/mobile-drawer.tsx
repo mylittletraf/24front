@@ -50,7 +50,7 @@ export function MobileDrawer({ categories }: { categories: Tag[] }) {
               <Button
                 variant="secondary"
                 size="sm"
-                className="flex-1"
+                className="flex-1 rounded-lg"
                 onClick={() => {
                   setOpen(false);
                   openAuth("login");
@@ -61,7 +61,7 @@ export function MobileDrawer({ categories }: { categories: Tag[] }) {
               <Button
                 variant="primary"
                 size="sm"
-                className="flex-1"
+                className="flex-1 rounded-lg"
                 onClick={() => {
                   setOpen(false);
                   openAuth("register");

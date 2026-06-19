@@ -20,10 +20,10 @@ export function ProfileMenu() {
   if (!isAuthenticated) {
     return (
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" onClick={() => open("login")}>
+        <Button variant="ghost" size="sm" className="rounded-lg" onClick={() => open("login")}>
           {t("auth.login")}
         </Button>
-        <Button variant="primary" size="sm" onClick={() => open("register")}>
+        <Button variant="primary" size="sm" className="rounded-lg" onClick={() => open("register")}>
           {t("auth.register")}
         </Button>
       </div>

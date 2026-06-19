@@ -15,7 +15,7 @@ export function SortSelect({ filters, basePath }: { filters: VideoFilters; baseP
       aria-label={t("label")}
       value={value}
       onChange={(e) => setSort(e.target.value as VideoSort)}
-      className="border-border bg-surface focus:border-muted h-9 rounded-full border px-3 text-sm outline-none"
+      className="border-border bg-surface focus:border-muted h-9 rounded-lg border px-3 text-sm outline-none"
     >
       {SORT_OPTIONS.map((opt) => (
         <option key={opt.value} value={opt.value}>
