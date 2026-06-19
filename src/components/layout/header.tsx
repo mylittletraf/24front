@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useFeedUnread } from "@/components/feed/feed-unread-context";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { track } from "@/lib/analytics/track";
 import { SITE_NAME } from "@/lib/api/config";
 import type { Tag } from "@/lib/api/types";
 import { cn } from "@/lib/utils/cn";
@@ -82,7 +83,10 @@ function FeedNavLink({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <Link
       href="/feed"
-      onClick={onNavigate}
+      onClick={() => {
+        track("feed_open");
+        onNavigate?.();
+      }}
       className={cn(navLinkClass(active), "inline-flex items-center gap-1.5")}
     >
       {t("feed")}

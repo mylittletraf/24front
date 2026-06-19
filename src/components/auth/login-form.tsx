@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { track } from "@/lib/analytics/track";
 import { bffLogin } from "@/lib/auth/bff-client";
 import { useAuth } from "@/lib/auth/auth-context";
 import { toastApiError } from "@/lib/toast-error";
@@ -37,6 +38,7 @@ export function LoginForm({
     try {
       const { access } = await bffLogin(values.username, values.password);
       await setSession(access);
+      track("login");
       onSuccess();
     } catch (error) {
       toastApiError(error);

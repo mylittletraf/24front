@@ -2,6 +2,7 @@ import { Eye } from "lucide-react";
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { notFound, redirect } from "next/navigation";
+import { TrackTaxonomy } from "@/components/analytics/track-taxonomy";
 import { Container } from "@/components/layout/container";
 import { JsonLd } from "@/components/seo/json-ld";
 import { Chip } from "@/components/ui/chip";
@@ -124,6 +125,7 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
           ) : null}
 
           {hasMeta ? (
+          <TrackTaxonomy>
           <dl className="border-border bg-surface/40 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 rounded-2xl border p-4 text-sm">
             {detail.actors.length > 0 ? (
               <MetaRow label={t("actorsTitle")}>
@@ -166,6 +168,7 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
               </MetaRow>
             ) : null}
           </dl>
+          </TrackTaxonomy>
           ) : null}
 
           <CommentsSection videoUuid={detail.uuid} commentsCount={detail.comments_count} />

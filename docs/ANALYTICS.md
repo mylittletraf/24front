@@ -65,44 +65,70 @@ it freely from any client component. It dispatches:
 
 Keep names `snake_case` and stable — they're the report keys in both tools.
 
-### Already wired
+### Wired events (full list)
 
-| Event | Where | Params |
-| --- | --- | --- |
-| `video_play` | first play of a video (`player.tsx`) | `video_uuid` |
-| `video_complete` | playback reached the end (`player.tsx`) | `video_uuid` |
-| `ad_impression` | a VAST ad actually started (`player.tsx`) | `format`, `placement` |
-| `ad_clickunder` | clickunder/popunder fired (`player.tsx`) | `slot` |
-| `ad_slot_render` | an HTML/JS slot rendered — catfish, in_page, native (`ad-slot-render.tsx`) | `slot` |
+All of these already fire `track(...)`. The **Event** column is the exact identifier —
+use it verbatim when creating goals/conversions below.
 
-That already covers **просмотры** and **активации рекламных слотов** across every format
-(VAST, overlay slots, clickunder).
+| Event | Fires when | Params | Source |
+| --- | --- | --- | --- |
+| `video_play` | first play of a video | `video_uuid`, `embed` | `player.tsx` |
+| `video_progress_25` | 25% of the video watched | `video_uuid` | `player.tsx` |
+| `video_progress_50` | 50% watched | `video_uuid` | `player.tsx` |
+| `video_progress_75` | 75% watched | `video_uuid` | `player.tsx` |
+| `video_complete` | playback reached the end | `video_uuid` | `player.tsx` |
+| `embed_play` | first play **inside the Yandex Video embed** | `video_uuid` | `player.tsx` |
+| `video_reaction` | like / dislike clicked | `type`, `video_uuid`, `guest?` | `video-actions.tsx` |
+| `video_favorite` | save/favorite toggled | `video_uuid`, `active` | `video-actions.tsx` |
+| `search` | search submitted | `query` | `search-box.tsx` |
+| `taxonomy_click` | category/actor/tag/attribute chip clicked | `kind`, `href` | `track-taxonomy.tsx` |
+| `feed_open` | feed nav link clicked | — | `header.tsx` |
+| `report_submit` | a report/complaint was sent | `video_uuid`, `topic` | `report-modal.tsx` |
+| `login` | successful login | — | `login-form.tsx` |
+| `register` | successful registration | — | `register-form.tsx` |
+| `ad_impression` | a VAST ad started | `format`, `placement` | `player.tsx` |
+| `ad_click` | VAST ad click-through (best-effort) | `format`, `placement` | `player.tsx` |
+| `ad_clickunder` | clickunder/popunder fired | `slot` | `player.tsx` |
+| `ad_slot_render` | HTML/JS slot rendered (catfish, in_page, native) | `slot` | `ad-slot-render.tsx` |
 
-### Recommended additional events
+Funnels you get for free:
+- **Content retention:** `video_play → video_progress_25 → _50 → _75 → video_complete`.
+- **Ad performance:** `ad_slot_render` (fill) + `ad_impression` + `ad_click` (CTR).
+- **Yandex Video traffic:** `embed_play` vs `video_play` (the latter also carries `embed:true/false`).
 
-Drop a `track(...)` call at the relevant interaction; high-value candidates:
+> `placement` on `ad_impression`/`ad_click` distinguishes on-site (`pre_roll`/`post_roll`)
+> from the Yandex embed (`ya_vast_preroll`/`ya_vast_postroll`).
 
-| Event | Where to add | Why |
-| --- | --- | --- |
-| `search` | search submit (`components/layout/search-box.tsx`) | what users look for; `{ query }` |
-| `video_reaction` | like/dislike (`components/video/video-actions.tsx`) | engagement; `{ type }` |
-| `video_favorite` | save/favorite (`video-actions.tsx`) | engagement |
-| `register` / `login` | auth flow | conversion funnel |
-| `report_submit` | `components/video/report-modal.tsx` | moderation signal |
-| `taxonomy_click` | category/tag/actor chips (`meta-row.tsx`) | navigation interest |
-| `feed_open` | feed nav (`header.tsx`) | feature usage |
-| `embed_play` | embed player — pass a flag through `VideoPlayer` | Yandex Video traffic vs on-site |
-| `video_progress_25/50/75` | extend the player progress timer | drop-off / completion funnel |
-| `ad_click` | if a network exposes a click callback | CTR alongside `ad_impression` |
+### Where to create what (setup checklist)
 
-For ad performance, the pair **`ad_slot_render` / `ad_impression` + `ad_click`** gives you
-fill-rate and CTR. For content, **`video_play` → `video_progress_*` → `video_complete`**
-gives a retention funnel.
+**Yandex.Metrica** — Настройки счётчика → **Цели** → «Добавить цель» → тип **«JavaScript-событие»**,
+and paste the identifier into the *Идентификатор цели* field. Create one goal per event you
+care about (recommended set):
 
-### Adding a new one
+```
+video_play   video_complete   embed_play
+video_reaction   video_favorite   search   taxonomy_click   feed_open
+register   login   report_submit
+ad_impression   ad_click   ad_clickunder   ad_slot_render
+```
 
-1. `track("my_event", { ...params })` at the call site (client component).
-2. GA4: it appears under Events within ~24h; mark as conversion if needed.
+(Optionally also `video_progress_25/50/75` if you want the quartile funnel as goals.)
+
+**Google Analytics 4** — events arrive automatically (Admin → Events, within ~24h, no setup).
+Then Admin → **Key events / Conversions** → mark the ones that matter as conversions, e.g.:
+
+```
+register   login   video_play   embed_play   ad_click
+```
+
+GA4 event **params** (`video_uuid`, `type`, `query`, `placement`, …) are also sent; to filter
+or report on a param value in GA4, register it once as a **custom dimension**
+(Admin → Custom definitions). Metrica receives the same params as goal parameters.
+
+### Adding a new event later
+
+1. `track("my_event", { ...params })` at the call site (any client component).
+2. GA4: appears under Events within ~24h; mark as conversion if needed.
 3. Metrica: create goal «JavaScript-событие» with identifier `my_event`.
 
 ## Notes
@@ -110,5 +136,8 @@ gives a retention funnel.
 - `NEXT_PUBLIC_*` vars are inlined at **build time** — rebuild/redeploy after changing them.
 - Verification tags live in the root layout, so they appear on every page (Google/Yandex
   fetch the homepage to verify).
-- The embed player (`/embed/*`) loads no analytics scripts, so its `track()` calls are
-  no-ops there — add an explicit counter to the embed layout if you want Yandex-traffic stats.
+- The embed player (`/embed/*`) **does** load the counters (chrome/ad overlays are stripped,
+  analytics is not), so Yandex Video playback is measured. Use `embed_play` (or the `embed`
+  param on `video_play`) to separate that traffic. If you'd rather keep embed stats in a
+  **separate** Metrica counter, add a second `NEXT_PUBLIC_YM_ID_EMBED` and branch in
+  `Analytics`/`track` by pathname.

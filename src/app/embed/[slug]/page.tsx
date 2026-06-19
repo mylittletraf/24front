@@ -39,6 +39,7 @@ export default async function EmbedPage({ params, searchParams }: PageParams) {
         poster={detail.poster}
         vastPlacements={{ pre: "ya_vast_preroll", post: "ya_vast_postroll" }}
         clickunderSlot=""
+        embed
       />
     </div>
   );

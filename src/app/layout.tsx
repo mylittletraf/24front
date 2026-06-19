@@ -54,7 +54,9 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             )}
           </Providers>
         </NextIntlClientProvider>
-        {!isEmbed && <Analytics />}
+        {/* Counters run on the embed too (to measure Yandex Video traffic); only the on-page
+            chrome/ad overlays are stripped above. */}
+        <Analytics />
       </body>
     </html>
   );

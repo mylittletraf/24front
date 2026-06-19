@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { CopyField } from "@/components/common/copy-field";
 import { Button } from "@/components/ui/button";
+import { track } from "@/lib/analytics/track";
 import { bffRegister } from "@/lib/auth/bff-client";
 import { useAuth } from "@/lib/auth/auth-context";
 import { toastApiError } from "@/lib/toast-error";
@@ -55,6 +56,7 @@ export function RegisterForm({
         display_name: values.display_name || undefined,
       });
       await setSession(result.access, result.user);
+      track("register");
       setToken(result.quick_login_token);
     } catch (error) {
       toastApiError(error);

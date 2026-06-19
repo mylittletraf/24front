@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { track } from "@/lib/analytics/track";
 import { getReportTopics, reportVideo, type ReportTopic } from "@/lib/api/video-actions";
 import type { Locale } from "@/lib/i18n/locales";
 import { toastApiError } from "@/lib/toast-error";
@@ -34,6 +35,7 @@ export function ReportModal({ videoUuid }: { videoUuid: string }) {
     setSubmitting(true);
     try {
       await reportVideo(videoUuid, topic, description);
+      track("report_submit", { video_uuid: videoUuid, topic });
       toast.success("Жалоба отправлена");
       setOpen(false);
       setDescription("");

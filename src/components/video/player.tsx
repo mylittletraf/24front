@@ -104,6 +104,7 @@ export function VideoPlayer({
   resumeSeconds = 0,
   vastPlacements = DEFAULT_VAST,
   clickunderSlot = "clickander_play",
+  embed = false,
 }: {
   uuid: string;
   hls: string | null;
@@ -113,6 +114,8 @@ export function VideoPlayer({
   vastPlacements?: VastPlacements;
   /** On-site clickunder slot code; pass "" to disable (e.g. in the Yandex Video embed). */
   clickunderSlot?: string;
+  /** True when rendered in the Yandex Video embed — tags the play events accordingly. */
+  embed?: boolean;
 }) {
   const t = useTranslations("video");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -174,6 +177,10 @@ export function VideoPlayer({
         player.on("ads-ad-started", () =>
           track("ad_impression", { format: "vast", placement: vastPlacements.pre }),
         );
+        // Ad click-through (best-effort: depends on IMA/the network surfacing the event).
+        player.on("ads-click", () =>
+          track("ad_click", { format: "vast", placement: vastPlacements.pre }),
+        );
       }
       player.src({ src: hls, type: "application/x-mpegURL" });
 
@@ -192,7 +199,22 @@ export function VideoPlayer({
         if (!viewedRef.current) {
           viewedRef.current = true;
           void postView(uuid, getToken());
-          track("video_play", { video_uuid: uuid });
+          track("video_play", { video_uuid: uuid, embed });
+          if (embed) track("embed_play", { video_uuid: uuid });
+        }
+      });
+
+      // Completion funnel: fire each quartile once (works for anon users too).
+      const progressMarks = new Set<number>();
+      player.on("timeupdate", () => {
+        const d = player.duration() ?? 0;
+        if (!d) return;
+        const pct = ((player.currentTime() ?? 0) / d) * 100;
+        for (const m of [25, 50, 75]) {
+          if (pct >= m && !progressMarks.has(m)) {
+            progressMarks.add(m);
+            track(`video_progress_${m}`, { video_uuid: uuid });
+          }
         }
       });
 
@@ -238,7 +260,7 @@ export function VideoPlayer({
     };
     // Depend on the placement values (not the object identity) so an inline prop doesn't recreate the player.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hls, poster, uuid, resumeSeconds, getToken, vastPlacements.pre, vastPlacements.post]);
+  }, [hls, poster, uuid, resumeSeconds, getToken, embed, vastPlacements.pre, vastPlacements.post]);
 
   if (!hls) {
     return (

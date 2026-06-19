@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAuthUI } from "@/components/auth/auth-ui";
 import { useVideoState } from "@/components/video/video-state-context";
 import { Button } from "@/components/ui/button";
+import { track } from "@/lib/analytics/track";
 import { clearReaction, postGuestLike, setReaction } from "@/lib/api/video-actions";
 import { useAuth } from "@/lib/auth/auth-context";
 import { useReaction, type Reaction } from "@/lib/hooks/use-reaction";
@@ -73,9 +74,11 @@ function ReactionBar({
       }
       setGuestLiked(true);
       localStorage.setItem(`gl:${uuid}`, String(Date.now()));
+      track("video_reaction", { type: "like", video_uuid: uuid, guest: true });
       postGuestLike(uuid).catch((error) => toastApiError(error));
       return;
     }
+    track("video_reaction", { type: "like", video_uuid: uuid });
     like();
   }
 
@@ -84,6 +87,7 @@ function ReactionBar({
       openAuth("login");
       return;
     }
+    track("video_reaction", { type: "dislike", video_uuid: uuid });
     dislike();
   }
 
@@ -141,6 +145,7 @@ export function VideoActions({
       openAuth("login");
       return;
     }
+    track("video_favorite", { video_uuid: uuid, active: !favorited });
     toggleFavorite(uuid);
   }
 

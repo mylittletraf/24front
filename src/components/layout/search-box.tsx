@@ -4,6 +4,7 @@ import { Folder, Search, Tag as TagIcon, User, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { track } from "@/lib/analytics/track";
 import { getSuggestions, suggestionHref, type Suggestion } from "@/lib/api/search";
 import { useDebouncedValue } from "@/lib/hooks/use-debounced-value";
 import type { Locale } from "@/lib/i18n/locales";
@@ -55,6 +56,7 @@ export function SearchBox({
     e.preventDefault();
     const q = value.trim();
     if (!q) return;
+    track("search", { query: q });
     setOpen(false);
     onNavigate?.();
     router.push(`/search?q=${encodeURIComponent(q)}`);
