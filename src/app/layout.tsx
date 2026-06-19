@@ -22,6 +22,12 @@ export const metadata: Metadata = {
   title: { default: SITE_NAME, template: `%s — ${SITE_NAME}` },
   description: SITE_DESCRIPTION,
   openGraph: { siteName: SITE_NAME },
+  // Site-ownership verification meta tags (Google Search Console / Yandex Webmaster).
+  // Paste the token from each service into the env var; empty → tag omitted.
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
+    yandex: process.env.NEXT_PUBLIC_YANDEX_VERIFICATION || undefined,
+  },
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
