@@ -5,6 +5,22 @@ All commands run against `http://127.0.0.1:8000/api/v1`.
 
 ---
 
+## 2. Footer forms need a feedback endpoint (feature request)
+
+The new footer has a **Complaint** form and an **Advertising** form. There's no general
+contact/complaint endpoint today (the report flow is per-video only: `/videos/{uuid}/report/`).
+The frontend posts both to:
+
+```
+POST /api/v1/feedback/
+{ "type": "complaint" | "advertising", "message": "…", "email": "…" (optional), "url": "…" (optional) }
+→ 201/204
+```
+
+Anonymous-friendly (no auth required), with throttling like reports. Until it exists the forms
+show an error toast on submit; the rest of the footer (text + Information popup) works regardless.
+The forms are wired and will work as soon as `/feedback/` is added.
+
 ## 1. Untranslated content returns `null` title/slug instead of falling back (high)
 
 After `DEFAULT_LANGUAGE = "en"` / `SUPPORTED_LANGUAGES = (ru, en, es, fr, de, zh)`, requesting a

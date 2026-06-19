@@ -196,5 +196,22 @@
     "categories": "Categories",
     "tags": "Tags",
     "videosCount": "{count} videos"
+  },
+  "footer": {
+    "description": "24front — a video catalogue.\nBrowse, search and save your favourites.",
+    "complaint": "Complaint",
+    "info": "Information",
+    "advertising": "Advertising",
+    "complaintTitle": "Submit a complaint",
+    "infoTitle": "Information",
+    "advertisingTitle": "Advertising on the site",
+    "email": "Email",
+    "emailOptional": "Email (optional)",
+    "message": "Message",
+    "url": "Link (optional)",
+    "send": "Send",
+    "sent": "Thank you! Your message has been sent",
+    "infoBody": "Information text goes here.\n\nReplace this with your real, formatted content — terms, about the project, contacts, etc.",
+    "advertisingBody": "Want to advertise on 24front? Tell us about your campaign and we'll get back to you.\n\nFormats: banners, native blocks, pre-roll. Replace this with your real content."
   }
 }

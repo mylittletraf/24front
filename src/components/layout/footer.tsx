@@ -1,34 +1,15 @@
 import { getTranslations } from "next-intl/server";
-import Link from "next/link";
-import { ThemeToggle } from "./theme-toggle";
+import { FooterLinks } from "./footer-links";
 
 export async function Footer() {
-  const t = await getTranslations("nav");
-
-  const links = [
-    { href: "/videos", label: t("videos") },
-    { href: "/actors", label: t("actors") },
-    { href: "/collections", label: t("collections") },
-    { href: "/categories", label: t("categories") },
-  ];
+  const t = await getTranslations("footer");
 
   return (
-    <footer className="border-border bg-background desktop:block mt-auto hidden border-t">
-      <div className="flex w-full items-center justify-between gap-4 px-6 py-6 text-sm">
-        <Link href="/" className="text-accent font-bold">
-          24front
-        </Link>
-        <nav className="text-muted flex items-center gap-4">
-          {links.map(({ href, label }) => (
-            <Link key={href} href={href} className="hover:text-foreground">
-              {label}
-            </Link>
-          ))}
-        </nav>
-        <div className="flex items-center gap-3">
-          <span className="text-muted">© {new Date().getFullYear()} 24front</span>
-          <ThemeToggle />
-        </div>
+    <footer className="border-border bg-background mt-auto border-t">
+      <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-3 px-4 py-6 text-center">
+        <p className="text-muted text-sm leading-relaxed whitespace-pre-line">{t("description")}</p>
+        <FooterLinks />
+        <span className="text-muted text-xs">© {new Date().getFullYear()} 24front</span>
       </div>
     </footer>
   );
