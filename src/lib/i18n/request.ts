@@ -1,9 +1,16 @@
 import { getRequestConfig } from "next-intl/server";
 import { cookies, headers } from "next/headers";
-import { DEFAULT_LOCALE, isLocale, localeFromAcceptLanguage, LOCALE_COOKIE } from "./locales";
+import {
+  DEFAULT_LOCALE,
+  isLocale,
+  localeFromAcceptLanguage,
+  LOCALE_COOKIE,
+  uiLocale,
+} from "./locales";
 
 // Locale is chosen automatically (no manual switcher): an explicit NEXT_LOCALE cookie
-// wins (e.g. set by a ?lang deep link), otherwise the browser's Accept-Language, then default.
+// wins (set from a ?lang deep link by the middleware), otherwise the browser's
+// Accept-Language, then the default. UI strings fall back to en/ru via uiLocale().
 export default getRequestConfig(async () => {
   const cookieStore = await cookies();
   const headerStore = await headers();
@@ -13,6 +20,6 @@ export default getRequestConfig(async () => {
     ? cookieLocale
     : (localeFromAcceptLanguage(headerStore.get("accept-language")) ?? DEFAULT_LOCALE);
 
-  const messages = (await import(`../../messages/${locale}.json`)).default;
+  const messages = (await import(`../../messages/${uiLocale(locale)}.json`)).default;
   return { locale, messages };
 });
