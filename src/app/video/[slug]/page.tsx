@@ -13,6 +13,7 @@ import { ReportModal } from "@/components/video/report-modal";
 import { VideoActions } from "@/components/video/video-actions";
 import { VideoSection } from "@/components/video/video-section";
 import { VideoSidebar } from "@/components/video/video-sidebar";
+import { SITE_URL } from "@/lib/api/config";
 import { ApiError } from "@/lib/api/errors";
 import { getSeo, seoToMetadata } from "@/lib/api/seo";
 import { getVideoFeed } from "@/lib/api/videos";
@@ -37,7 +38,15 @@ async function resolvePageLocale(searchParams: PageParams["searchParams"]): Prom
 export async function generateMetadata({ params, searchParams }: PageParams): Promise<Metadata> {
   const { slug } = await params;
   const lang = await resolvePageLocale(searchParams);
-  return seoToMetadata(await getSeo("video", slug, lang), "video.other");
+  const meta = seoToMetadata(await getSeo("video", slug, lang), "video.other");
+  // og:video → the bare embed player, so Yandex Video / social can play it inline.
+  return {
+    ...meta,
+    openGraph: {
+      ...meta.openGraph,
+      videos: [{ url: `${SITE_URL}/embed/${slug}`, type: "text/html", width: 1280, height: 720 }],
+    },
+  };
 }
 
 export default async function VideoPage({ params, searchParams }: PageParams) {

@@ -3,7 +3,14 @@ import type { Locale } from "@/lib/i18n/locales";
 import { apiFetch, apiFetchStatus } from "./fetcher";
 
 export type Reaction = "like" | "dislike";
-export type AdPlacement = "pre_roll" | "mid_roll" | "post_roll";
+export type AdPlacement =
+  | "pre_roll"
+  | "mid_roll"
+  | "post_roll"
+  // Yandex Video embed (/embed/[slug]) only — separate backend tags so they can be
+  // toggled independently of the on-site pre/post-roll (204 = disabled).
+  | "ya_vast_preroll"
+  | "ya_vast_postroll";
 
 /** Count a view (deduped server-side). Anonymous-friendly; pass token to attribute to the user (history). */
 export async function postView(videoUuid: string, token?: string | null): Promise<void> {

@@ -8,17 +8,25 @@ import { isLocale, LOCALE_COOKIE } from "@/lib/i18n/locales";
  */
 export function middleware(request: NextRequest) {
   const lang = request.nextUrl.searchParams.get("lang");
-  if (lang && isLocale(lang) && request.cookies.get(LOCALE_COOKIE)?.value !== lang) {
-    request.cookies.set(LOCALE_COOKIE, lang);
-    const response = NextResponse.next({ request: { headers: request.headers } });
+  const persistLang =
+    !!lang && isLocale(lang) && request.cookies.get(LOCALE_COOKIE)?.value !== lang;
+
+  // Persist the ?lang choice on this request so the page renders in it immediately.
+  if (persistLang) request.cookies.set(LOCALE_COOKIE, lang);
+
+  // Expose the pathname to Server Components (the root layout strips chrome on /embed).
+  const headers = new Headers(request.headers);
+  headers.set("x-pathname", request.nextUrl.pathname);
+
+  const response = NextResponse.next({ request: { headers } });
+  if (persistLang) {
     response.cookies.set(LOCALE_COOKIE, lang, {
       path: "/",
       maxAge: 60 * 60 * 24 * 365,
       sameSite: "lax",
     });
-    return response;
   }
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {

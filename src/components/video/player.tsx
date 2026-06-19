@@ -4,7 +4,7 @@ import "video.js/dist/video-js.css";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
 import type Player from "video.js/dist/types/player";
-import { getVast, postProgress, postView } from "@/lib/api/video-actions";
+import { getVast, postProgress, postView, type AdPlacement } from "@/lib/api/video-actions";
 import { useAuth } from "@/lib/auth/auth-context";
 import { cooldownOk } from "@/lib/ads";
 import { useAdSlot } from "@/lib/hooks/use-ad-slot";
@@ -49,14 +49,18 @@ function loadImaSdk(): Promise<void> {
 }
 
 type VastTags = { pre: string | null; post: string | null };
+type VastPlacements = { pre: AdPlacement; post: AdPlacement };
 
 /**
  * Fetch the VAST tags and load the IMA SDK + plugins — done BEFORE the player is created so the
  * ads plugin can be initialized in the same tick (contrib-ads requirement). Returns null = no ads.
  */
-async function prepareVastAds(uuid: string): Promise<VastTags | null> {
+async function prepareVastAds(uuid: string, placements: VastPlacements): Promise<VastTags | null> {
   try {
-    const [pre, post] = await Promise.all([getVast(uuid, "pre_roll"), getVast(uuid, "post_roll")]);
+    const [pre, post] = await Promise.all([
+      getVast(uuid, placements.pre),
+      getVast(uuid, placements.post),
+    ]);
     if (!pre && !post) return null; // 204/204 — no ads
     await loadImaSdk();
     await import("videojs-contrib-ads");
@@ -90,16 +94,24 @@ function initVastAds(player: Player, tags: VastTags): void {
   }
 }
 
+const DEFAULT_VAST: VastPlacements = { pre: "pre_roll", post: "post_roll" };
+
 export function VideoPlayer({
   uuid,
   hls,
   poster,
   resumeSeconds = 0,
+  vastPlacements = DEFAULT_VAST,
+  clickunderSlot = "clickander_play",
 }: {
   uuid: string;
   hls: string | null;
   poster: string | null;
   resumeSeconds?: number;
+  /** Which VAST placements to request. The embed player uses the Yandex-only tags. */
+  vastPlacements?: VastPlacements;
+  /** On-site clickunder slot code; pass "" to disable (e.g. in the Yandex Video embed). */
+  clickunderSlot?: string;
 }) {
   const t = useTranslations("video");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -108,7 +120,7 @@ export function VideoPlayer({
   const viewedRef = useRef(false);
 
   // Clickunder (popunder) — direct link in the slot's `script`, opened on the Nth Play.
-  const clickunder = useAdSlot("clickander_play");
+  const clickunder = useAdSlot(clickunderSlot);
   const clickunderRef = useRef<string | null>(null);
   const playCountRef = useRef(0);
   useEffect(() => {
@@ -137,7 +149,7 @@ export function VideoPlayer({
 
       // Resolve ads (tag + SDK + plugins) BEFORE creating the player so IMA can init in the
       // same tick as the source — otherwise contrib-ads warns "initialized too late".
-      const adTags = await prepareVastAds(uuid);
+      const adTags = await prepareVastAds(uuid, vastPlacements);
       if (disposed || !containerRef.current) return;
 
       const videoEl = document.createElement("video-js");
@@ -212,7 +224,9 @@ export function VideoPlayer({
       playerRef.current?.dispose();
       playerRef.current = null;
     };
-  }, [hls, poster, uuid, resumeSeconds, getToken]);
+    // Depend on the placement values (not the object identity) so an inline prop doesn't recreate the player.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hls, poster, uuid, resumeSeconds, getToken, vastPlacements.pre, vastPlacements.post]);
 
   if (!hls) {
     return (

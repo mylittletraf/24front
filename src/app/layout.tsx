@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { headers } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { AdLayer } from "@/components/ads/ad-layer";
@@ -26,19 +27,28 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const locale = await getLocale();
   const messages = await getMessages();
+  // The Yandex Video embed (/embed/[slug]) renders only the player — no site chrome,
+  // ad overlays or analytics — so it stays clean inside a third-party iframe.
+  const isEmbed = (await headers()).get("x-pathname")?.startsWith("/embed") ?? false;
 
   return (
     <html lang={locale} className={`${inter.variable} h-full`} suppressHydrationWarning>
       <body className="bg-background text-foreground flex min-h-full flex-col">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers>
-            <SiteHeader />
-            <div className="flex flex-1 flex-col">{children}</div>
-            <Footer />
-            <AdLayer />
+            {isEmbed ? (
+              children
+            ) : (
+              <>
+                <SiteHeader />
+                <div className="flex flex-1 flex-col">{children}</div>
+                <Footer />
+                <AdLayer />
+              </>
+            )}
           </Providers>
         </NextIntlClientProvider>
-        <Analytics />
+        {!isEmbed && <Analytics />}
       </body>
     </html>
   );

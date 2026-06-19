@@ -6,11 +6,13 @@ import { getAdSlots, type AdSlot } from "@/lib/api/ads";
 /**
  * Returns the configured ad-slot for `code`, or null when it's missing/inactive/empty.
  * A slot with empty html & script (or absent — e.g. backend is_active=false) renders nothing.
+ * An empty `code` disables the query entirely (e.g. to skip on-site slots in the embed player).
  */
 export function useAdSlot(code: string): AdSlot | null {
   const { data } = useQuery({
     queryKey: ["ad-slots", code],
     queryFn: () => getAdSlots([code]),
+    enabled: !!code,
     staleTime: 5 * 60_000,
   });
   const slot = data?.[code];

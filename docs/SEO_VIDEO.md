@@ -38,40 +38,38 @@ missing. Yandex's primary signals
 | --- | --- | --- |
 | `og:type` | ✅ done | `video.other` |
 | `og:title`, `og:url`, `og:image`, `og:description` | ✅ done | via `seoToMetadata` (image ≥ 352×198) |
-| **`og:video`** | ❌ **missing** | URL of an **embeddable player** (iframe page) or a direct video file |
-| `og:video:type` | ❌ | e.g. `text/html` (player) or `video/mp4` (file) |
-| `og:video:width` / `og:video:height` | ❌ | player/file dimensions |
-| `video:duration` | ❌ | length in **seconds** (we have `detail.duration`) |
+| **`og:video`** + `og:video:type/width/height` | ✅ done | points to the embed player (`/embed/[slug]`, `text/html`, 1280×720) — see `generateMetadata` in `src/app/video/[slug]/page.tsx` |
+| `video:duration` | ❌ | length in **seconds** (`detail.duration`) |
 | `ya:ovs:upload_date` | ❌ | ISO 8601 (`detail.published_at`) |
-| `ya:ovs:adult` | ❌ | `true` — **required for an adult tube site** |
+| `ya:ovs:adult` | ❌ | `true` — **recommended for an adult tube site** |
 | `og:restrictions:age` | ❌ | `18+` |
 
-### Recommended next step: an embed route for `og:video`
+> The remaining ❌ tags are `property=`-style Yandex/OG tags that Next's `metadata.other`
+> emits as `name=`. If Yandex's validator wants them, render them as raw `<meta property>`
+> tags (e.g. a small server component in the video page `<head>` via the metadata API is
+> insufficient — use a dedicated `<meta>` injection). Lower priority than `og:video`.
 
-`og:video` must point to a player Yandex can embed in an iframe (or a direct file).
-The watch page itself is not embeddable. Create a minimal player route, e.g.
-`src/app/embed/[slug]/page.tsx`, that renders only `<VideoPlayer>` (the data — `hls`,
-`poster`, `uuid` — is already on `getVideoDetail`). Then extend the video page's
-`generateMetadata` to emit:
+### Embed route (done)
 
-```ts
-openGraph: {
-  type: "video.other",
-  videos: [{ url: `${SITE_URL}/embed/${slug}`, type: "text/html", width: 1280, height: 720 }],
-},
-other: {
-  "video:duration": String(Math.round(detail.duration)),
-  "ya:ovs:upload_date": detail.published_at,
-  "ya:ovs:adult": "true",
-  "og:restrictions:age": "18+",
-},
-```
+`src/app/embed/[slug]/page.tsx` renders only `<VideoPlayer>`. The root layout
+(`src/app/layout.tsx`) strips site chrome / ad overlays / analytics for any `/embed`
+path (detected via the `x-pathname` header set in `src/middleware.ts`), and the page is
+`noindex`. Framing is allowed (no `X-Frame-Options` is set). The watch page's `og:video`
+points here.
 
-Embed-route caveats:
-- Allow framing: do **not** send `X-Frame-Options: DENY`; scope CSP `frame-ancestors`
-  to Yandex/your domains.
-- Strip the site chrome (header/footer) and heavy ad layer from the embed.
-- Honour the same `noindex` rules; the embed page itself should be `noindex`.
+#### VAST ads in the embed (Yandex-only, independently toggleable)
+
+The embed player requests **separate** VAST placements so they never mix with the
+on-site pre/post-roll:
+
+- `ya_vast_preroll`, `ya_vast_postroll` (see `AdPlacement` in `src/lib/api/video-actions.ts`).
+- The embed passes `vastPlacements={{ pre: "ya_vast_preroll", post: "ya_vast_postroll" }}`
+  and `clickunderSlot=""` (no on-site clickunder) to `<VideoPlayer>`.
+
+**Backend setup:** define VAST tags for these two placements at
+`GET /videos/{uuid}/vast/?placement=ya_vast_preroll|ya_vast_postroll`. Each is toggled
+independently — answer **204** to disable just that one (player shows no ad, playback
+unaffected). The on-site `pre_roll`/`post_roll` are unchanged.
 
 After deploying, submit the site in **Yandex Webmaster → Видео** and use its OG
 validator to confirm the markup is accepted.
