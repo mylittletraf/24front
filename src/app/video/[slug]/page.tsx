@@ -1,14 +1,13 @@
 import { Eye } from "lucide-react";
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { Fragment } from "react";
 import { Container } from "@/components/layout/container";
 import { JsonLd } from "@/components/seo/json-ld";
 import { Chip } from "@/components/ui/chip";
 import { CommentsSection } from "@/components/video/comments";
 import { Description } from "@/components/video/description";
+import { MetaRow } from "@/components/video/meta-row";
 import { PopularSidebar } from "@/components/video/popular-sidebar";
 import { VideoPlayer } from "@/components/video/player";
 import { RelatedVideos } from "@/components/video/related-videos";
@@ -77,6 +76,12 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
     { items: aa.eye_color, param: "actor_eye_color", label: tAttr("eyeColor") },
   ].filter((g) => g.items && g.items.length > 0);
 
+  const hasMeta =
+    detail.actors.length > 0 ||
+    detail.categories.length > 0 ||
+    attrGroups.length > 0 ||
+    detail.tags.length > 0;
+
   return (
     <Container className="desktop:py-6 py-4">
       <JsonLd data={seo?.json_ld} />
@@ -102,64 +107,57 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
             </div>
           </div>
 
-          <div className="border-border bg-surface/40 flex flex-col gap-3 rounded-2xl border p-4">
+          {detail.description ? (
+            <section className="flex flex-col gap-1.5">
+              <h2 className="text-muted text-sm font-semibold">{t("descriptionTitle")}</h2>
+              <Description text={detail.description} />
+            </section>
+          ) : null}
+
+          {hasMeta ? (
+          <dl className="border-border bg-surface/40 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 rounded-2xl border p-4 text-sm">
             {detail.actors.length > 0 ? (
-              <p className="text-sm">
-                <span className="text-muted font-semibold">{t("actorsTitle")}: </span>
-                {detail.actors.map((actor, i) => (
-                  <Fragment key={actor.uuid}>
-                    {i > 0 ? ", " : ""}
-                    <Link href={`/actor/${actor.slug}`} className="text-link hover:underline">
-                      {actor.gender === "woman" ? "♀ " : actor.gender === "man" ? "♂ " : ""}
-                      {actor.name}
-                    </Link>
-                  </Fragment>
+              <MetaRow label={t("actorsTitle")}>
+                {detail.actors.map((actor) => (
+                  <Chip key={actor.uuid} href={`/actor/${actor.slug}`}>
+                    {actor.gender === "woman" ? "♀ " : actor.gender === "man" ? "♂ " : ""}
+                    {actor.name}
+                  </Chip>
                 ))}
-              </p>
+              </MetaRow>
             ) : null}
 
             {detail.categories.length > 0 ? (
-              <p className="text-sm">
-                <span className="text-muted font-semibold">{t("categoriesTitle")}: </span>
-                {detail.categories.map((category, i) => (
-                  <Fragment key={category.uuid}>
-                    {i > 0 ? ", " : ""}
-                    <Link href={`/category/${category.slug}`} className="text-link hover:underline">
-                      {category.name}
-                    </Link>
-                  </Fragment>
+              <MetaRow label={t("categoriesTitle")}>
+                {detail.categories.map((category) => (
+                  <Chip key={category.uuid} href={`/category/${category.slug}`}>
+                    {category.name}
+                  </Chip>
                 ))}
-              </p>
+              </MetaRow>
             ) : null}
 
             {attrGroups.map((g) => (
-              <p key={g.param} className="flex flex-wrap items-center gap-1.5 text-sm">
-                <span className="text-muted font-semibold">{g.label}:</span>
+              <MetaRow key={g.param} label={g.label}>
                 {g.items!.map((it) => (
                   <Chip key={it.uuid} href={`/?${g.param}=${it.slug}`}>
                     {it.name}
                   </Chip>
                 ))}
-              </p>
+              </MetaRow>
             ))}
 
-            {detail.description ? (
-              <div className="flex flex-col gap-1.5">
-                <h2 className="text-muted text-sm font-semibold">{t("descriptionTitle")}:</h2>
-                <Description text={detail.description} />
-              </div>
-            ) : null}
-
             {detail.tags.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
+              <MetaRow label={t("tagsTitle")}>
                 {detail.tags.map((tag) => (
                   <Chip key={tag.uuid} href={`/tag/${tag.slug}`}>
                     #{tag.name}
                   </Chip>
                 ))}
-              </div>
+              </MetaRow>
             ) : null}
-          </div>
+          </dl>
+          ) : null}
 
           <CommentsSection videoUuid={detail.uuid} commentsCount={detail.comments_count} />
 
