@@ -1,0 +1,200 @@
+{
+  "nav": {
+    "videos": "Videos",
+    "actors": "Actors",
+    "collections": "Collections",
+    "categories": "Categories",
+    "feed": "Feed",
+    "allCategories": "All categories",
+    "home": "Home",
+    "contacts": "Contacts"
+  },
+  "feed": {
+    "title": "Feed",
+    "tabFeed": "Feed",
+    "tabSubscriptions": "Subscriptions",
+    "subscribe": "Subscribe",
+    "nameLabel": "Subscription name",
+    "namePlaceholder": "e.g. Theatre + Sunrise",
+    "save": "Save",
+    "cancel": "Cancel",
+    "created": "Subscription created",
+    "limitReached": "Subscription limit reached (20)",
+    "showAll": "Show all {count} →",
+    "emptyNoSubs": "Subscribe to filters to see your feed",
+    "emptyNothingNew": "Nothing new yet",
+    "emptyNoSubsManage": "You have no subscriptions yet",
+    "loginToSee": "Log in to see your feed",
+    "deleted": "Subscription deleted",
+    "deleteConfirm": "Delete subscription?",
+    "delete": "Delete",
+    "rename": "Rename",
+    "active": "Active",
+    "bucket": {
+      "today": "Today",
+      "last_week": "Last week",
+      "last_month": "Last month",
+      "prev_month": "A month ago",
+      "3_months": "Last 3 months"
+    }
+  },
+  "search": {
+    "placeholder": "Search",
+    "clear": "Clear",
+    "nothingFound": "Nothing found",
+    "resultsFor": "Results for “{query}”",
+    "noResultsFor": "Nothing found for “{query}”",
+    "tabs": {
+      "all": "All",
+      "videos": "Videos",
+      "tags": "Tags",
+      "categories": "Categories",
+      "actors": "Actors"
+    }
+  },
+  "auth": {
+    "login": "Log in",
+    "register": "Sign up",
+    "logout": "Log out",
+    "username": "Username",
+    "password": "Password",
+    "email": "Email",
+    "displayName": "Display name",
+    "noAccount": "No account? Sign up",
+    "haveAccount": "Already have an account? Log in",
+    "registerDone": "Registration complete",
+    "done": "Done"
+  },
+  "quickLogin": {
+    "title": "Quick login link",
+    "hint": "Password-free login link — use it on a trusted device",
+    "dontShare": "Do not share this link with anyone",
+    "get": "Get link",
+    "refresh": "Refresh link",
+    "loggingIn": "Signing in…",
+    "failed": "Could not sign in with this link"
+  },
+  "profile": {
+    "title": "Profile",
+    "favorites": "Favorites",
+    "liked": "Liked",
+    "history": "History",
+    "continueWatching": "Continue watching",
+    "reports": "My reports",
+    "settings": "Profile",
+    "deleteAccount": "Delete account"
+  },
+  "video": {
+    "like": "Like",
+    "dislike": "Dislike",
+    "save": "Save",
+    "report": "Report",
+    "more": "More",
+    "less": "Less",
+    "comments": "Comments",
+    "related": "Related videos",
+    "popular": "Popular",
+    "unavailable": "Video unavailable",
+    "actorsTitle": "Actors",
+    "categoriesTitle": "Categories",
+    "tagsTitle": "Tags",
+    "descriptionTitle": "Description",
+    "sentForModeration": "Comment sent for moderation",
+    "sortTop": "Top",
+    "sortNew": "New",
+    "sortOld": "Old",
+    "commentPlaceholder": "Add a comment…",
+    "send": "Send",
+    "loginToComment": "Log in to leave a comment",
+    "delete": "Delete",
+    "anon": "Anonymous",
+    "noComments": "No comments yet"
+  },
+  "common": {
+    "loadMore": "Load more",
+    "reset": "Reset",
+    "filters": "Filters",
+    "copy": "Copy",
+    "copied": "Copied",
+    "retry": "Try again later",
+    "networkError": "Network error. Check your connection",
+    "noAccess": "No access",
+    "showCategories": "Categories",
+    "hideCategories": "Hide",
+    "pageNotFound": "Page not found",
+    "backHome": "Back home",
+    "somethingWrong": "Something went wrong",
+    "addFilter": "Add filter",
+    "select": "Select"
+  },
+  "refine": {
+    "title": "Refine"
+  },
+  "sort": {
+    "label": "Sort",
+    "newest": "Newest",
+    "oldest": "Oldest",
+    "popular": "Popular",
+    "trending": "Trending",
+    "most_liked": "Most liked",
+    "most_viewed": "Most viewed",
+    "duration_short": "Shortest",
+    "duration_long": "Longest"
+  },
+  "catalog": {
+    "title": "Videos",
+    "filters": "Filters",
+    "durationFrom": "Duration from (s)",
+    "durationTo": "to (s)",
+    "dateFrom": "Date from",
+    "dateTo": "to",
+    "apply": "Apply",
+    "empty": "No videos found"
+  },
+  "empty": {
+    "title": "Nothing found"
+  },
+  "actor": {
+    "country": "Country",
+    "bodyType": "Body type",
+    "braSize": "Bra size",
+    "boobsType": "Breast type",
+    "height": "Height",
+    "weight": "Weight",
+    "hairColor": "Hair color",
+    "eyeColor": "Eye color",
+    "birthDate": "Birth date",
+    "aliases": "Aliases",
+    "videosWith": "Videos with {name}",
+    "cm": "cm",
+    "kg": "kg"
+  },
+  "actorsFilters": {
+    "title": "Actors",
+    "gender": "Gender",
+    "any": "Any",
+    "women": "Women",
+    "men": "Men",
+    "country": "Country",
+    "bodyType": "Body type",
+    "braSize": "Bra size",
+    "boobsType": "Breast type",
+    "hairColor": "Hair color",
+    "eyeColor": "Eye color",
+    "height": "Height",
+    "weight": "Weight",
+    "sortPopular": "Popular",
+    "sortName": "A–Z",
+    "sortNewest": "Newest"
+  },
+  "collections": {
+    "title": "Collections",
+    "videos": "Collection videos",
+    "empty": "No collections yet"
+  },
+  "categoriesPage": {
+    "categories": "Categories",
+    "tags": "Tags",
+    "videosCount": "{count} videos"
+  }
+}

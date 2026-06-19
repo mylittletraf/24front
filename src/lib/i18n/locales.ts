@@ -5,9 +5,10 @@ export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = (process.env.NEXT_PUBLIC_DEFAULT_LANG as Locale) || "en";
 export const LOCALE_COOKIE = "NEXT_LOCALE";
 
-// Languages we ship UI translations for; others fall back to these for UI strings only
+// Languages we ship UI translations for; others fall back to en for UI strings only
 // (content still comes back from the API in the selected language).
-export const UI_LOCALES = ["en", "ru"] as const;
+// Translate src/messages/<locale>.json (keys + ICU placeholders unchanged) before adding here.
+export const UI_LOCALES = ["en", "ru", "es", "fr", "de", "zh"] as const;
 export type UiLocale = (typeof UI_LOCALES)[number];
 
 export function isLocale(value: unknown): value is Locale {
