@@ -8,11 +8,11 @@ import { Chip } from "@/components/ui/chip";
 import { CommentsSection } from "@/components/video/comments";
 import { Description } from "@/components/video/description";
 import { MetaRow } from "@/components/video/meta-row";
-import { PopularSidebar } from "@/components/video/popular-sidebar";
 import { VideoPlayer } from "@/components/video/player";
-import { RelatedVideos } from "@/components/video/related-videos";
 import { ReportModal } from "@/components/video/report-modal";
 import { VideoActions } from "@/components/video/video-actions";
+import { VideoSection } from "@/components/video/video-section";
+import { VideoSidebar } from "@/components/video/video-sidebar";
 import { ApiError } from "@/lib/api/errors";
 import { getSeo, seoToMetadata } from "@/lib/api/seo";
 import { getVideoFeed } from "@/lib/api/videos";
@@ -61,7 +61,7 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
   const [related, , popular, seo] = await Promise.all([
     getRelatedVideos(slug, lang),
     getNextVideo(slug, lang),
-    getVideoFeed("popular", { lang, page_size: 5 }),
+    getVideoFeed("popular", { lang, page_size: 12 }),
     getSeo("video", slug, lang),
   ]);
 
@@ -161,10 +161,10 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
 
           <CommentsSection videoUuid={detail.uuid} commentsCount={detail.comments_count} />
 
-          <RelatedVideos videos={related} />
+          <VideoSection title={t("popular")} videos={popular.results} />
         </div>
 
-        <PopularSidebar videos={popular.results} />
+        <VideoSidebar title={t("related")} videos={related} />
       </div>
     </Container>
   );
