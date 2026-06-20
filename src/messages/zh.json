@@ -169,7 +169,8 @@
     "aliases": "Aliases",
     "videosWith": "Videos with {name}",
     "cm": "cm",
-    "kg": "kg"
+    "kg": "kg",
+    "relatedActors": "相关演员"
   },
   "actorsFilters": {
     "title": "Actors",
@@ -222,5 +223,16 @@
     "categories": "分类",
     "tags": "标签",
     "collections": "合集"
+  },
+  "actorFaq": {
+    "title": "关于{name}的常见问题",
+    "height": "{name}的身高是多少？",
+    "weight": "{name}体重多少？",
+    "country": "{name}来自哪个国家？",
+    "hairColor": "{name}的发色是什么？",
+    "eyeColor": "{name}的眼睛颜色是什么？",
+    "birthDate": "{name}的出生日期是什么时候？",
+    "aliases": "{name}有哪些别名？",
+    "videos": "有多少{name}的视频？"
   }
 }

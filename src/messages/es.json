@@ -169,7 +169,8 @@
     "aliases": "Aliases",
     "videosWith": "Videos with {name}",
     "cm": "cm",
-    "kg": "kg"
+    "kg": "kg",
+    "relatedActors": "Actores relacionados"
   },
   "actorsFilters": {
     "title": "Actors",
@@ -222,5 +223,16 @@
     "categories": "Categorías",
     "tags": "Etiquetas",
     "collections": "Colecciones"
+  },
+  "actorFaq": {
+    "title": "Preguntas sobre {name}",
+    "height": "¿Cuánto mide {name}?",
+    "weight": "¿Cuánto pesa {name}?",
+    "country": "¿De dónde es {name}?",
+    "hairColor": "¿De qué color es el cabello de {name}?",
+    "eyeColor": "¿De qué color son los ojos de {name}?",
+    "birthDate": "¿Cuál es la fecha de nacimiento de {name}?",
+    "aliases": "¿Cuáles son los alias de {name}?",
+    "videos": "¿Cuántos vídeos hay de {name}?"
   }
 }

@@ -169,7 +169,8 @@
     "aliases": "Псевдонимы",
     "videosWith": "Видео с {name}",
     "cm": "см",
-    "kg": "кг"
+    "kg": "кг",
+    "relatedActors": "Похожие актёры"
   },
   "actorsFilters": {
     "title": "Актёры",
@@ -222,5 +223,16 @@
     "categories": "Категории",
     "tags": "Теги",
     "collections": "Подборки"
+  },
+  "actorFaq": {
+    "title": "Вопросы о {name}",
+    "height": "Какой рост у {name}?",
+    "weight": "Сколько весит {name}?",
+    "country": "Из какой страны {name}?",
+    "hairColor": "Какой цвет волос у {name}?",
+    "eyeColor": "Какой цвет глаз у {name}?",
+    "birthDate": "Какая дата рождения у {name}?",
+    "aliases": "Какие псевдонимы у {name}?",
+    "videos": "Сколько видео с {name}?"
   }
 }
