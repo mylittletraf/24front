@@ -6,17 +6,18 @@ import { ActiveFilters, RefineBlock } from "@/components/catalog/refine-block";
 import { SaveFilterButton } from "@/components/catalog/save-filter-button";
 import { FiltersDialog } from "@/components/catalog/filters-dialog";
 import { SortSelect } from "@/components/catalog/sort-select";
+import { Breadcrumbs, type Crumb } from "@/components/seo/breadcrumbs";
 import { JsonLd } from "@/components/seo/json-ld";
 import { Description } from "@/components/video/description";
 import { InfiniteVideoFeed } from "@/components/video/infinite-video-feed";
 import { ApiError } from "@/lib/api/errors";
 import { getFilterLabels } from "@/lib/api/filter-labels";
-import { getSeo } from "@/lib/api/seo";
 import { getCatalogRelatedFilters } from "@/lib/api/related";
 import { getTaxonomyDetail } from "@/lib/api/taxonomy";
 import { getRedirect } from "@/lib/api/video-detail";
 import { getVideos } from "@/lib/api/videos";
 import type { QueryValue } from "@/lib/api/fetcher";
+import { collectionPageJsonLd, graph } from "@/lib/seo/structured-data";
 import {
   filtersToApiParams,
   filtersToSearchString,
@@ -41,6 +42,7 @@ export async function EntityVideoPage({
   searchParams: Record<string, string | string[] | undefined>;
 }) {
   const t = await getTranslations("catalog");
+  const tb = await getTranslations("breadcrumbs");
   const isCategory = kind === "categories";
   const basePath = `/${isCategory ? "category" : "tag"}/${slug}`;
 
@@ -74,16 +76,31 @@ export async function EntityVideoPage({
     ...filtersToApiParams(combined),
   };
 
-  const [initialPage, related, seo, labels] = await Promise.all([
+  const [initialPage, related, labels] = await Promise.all([
     getVideos(apiParams, { revalidate: 60 }),
     getCatalogRelatedFilters({ lang, ...filtersToApiParams(combined) }),
-    getSeo(isCategory ? "category" : "tag", slug, lang),
     getFilterLabels(refineFilters, lang),
   ]);
 
+  // Breadcrumbs: Home › Categories › name (categories have an index page; tags don't).
+  const crumbs: Crumb[] = [{ name: tb("home"), url: "/" }];
+  if (isCategory) crumbs.push({ name: tb("categories"), url: "/categories" });
+  crumbs.push({ name: detail.name, url: basePath });
+
+  // CollectionPage wrapping an ItemList of the first page of videos (supersedes backend json_ld).
+  const pageGraph = graph(
+    collectionPageJsonLd({
+      name: detail.name,
+      url: basePath,
+      description: detail.description,
+      videos: initialPage.results,
+    }),
+  );
+
   return (
     <Container className="desktop:py-6 flex flex-col gap-4 py-4">
-      <JsonLd data={seo?.json_ld} />
+      <JsonLd data={pageGraph} />
+      <Breadcrumbs items={crumbs} />
       <header className="flex items-center gap-4">
         {detail.preview_image ? (
           <Image
