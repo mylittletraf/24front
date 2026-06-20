@@ -151,7 +151,8 @@
     "dateFrom": "Date from",
     "dateTo": "to",
     "apply": "Apply",
-    "empty": "No videos found"
+    "empty": "No videos found",
+    "alsoKnownAs": "También conocido como"
   },
   "empty": {
     "title": "Nothing found"

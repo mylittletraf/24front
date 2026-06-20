@@ -115,6 +115,7 @@ export const TagSchema = z.object({
   preview_image: NullableMedia,
   sort_order: z.number().optional(),
   videos_count: z.number(),
+  aliases: z.array(z.string()).optional(),
   description: z.string().nullable().optional(),
   seo_title: z.string().nullable().optional(),
   seo_description: z.string().nullable().optional(),

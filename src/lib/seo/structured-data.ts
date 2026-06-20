@@ -68,11 +68,15 @@ export function collectionPageJsonLd(input: {
   name: string;
   url: string;
   description?: string | null;
+  /** Tag synonyms — captures synonymous queries (schema.org `alternateName`). */
+  alternateName?: string[];
   videos: Pick<VideoCard, "slug" | "title">[];
 }): Json {
   return compact({
     "@type": "CollectionPage",
     name: input.name,
+    alternateName:
+      input.alternateName && input.alternateName.length ? input.alternateName : undefined,
     url: absolute(input.url),
     description: input.description ?? undefined,
     isPartOf: { "@type": "WebSite", name: SITE_NAME, url: SITE_URL },

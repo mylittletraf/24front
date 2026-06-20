@@ -87,12 +87,16 @@ export async function EntityVideoPage({
   if (isCategory) crumbs.push({ name: tb("categories"), url: "/categories" });
   crumbs.push({ name: detail.name, url: basePath });
 
+  // Tag synonyms (categories rarely have them) — fed to alternateName + a visible "also known as".
+  const aliases = (detail.aliases ?? []).filter((a) => a && a !== detail.name);
+
   // CollectionPage wrapping an ItemList of the first page of videos (supersedes backend json_ld).
   const pageGraph = graph(
     collectionPageJsonLd({
       name: detail.name,
       url: basePath,
       description: detail.description,
+      alternateName: aliases,
       videos: initialPage.results,
     }),
   );
@@ -118,6 +122,11 @@ export async function EntityVideoPage({
           <p className="text-muted text-sm">
             {detail.videos_count.toLocaleString()} {t("title").toLowerCase()}
           </p>
+          {aliases.length > 0 ? (
+            <p className="text-muted mt-1 text-sm">
+              {t("alsoKnownAs")}: {aliases.join(", ")}
+            </p>
+          ) : null}
         </div>
       </header>
 
