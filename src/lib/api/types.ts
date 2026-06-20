@@ -81,7 +81,7 @@ export const VideoCardSchema = z.object({
   likes_count: z.number(),
   dislikes_count: z.number(),
   comments_count: z.number(),
-  published_at: z.string(),
+  published_at: z.string().nullable(),
   poster: NullableMedia,
   trailer: NullableMedia,
   title: z.string(),
@@ -98,6 +98,24 @@ export const NamedRefSchema = z.object({
 });
 export type NamedRef = z.infer<typeof NamedRefSchema>;
 
+/** Editorial FAQ (per language) attached to video/tag/category. */
+export const FaqSchema = z
+  .array(z.object({ question: z.string(), answer: z.string() }))
+  .optional()
+  .default([]);
+export type FaqItem = { question: string; answer: string };
+
+/** Genuine aggregate rating (backend returns null until enough votes). */
+export const RatingSchema = z
+  .object({
+    rating_value: z.number(),
+    rating_count: z.number(),
+    best_rating: z.number().optional(),
+    worst_rating: z.number().optional(),
+  })
+  .nullable();
+export type Rating = z.infer<typeof RatingSchema>;
+
 export const VideoCardPageSchema = cursorPage(VideoCardSchema);
 
 /** Tag / category object (FRONTEND_SPEC §4.1). Category = tag with is_category=true. */
@@ -112,14 +130,19 @@ export const TagSchema = z.object({
   is_boobs_type: z.boolean().optional(),
   is_hair_color: z.boolean().optional(),
   is_eye_color: z.boolean().optional(),
+  is_studio: z.boolean().optional(),
   preview_image: NullableMedia,
+  og_image: OptionalMedia,
   sort_order: z.number().optional(),
   videos_count: z.number(),
+  is_indexable: z.boolean().optional(),
   aliases: z.array(z.string()).optional(),
+  faq: FaqSchema,
   description: z.string().nullable().optional(),
   seo_title: z.string().nullable().optional(),
   seo_description: z.string().nullable().optional(),
   seo_h1: z.string().nullable().optional(),
+  date_modified: z.string().nullable().optional(),
   language: z.string().optional(),
   fallback_language: z.string().nullable().optional(),
 });
@@ -136,15 +159,25 @@ export const ActorSchema = z.object({
   gender: z.enum(["woman", "man", "unknown"]).or(z.string()),
   photo: NullableMedia,
   cover_image: OptionalMedia,
+  og_image: OptionalMedia,
   birth_date: z.string().nullable().optional(),
+  birth_place: z.string().nullable().optional(),
+  career_start_year: z.number().nullable().optional(),
+  career_end_year: z.number().nullable().optional(),
   height: z.number().nullable().optional(),
   weight: z.number().nullable().optional(),
+  is_indexable: z.boolean().optional(),
+  wikidata_id: z.string().nullable().optional(),
+  external_links: z.array(z.string()).optional(),
   aliases: z.array(z.string()).optional(),
   videos_count: z.number(),
   bio: z.string().nullable().optional(),
   short_bio: z.string().nullable().optional(),
   seo_title: z.string().nullable().optional(),
   seo_description: z.string().nullable().optional(),
+  date_modified: z.string().nullable().optional(),
+  rating: RatingSchema.optional(),
+  studios: z.array(NamedRefSchema).optional(),
   language: z.string().optional(),
   fallback_language: z.string().nullable().optional(),
   country: AttributeRefSchema.optional(),

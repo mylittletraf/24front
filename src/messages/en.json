@@ -110,7 +110,8 @@
     "anon": "Anonymous",
     "noComments": "No comments yet",
     "screenshotsTitle": "Screenshots",
-    "frame": "frame"
+    "frame": "frame",
+    "faqTitle": "FAQ"
   },
   "common": {
     "loadMore": "Load more",
@@ -152,7 +153,8 @@
     "dateTo": "to",
     "apply": "Apply",
     "empty": "No videos found",
-    "alsoKnownAs": "Also known as"
+    "alsoKnownAs": "Also known as",
+    "faqTitle": "FAQ"
   },
   "empty": {
     "title": "Nothing found"
@@ -171,7 +173,9 @@
     "videosWith": "Videos with {name}",
     "cm": "cm",
     "kg": "kg",
-    "relatedActors": "Related actors"
+    "relatedActors": "Related actors",
+    "birthPlace": "Birthplace",
+    "career": "Active years"
   },
   "actorsFilters": {
     "title": "Actors",

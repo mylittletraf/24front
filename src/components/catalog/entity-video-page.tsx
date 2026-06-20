@@ -8,6 +8,7 @@ import { FiltersDialog } from "@/components/catalog/filters-dialog";
 import { SortSelect } from "@/components/catalog/sort-select";
 import { Breadcrumbs, type Crumb } from "@/components/seo/breadcrumbs";
 import { JsonLd } from "@/components/seo/json-ld";
+import { Accordion } from "@/components/ui/accordion";
 import { Description } from "@/components/video/description";
 import { InfiniteVideoFeed } from "@/components/video/infinite-video-feed";
 import { ApiError } from "@/lib/api/errors";
@@ -17,7 +18,7 @@ import { getTaxonomyDetail } from "@/lib/api/taxonomy";
 import { getRedirect } from "@/lib/api/video-detail";
 import { getVideos } from "@/lib/api/videos";
 import type { QueryValue } from "@/lib/api/fetcher";
-import { collectionPageJsonLd, graph } from "@/lib/seo/structured-data";
+import { collectionPageJsonLd, faqPageJsonLd, graph } from "@/lib/seo/structured-data";
 import {
   filtersToApiParams,
   filtersToSearchString,
@@ -90,15 +91,17 @@ export async function EntityVideoPage({
   // Tag synonyms (categories rarely have them) — fed to alternateName + a visible "also known as".
   const aliases = (detail.aliases ?? []).filter((a) => a && a !== detail.name);
 
-  // CollectionPage wrapping an ItemList of the first page of videos (supersedes backend json_ld).
+  // CollectionPage wrapping an ItemList of the first page of videos (+ FAQPage when present).
   const pageGraph = graph(
     collectionPageJsonLd({
       name: detail.name,
       url: basePath,
       description: detail.description,
       alternateName: aliases,
+      dateModified: detail.date_modified,
       videos: initialPage.results,
     }),
+    detail.faq.length > 0 ? faqPageJsonLd(detail.faq) : [],
   );
 
   return (
@@ -131,6 +134,13 @@ export async function EntityVideoPage({
       </header>
 
       {detail.description ? <Description text={detail.description} /> : null}
+
+      {detail.faq.length > 0 ? (
+        <section className="flex flex-col gap-2">
+          <h2 className="text-lg font-semibold">{t("faqTitle")}</h2>
+          <Accordion items={detail.faq} />
+        </section>
+      ) : null}
 
       <div className="flex items-center justify-end gap-2">
         <FiltersDialog filters={refineFilters} basePath={basePath} />

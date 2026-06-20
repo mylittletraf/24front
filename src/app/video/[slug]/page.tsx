@@ -18,6 +18,7 @@ import { VideoActions } from "@/components/video/video-actions";
 import { VideoSection } from "@/components/video/video-section";
 import { VideoSidebar } from "@/components/video/video-sidebar";
 import { VideoTabs, type TabItem } from "@/components/video/video-tabs";
+import { Accordion } from "@/components/ui/accordion";
 import { SITE_URL } from "@/lib/api/config";
 import { ApiError } from "@/lib/api/errors";
 import { getSeo, seoToMetadata } from "@/lib/api/seo";
@@ -30,7 +31,7 @@ import {
 } from "@/lib/api/video-detail";
 import { resolveLocale, type Locale } from "@/lib/i18n/locales";
 import { screenshotImageNodes, type ScreenshotSeoContext } from "@/lib/seo/screenshots";
-import { graph, videoObjectJsonLd } from "@/lib/seo/structured-data";
+import { faqPageJsonLd, graph, videoObjectJsonLd } from "@/lib/seo/structured-data";
 import { formatCount, formatRelativeDate } from "@/lib/utils/format";
 
 export const revalidate = 60;
@@ -123,13 +124,13 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
     crumbs.push({ name: firstCategory.name, url: `/category/${firstCategory.slug}` });
   crumbs.push({ name: detail.seo_h1 || detail.title, url: `/video/${detail.slug}` });
 
-  // VideoObject thumbnails: poster first, then a few screens (deduped, capped).
-  const thumbnails = Array.from(
-    new Set([detail.poster, ...screens].filter(Boolean) as string[]),
-  ).slice(0, 5);
+  // VideoObject thumbnails: prefer the backend's multi-aspect set; else poster + a few screens.
+  const thumbnails = detail.thumbnails.length
+    ? detail.thumbnails
+    : Array.from(new Set([detail.poster, ...screens].filter(Boolean) as string[])).slice(0, 5);
 
-  // One JSON-LD graph: rich VideoObject + the screenshot ImageObjects (supersedes the minimal
-  // backend seo.json_ld). The BreadcrumbList is emitted by <Breadcrumbs>.
+  // One JSON-LD graph: rich VideoObject + screenshot ImageObjects + FAQPage (supersedes the
+  // minimal backend seo.json_ld). The BreadcrumbList is emitted by <Breadcrumbs>.
   const videoGraph = graph(
     videoObjectJsonLd(detail, {
       thumbnails,
@@ -138,6 +139,7 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
       contentUrl: detail.sources.hls,
     }),
     screens.length > 0 ? screenshotImageNodes(screens, screenshotSeo) : [],
+    detail.faq.length > 0 ? faqPageJsonLd(detail.faq) : [],
   );
 
   // Tabs: description (when present) + screenshots. Both panels are server-rendered and stay
@@ -163,6 +165,18 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
         <section className="flex flex-col gap-2">
           <h2 className="sr-only">{t("screenshotsTitle")}</h2>
           <Screenshots screens={screens} seo={screenshotSeo} />
+        </section>
+      ),
+    });
+  }
+  if (detail.faq.length > 0) {
+    tabs.push({
+      key: "faq",
+      label: t("faqTitle"),
+      panel: (
+        <section className="flex flex-col gap-2">
+          <h2 className="sr-only">{t("faqTitle")}</h2>
+          <Accordion items={detail.faq} />
         </section>
       ),
     });

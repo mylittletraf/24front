@@ -110,7 +110,8 @@
     "anon": "Аноним",
     "noComments": "Пока нет комментариев",
     "screenshotsTitle": "Скриншоты",
-    "frame": "кадр"
+    "frame": "кадр",
+    "faqTitle": "Вопросы и ответы"
   },
   "common": {
     "loadMore": "Загрузить ещё",
@@ -152,7 +153,8 @@
     "dateTo": "до",
     "apply": "Применить",
     "empty": "Видео не найдены",
-    "alsoKnownAs": "Также известен как"
+    "alsoKnownAs": "Также известен как",
+    "faqTitle": "Вопросы и ответы"
   },
   "empty": {
     "title": "Ничего не найдено"
@@ -171,7 +173,9 @@
     "videosWith": "Видео с {name}",
     "cm": "см",
     "kg": "кг",
-    "relatedActors": "Похожие актёры"
+    "relatedActors": "Похожие актёры",
+    "birthPlace": "Место рождения",
+    "career": "Годы активности"
   },
   "actorsFilters": {
     "title": "Актёры",

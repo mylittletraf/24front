@@ -34,7 +34,8 @@ const DIVISIONS: { amount: number; unit: Intl.RelativeTimeFormatUnit }[] = [
 ];
 
 /** ISO date → relative phrase ("2 дня назад") in the given locale. */
-export function formatRelativeDate(iso: string, locale: Locale = "en"): string {
+export function formatRelativeDate(iso: string | null | undefined, locale: Locale = "en"): string {
+  if (!iso) return "";
   const date = new Date(iso);
   const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
   let duration = (date.getTime() - Date.now()) / 1000;
@@ -54,6 +55,7 @@ export function reactionRating(likes: number, dislikes: number): number | null {
 }
 
 /** ISO date → localized date like "01.01.1990". */
-export function formatDate(iso: string, locale: Locale = "en"): string {
+export function formatDate(iso: string | null | undefined, locale: Locale = "en"): string {
+  if (!iso) return "";
   return new Date(iso).toLocaleDateString(locale);
 }

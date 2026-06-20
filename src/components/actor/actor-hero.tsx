@@ -20,6 +20,14 @@ export async function ActorHero({ actor }: { actor: Actor }) {
   if (actor.eye_color) rows.push({ label: t("eyeColor"), value: actor.eye_color.name });
   if (actor.birth_date)
     rows.push({ label: t("birthDate"), value: formatDate(actor.birth_date, locale) });
+  if (actor.birth_place) rows.push({ label: t("birthPlace"), value: actor.birth_place });
+  if (actor.career_start_year)
+    rows.push({
+      label: t("career"),
+      value: actor.career_end_year
+        ? `${actor.career_start_year}–${actor.career_end_year}`
+        : `${actor.career_start_year}`,
+    });
 
   return (
     <section className="relative overflow-hidden rounded-2xl">

@@ -1,5 +1,19 @@
 # SEO — backend data improvements
 
+> **Status 2026-06-21 — DELIVERED.** The backend shipped the full field set (ratings, `is_indexable`,
+> actor `wikidata_id`/`external_links`, `date_modified`, `faq`, `thumbnails[]`, `studios`, localized
+> `aliases`, `og_image`) plus the video/image/tags/actors/collections sitemaps, and fixed the
+> cross-language fallback bug. The frontend now consumes all of it (AggregateRating, FAQPage on
+> video/tag/category, Person `sameAs`/`birthPlace`/`worksFor`, `dateModified`, `productionCompany`,
+> multi-aspect thumbnails, `is_indexable` → robots via the `/seo` endpoint).
+> **Still open:** VTT captions/transcript (backend skipped); a full **studios** frontend feature
+> (`/studios` list + `/studio/[slug]` + `studios` catalog filter + visible studio chips) — studios
+> are currently used only in JSON-LD (`productionCompany`/`worksFor`).
+>
+> The historical request list is kept below for reference.
+
+---
+
 Data the **frontend already builds markup for** but the backend doesn't yet provide (or provides
 inconsistently). The frontend is the source of truth for structured data (JSON-LD); see
 `src/lib/seo/structured-data.ts`. Each item below lists the field, where it lives, and what SEO

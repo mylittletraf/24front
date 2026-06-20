@@ -18,10 +18,14 @@ export const CollectionListItemSchema = z.object({
 export type CollectionListItem = z.infer<typeof CollectionListItemSchema>;
 
 export const CollectionDetailSchema = CollectionListItemSchema.extend({
+  is_indexable: z.boolean().optional(),
+  canonical_url: z.string().nullable().optional(),
+  meta_robots: z.string().nullable().optional(),
   seo_title: z.string().nullable().optional(),
   seo_description: z.string().nullable().optional(),
   seo_h1: z.string().nullable().optional(),
   content: z.string().nullable().optional(),
+  date_modified: z.string().nullable().optional(),
   slugs: z.record(z.string(), z.string()).optional(),
   language: z.string().optional(),
   fallback_language: z.string().nullable().optional(),

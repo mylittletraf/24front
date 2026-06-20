@@ -110,7 +110,8 @@
     "anon": "Anonymous",
     "noComments": "No comments yet",
     "screenshotsTitle": "截图",
-    "frame": "画面"
+    "frame": "画面",
+    "faqTitle": "常见问题"
   },
   "common": {
     "loadMore": "Load more",
@@ -152,7 +153,8 @@
     "dateTo": "to",
     "apply": "Apply",
     "empty": "No videos found",
-    "alsoKnownAs": "又名"
+    "alsoKnownAs": "又名",
+    "faqTitle": "常见问题"
   },
   "empty": {
     "title": "Nothing found"
@@ -171,7 +173,9 @@
     "videosWith": "Videos with {name}",
     "cm": "cm",
     "kg": "kg",
-    "relatedActors": "相关演员"
+    "relatedActors": "相关演员",
+    "birthPlace": "出生地",
+    "career": "活跃年份"
   },
   "actorsFilters": {
     "title": "Actors",

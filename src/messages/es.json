@@ -110,7 +110,8 @@
     "anon": "Anonymous",
     "noComments": "No comments yet",
     "screenshotsTitle": "Capturas",
-    "frame": "fotograma"
+    "frame": "fotograma",
+    "faqTitle": "Preguntas frecuentes"
   },
   "common": {
     "loadMore": "Load more",
@@ -152,7 +153,8 @@
     "dateTo": "to",
     "apply": "Apply",
     "empty": "No videos found",
-    "alsoKnownAs": "También conocido como"
+    "alsoKnownAs": "También conocido como",
+    "faqTitle": "Preguntas frecuentes"
   },
   "empty": {
     "title": "Nothing found"
@@ -171,7 +173,9 @@
     "videosWith": "Videos with {name}",
     "cm": "cm",
     "kg": "kg",
-    "relatedActors": "Actores relacionados"
+    "relatedActors": "Actores relacionados",
+    "birthPlace": "Lugar de nacimiento",
+    "career": "Años activos"
   },
   "actorsFilters": {
     "title": "Actors",

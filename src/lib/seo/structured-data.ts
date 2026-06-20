@@ -1,6 +1,6 @@
 import { ADULT_CONTENT, SITE_NAME, SITE_URL } from "@/lib/api/config";
 import type { VideoDetail } from "@/lib/api/video-detail";
-import type { Actor, VideoCard } from "@/lib/api/types";
+import type { Actor, Rating, VideoCard } from "@/lib/api/types";
 
 /** Make a `/media/…` or `/video/…` path absolute; pass through already-absolute URLs. */
 export function absolute(url: string): string {
@@ -28,6 +28,18 @@ function compact(obj: Json): Json {
     out[k] = v;
   }
   return out;
+}
+
+/** Genuine AggregateRating (backend `rating`; null until enough votes). */
+function aggregateRating(r: Rating | null | undefined): Json | undefined {
+  if (!r) return undefined;
+  return compact({
+    "@type": "AggregateRating",
+    ratingValue: r.rating_value,
+    ratingCount: r.rating_count,
+    bestRating: r.best_rating,
+    worstRating: r.worst_rating,
+  });
 }
 
 /** Wrap nodes into a single `@graph` document (one <script> per page). */
@@ -70,6 +82,7 @@ export function collectionPageJsonLd(input: {
   description?: string | null;
   /** Tag synonyms — captures synonymous queries (schema.org `alternateName`). */
   alternateName?: string[];
+  dateModified?: string | null;
   videos: Pick<VideoCard, "slug" | "title">[];
 }): Json {
   return compact({
@@ -79,6 +92,7 @@ export function collectionPageJsonLd(input: {
       input.alternateName && input.alternateName.length ? input.alternateName : undefined,
     url: absolute(input.url),
     description: input.description ?? undefined,
+    dateModified: input.dateModified ?? undefined,
     isPartOf: { "@type": "WebSite", name: SITE_NAME, url: SITE_URL },
     mainEntity: itemListJsonLd(input.videos),
   });
@@ -110,7 +124,8 @@ export function videoObjectJsonLd(
     name: detail.seo_h1 || detail.title,
     description: detail.seo_description || detail.description || detail.title,
     thumbnailUrl: opts.thumbnails.map(absolute),
-    uploadDate: detail.published_at,
+    uploadDate: detail.published_at ?? undefined,
+    dateModified: detail.date_modified ?? undefined,
     duration: secondsToIso8601(detail.duration),
     url: absolute(opts.pageUrl),
     embedUrl: absolute(opts.embedUrl),
@@ -124,6 +139,8 @@ export function videoObjectJsonLd(
       name: a.name,
       url: absolute(`/actor/${a.slug}`),
     })),
+    productionCompany: detail.studios.map((s) => ({ "@type": "Organization", name: s.name })),
+    aggregateRating: aggregateRating(detail.rating),
     interactionStatistic: interaction,
     publisher: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
     isPartOf: { "@type": "WebSite", name: SITE_NAME, url: SITE_URL },
@@ -139,6 +156,11 @@ export function personJsonLd(
   opts: { pageUrl: string; attributes: { name: string; value: string }[] },
 ): Json {
   const genderMap: Record<string, string> = { woman: "female", man: "male" };
+  // sameAs = Wikidata entity + external profile links (drives the Knowledge Panel).
+  const sameAs = [
+    actor.wikidata_id ? `https://www.wikidata.org/wiki/${actor.wikidata_id}` : null,
+    ...(actor.external_links ?? []),
+  ].filter((u): u is string => Boolean(u));
   return compact({
     "@type": "Person",
     name: actor.name,
@@ -147,6 +169,7 @@ export function personJsonLd(
     description: actor.bio || actor.short_bio || undefined,
     gender: genderMap[actor.gender] ?? undefined,
     birthDate: actor.birth_date ?? undefined,
+    birthPlace: actor.birth_place ? { "@type": "Place", name: actor.birth_place } : undefined,
     alternateName: actor.aliases && actor.aliases.length ? actor.aliases : undefined,
     nationality: actor.country?.name ? { "@type": "Country", name: actor.country.name } : undefined,
     height: actor.height
@@ -155,6 +178,10 @@ export function personJsonLd(
     weight: actor.weight
       ? { "@type": "QuantitativeValue", value: actor.weight, unitCode: "KGM" }
       : undefined,
+    worksFor: (actor.studios ?? []).map((s) => ({ "@type": "Organization", name: s.name })),
+    sameAs,
+    aggregateRating: aggregateRating(actor.rating),
+    dateModified: actor.date_modified ?? undefined,
     additionalProperty: opts.attributes.map((a) => ({
       "@type": "PropertyValue",
       name: a.name,
