@@ -171,7 +171,18 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
   return (
     <Container className="desktop:py-6 py-4">
       <JsonLd data={videoGraph} />
-      <VideoRawMeta durationSeconds={detail.duration} uploadDate={detail.published_at} />
+      <VideoRawMeta
+        durationSeconds={detail.duration}
+        uploadDate={detail.published_at}
+        tags={detail.tags.map((tg) => tg.name)}
+        embedUrl={`${SITE_URL}/embed/${detail.slug}`}
+        stats={{
+          views: detail.views_count,
+          likes: detail.likes_count,
+          dislikes: detail.dislikes_count,
+          comments: detail.comments_count,
+        }}
+      />
       <div className="desktop:flex-row flex flex-col gap-6">
         <div className="flex min-w-0 flex-1 flex-col gap-4">
           <Breadcrumbs items={crumbs} />
