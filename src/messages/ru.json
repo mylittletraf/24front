@@ -108,7 +108,9 @@
     "loginToComment": "Войдите, чтобы оставить комментарий",
     "delete": "Удалить",
     "anon": "Аноним",
-    "noComments": "Пока нет комментариев"
+    "noComments": "Пока нет комментариев",
+    "screenshotsTitle": "Скриншоты",
+    "frame": "кадр"
   },
   "common": {
     "loadMore": "Загрузить ещё",

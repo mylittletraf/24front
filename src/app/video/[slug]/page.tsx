@@ -11,9 +11,11 @@ import { Description } from "@/components/video/description";
 import { MetaRow } from "@/components/video/meta-row";
 import { VideoPlayer } from "@/components/video/player";
 import { ReportModal } from "@/components/video/report-modal";
+import { Screenshots } from "@/components/video/screenshots";
 import { VideoActions } from "@/components/video/video-actions";
 import { VideoSection } from "@/components/video/video-section";
 import { VideoSidebar } from "@/components/video/video-sidebar";
+import { VideoTabs, type TabItem } from "@/components/video/video-tabs";
 import { SITE_URL } from "@/lib/api/config";
 import { ApiError } from "@/lib/api/errors";
 import { getSeo, seoToMetadata } from "@/lib/api/seo";
@@ -25,6 +27,7 @@ import {
   getVideoDetail,
 } from "@/lib/api/video-detail";
 import { resolveLocale, type Locale } from "@/lib/i18n/locales";
+import { screenshotJsonLd, type ScreenshotSeoContext } from "@/lib/seo/screenshots";
 import { formatCount, formatRelativeDate } from "@/lib/utils/format";
 
 export const revalidate = 60;
@@ -92,9 +95,56 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
     attrGroups.length > 0 ||
     detail.tags.length > 0;
 
+  // De-duplicated screenshot URLs (the API repeats the poster as the first frame).
+  const screens = Array.from(new Set(detail.screens));
+
+  // SEO context for the screenshots — built from the current-language title/description/actors
+  // /tags/attributes so alt text + structured data match the page's content language.
+  const screenshotSeo: ScreenshotSeoContext = {
+    title: detail.seo_h1 || detail.title,
+    description: detail.seo_description || detail.description,
+    actorNames: detail.actors.map((a) => a.name),
+    keywords: [
+      ...detail.tags.map((tag) => tag.name),
+      ...detail.categories.map((c) => c.name),
+      ...attrGroups.flatMap((g) => g.items!.map((it) => it.name)),
+    ],
+    frameWord: t("frame"),
+    pageUrl: `${SITE_URL}/video/${detail.slug}`,
+  };
+
+  // Tabs: description (when present) + screenshots. Both panels are server-rendered and stay
+  // mounted, so the screenshots remain in the crawlable HTML even when the tab isn't active.
+  const tabs: TabItem[] = [];
+  if (detail.description) {
+    tabs.push({
+      key: "description",
+      label: t("descriptionTitle"),
+      panel: (
+        <section className="flex flex-col gap-1.5">
+          <h2 className="sr-only">{t("descriptionTitle")}</h2>
+          <Description text={detail.description} />
+        </section>
+      ),
+    });
+  }
+  if (screens.length > 0) {
+    tabs.push({
+      key: "screenshots",
+      label: t("screenshotsTitle"),
+      panel: (
+        <section className="flex flex-col gap-2">
+          <h2 className="sr-only">{t("screenshotsTitle")}</h2>
+          <Screenshots screens={screens} seo={screenshotSeo} />
+        </section>
+      ),
+    });
+  }
+
   return (
     <Container className="desktop:py-6 py-4">
       <JsonLd data={seo?.json_ld} />
+      {screens.length > 0 ? <JsonLd data={screenshotJsonLd(screens, screenshotSeo)} /> : null}
       <div className="desktop:flex-row flex flex-col gap-6">
         <div className="flex min-w-0 flex-1 flex-col gap-4">
           <VideoPlayer uuid={detail.uuid} hls={detail.sources.hls} poster={detail.poster} />
@@ -117,58 +167,53 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
             </div>
           </div>
 
-          {detail.description ? (
-            <section className="flex flex-col gap-1.5">
-              <h2 className="text-muted text-sm font-semibold">{t("descriptionTitle")}</h2>
-              <Description text={detail.description} />
-            </section>
-          ) : null}
+          {tabs.length > 0 ? <VideoTabs items={tabs} /> : null}
 
           {hasMeta ? (
-          <TrackTaxonomy>
-          <dl className="border-border bg-surface/40 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 rounded-2xl border p-4 text-sm">
-            {detail.actors.length > 0 ? (
-              <MetaRow label={t("actorsTitle")}>
-                {detail.actors.map((actor) => (
-                  <Chip key={actor.uuid} href={`/actor/${actor.slug}`}>
-                    {actor.gender === "woman" ? "♀ " : actor.gender === "man" ? "♂ " : ""}
-                    {actor.name}
-                  </Chip>
-                ))}
-              </MetaRow>
-            ) : null}
+            <TrackTaxonomy>
+              <dl className="border-border bg-surface/40 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 rounded-2xl border p-4 text-sm">
+                {detail.actors.length > 0 ? (
+                  <MetaRow label={t("actorsTitle")}>
+                    {detail.actors.map((actor) => (
+                      <Chip key={actor.uuid} href={`/actor/${actor.slug}`}>
+                        {actor.gender === "woman" ? "♀ " : actor.gender === "man" ? "♂ " : ""}
+                        {actor.name}
+                      </Chip>
+                    ))}
+                  </MetaRow>
+                ) : null}
 
-            {detail.categories.length > 0 ? (
-              <MetaRow label={t("categoriesTitle")}>
-                {detail.categories.map((category) => (
-                  <Chip key={category.uuid} href={`/category/${category.slug}`}>
-                    {category.name}
-                  </Chip>
-                ))}
-              </MetaRow>
-            ) : null}
+                {detail.categories.length > 0 ? (
+                  <MetaRow label={t("categoriesTitle")}>
+                    {detail.categories.map((category) => (
+                      <Chip key={category.uuid} href={`/category/${category.slug}`}>
+                        {category.name}
+                      </Chip>
+                    ))}
+                  </MetaRow>
+                ) : null}
 
-            {attrGroups.map((g) => (
-              <MetaRow key={g.param} label={g.label}>
-                {g.items!.map((it) => (
-                  <Chip key={it.uuid} href={`/?${g.param}=${it.slug}`}>
-                    {it.name}
-                  </Chip>
+                {attrGroups.map((g) => (
+                  <MetaRow key={g.param} label={g.label}>
+                    {g.items!.map((it) => (
+                      <Chip key={it.uuid} href={`/?${g.param}=${it.slug}`}>
+                        {it.name}
+                      </Chip>
+                    ))}
+                  </MetaRow>
                 ))}
-              </MetaRow>
-            ))}
 
-            {detail.tags.length > 0 ? (
-              <MetaRow label={t("tagsTitle")}>
-                {detail.tags.map((tag) => (
-                  <Chip key={tag.uuid} href={`/tag/${tag.slug}`}>
-                    #{tag.name}
-                  </Chip>
-                ))}
-              </MetaRow>
-            ) : null}
-          </dl>
-          </TrackTaxonomy>
+                {detail.tags.length > 0 ? (
+                  <MetaRow label={t("tagsTitle")}>
+                    {detail.tags.map((tag) => (
+                      <Chip key={tag.uuid} href={`/tag/${tag.slug}`}>
+                        #{tag.name}
+                      </Chip>
+                    ))}
+                  </MetaRow>
+                ) : null}
+              </dl>
+            </TrackTaxonomy>
           ) : null}
 
           <CommentsSection videoUuid={detail.uuid} commentsCount={detail.comments_count} />

@@ -108,7 +108,9 @@
     "loginToComment": "Log in to leave a comment",
     "delete": "Delete",
     "anon": "Anonymous",
-    "noComments": "No comments yet"
+    "noComments": "No comments yet",
+    "screenshotsTitle": "Screenshots",
+    "frame": "frame"
   },
   "common": {
     "loadMore": "Load more",

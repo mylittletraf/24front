@@ -7,8 +7,8 @@ export const NullableMedia = z.string().nullable().transform(toMediaUrl);
 export const OptionalMedia = z.string().nullable().optional().transform(toMediaUrl);
 export const MediaArray = z
   .array(z.string())
-  .default([])
-  .transform((arr) => arr.map((u) => toMediaUrl(u)));
+  .nullish()
+  .transform((arr) => (arr ?? []).map((u) => toMediaUrl(u)));
 
 // Pagination next/previous: masked to the same-origin proxy path (hides the API host).
 const ProxyLink = z
