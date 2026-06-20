@@ -215,5 +215,12 @@
     "sent": "Thank you! Your message has been sent",
     "infoBody": "Information text goes here.\n\nReplace this with your real, formatted content — terms, about the project, contacts, etc.",
     "advertisingBody": "Want to advertise on 24front? Tell us about your campaign and we'll get back to you.\n\nFormats: banners, native blocks, pre-roll. Replace this with your real content."
+  },
+  "breadcrumbs": {
+    "home": "首页",
+    "actors": "演员",
+    "categories": "分类",
+    "tags": "标签",
+    "collections": "合集"
   }
 }

@@ -4,7 +4,9 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { notFound, redirect } from "next/navigation";
 import { TrackTaxonomy } from "@/components/analytics/track-taxonomy";
 import { Container } from "@/components/layout/container";
+import { Breadcrumbs, type Crumb } from "@/components/seo/breadcrumbs";
 import { JsonLd } from "@/components/seo/json-ld";
+import { VideoRawMeta } from "@/components/seo/raw-meta";
 import { Chip } from "@/components/ui/chip";
 import { CommentsSection } from "@/components/video/comments";
 import { Description } from "@/components/video/description";
@@ -27,7 +29,8 @@ import {
   getVideoDetail,
 } from "@/lib/api/video-detail";
 import { resolveLocale, type Locale } from "@/lib/i18n/locales";
-import { screenshotJsonLd, type ScreenshotSeoContext } from "@/lib/seo/screenshots";
+import { screenshotImageNodes, type ScreenshotSeoContext } from "@/lib/seo/screenshots";
+import { graph, videoObjectJsonLd } from "@/lib/seo/structured-data";
 import { formatCount, formatRelativeDate } from "@/lib/utils/format";
 
 export const revalidate = 60;
@@ -58,6 +61,7 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
   const lang = await resolvePageLocale(searchParams);
   const t = await getTranslations("video");
   const tAttr = await getTranslations("actor");
+  const tb = await getTranslations("breadcrumbs");
 
   let detail;
   try {
@@ -71,11 +75,10 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
     throw error;
   }
 
-  const [related, , popular, seo] = await Promise.all([
+  const [related, , popular] = await Promise.all([
     getRelatedVideos(slug, lang),
     getNextVideo(slug, lang),
     getVideoFeed("popular", { lang, page_size: 12 }),
-    getSeo("video", slug, lang),
   ]);
 
   // Aggregated actor attributes → chips that filter the catalog by /videos/?actor_<group>=.
@@ -113,6 +116,30 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
     pageUrl: `${SITE_URL}/video/${detail.slug}`,
   };
 
+  // Breadcrumb trail: Home › <first category> › <title>.
+  const crumbs: Crumb[] = [{ name: tb("home"), url: "/" }];
+  const firstCategory = detail.categories[0];
+  if (firstCategory)
+    crumbs.push({ name: firstCategory.name, url: `/category/${firstCategory.slug}` });
+  crumbs.push({ name: detail.seo_h1 || detail.title, url: `/video/${detail.slug}` });
+
+  // VideoObject thumbnails: poster first, then a few screens (deduped, capped).
+  const thumbnails = Array.from(
+    new Set([detail.poster, ...screens].filter(Boolean) as string[]),
+  ).slice(0, 5);
+
+  // One JSON-LD graph: rich VideoObject + the screenshot ImageObjects (supersedes the minimal
+  // backend seo.json_ld). The BreadcrumbList is emitted by <Breadcrumbs>.
+  const videoGraph = graph(
+    videoObjectJsonLd(detail, {
+      thumbnails,
+      pageUrl: `/video/${detail.slug}`,
+      embedUrl: `/embed/${detail.slug}`,
+      contentUrl: detail.sources.hls,
+    }),
+    screens.length > 0 ? screenshotImageNodes(screens, screenshotSeo) : [],
+  );
+
   // Tabs: description (when present) + screenshots. Both panels are server-rendered and stay
   // mounted, so the screenshots remain in the crawlable HTML even when the tab isn't active.
   const tabs: TabItem[] = [];
@@ -143,10 +170,11 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
 
   return (
     <Container className="desktop:py-6 py-4">
-      <JsonLd data={seo?.json_ld} />
-      {screens.length > 0 ? <JsonLd data={screenshotJsonLd(screens, screenshotSeo)} /> : null}
+      <JsonLd data={videoGraph} />
+      <VideoRawMeta durationSeconds={detail.duration} uploadDate={detail.published_at} />
       <div className="desktop:flex-row flex flex-col gap-6">
         <div className="flex min-w-0 flex-1 flex-col gap-4">
+          <Breadcrumbs items={crumbs} />
           <VideoPlayer uuid={detail.uuid} hls={detail.sources.hls} poster={detail.poster} />
 
           <h1 className="text-xl font-bold">{detail.seo_h1 || detail.title}</h1>

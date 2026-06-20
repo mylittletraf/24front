@@ -1,4 +1,5 @@
-import { SITE_NAME, SITE_URL } from "@/lib/api/config";
+import { SITE_NAME } from "@/lib/api/config";
+import { absolute } from "./structured-data";
 
 /**
  * Everything needed to describe a video's screenshots for image search.
@@ -19,10 +20,6 @@ export interface ScreenshotSeoContext {
   frameWord: string;
   /** Absolute canonical page URL the images belong to. */
   pageUrl: string;
-}
-
-function absolute(url: string): string {
-  return url.startsWith("http") ? url : `${SITE_URL}${url}`;
 }
 
 /** Keep alt text within the ~125-char window search engines actually use. */
@@ -51,29 +48,27 @@ export function screenshotCaption(ctx: ScreenshotSeoContext, n: number): string 
 }
 
 /**
- * schema.org ImageObject `@graph` for the gallery — makes each screenshot eligible for
- * Google/Yandex image search independently of how the tab renders it. Absolute URLs are
- * required by the spec; the first frame is flagged `representativeOfPage`.
+ * schema.org ImageObject nodes for the gallery — folded into the page's `@graph` (see
+ * structured-data.ts `graph()`). Makes each screenshot eligible for Google/Yandex image
+ * search regardless of how the tab renders it. Absolute URLs are required by the spec;
+ * the first frame is flagged `representativeOfPage`.
  */
-export function screenshotJsonLd(urls: string[], ctx: ScreenshotSeoContext) {
-  return {
-    "@context": "https://schema.org",
-    "@graph": urls.map((url, i) => {
-      const n = i + 1;
-      const abs = absolute(url);
-      return {
-        "@type": "ImageObject",
-        contentUrl: abs,
-        url: abs,
-        thumbnailUrl: abs,
-        name: `${ctx.title} — ${ctx.frameWord} ${n}`,
-        caption: screenshotAlt(ctx, n),
-        description: ctx.description ?? screenshotAlt(ctx, n),
-        representativeOfPage: i === 0,
-        creditText: SITE_NAME,
-        copyrightNotice: SITE_NAME,
-        isPartOf: { "@type": "VideoObject", name: ctx.title, "@id": ctx.pageUrl, url: ctx.pageUrl },
-      };
-    }),
-  };
+export function screenshotImageNodes(urls: string[], ctx: ScreenshotSeoContext) {
+  return urls.map((url, i) => {
+    const n = i + 1;
+    const abs = absolute(url);
+    return {
+      "@type": "ImageObject",
+      contentUrl: abs,
+      url: abs,
+      thumbnailUrl: abs,
+      name: `${ctx.title} — ${ctx.frameWord} ${n}`,
+      caption: screenshotAlt(ctx, n),
+      description: ctx.description ?? screenshotAlt(ctx, n),
+      representativeOfPage: i === 0,
+      creditText: SITE_NAME,
+      copyrightNotice: SITE_NAME,
+      isPartOf: { "@type": "VideoObject", name: ctx.title, "@id": ctx.pageUrl, url: ctx.pageUrl },
+    };
+  });
 }
