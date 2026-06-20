@@ -1,12 +1,20 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { EmptyState } from "@/components/common/empty-state";
 import { Container } from "@/components/layout/container";
+import { Breadcrumbs, type Crumb } from "@/components/seo/breadcrumbs";
+import { SITE_URL } from "@/lib/api/config";
 import { getCollections } from "@/lib/api/collections";
 import { resolveLocale, type Locale } from "@/lib/i18n/locales";
 
 export const revalidate = 300;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("collections");
+  return { title: t("title"), alternates: { canonical: `${SITE_URL}/collections` } };
+}
 
 export default async function CollectionsPage({
   searchParams,
@@ -16,11 +24,17 @@ export default async function CollectionsPage({
   const sp = await searchParams;
   const lang = sp.lang ? resolveLocale(sp.lang) : ((await getLocale()) as Locale);
   const t = await getTranslations("collections");
+  const tb = await getTranslations("breadcrumbs");
+  const crumbs: Crumb[] = [
+    { name: tb("home"), url: "/" },
+    { name: tb("collections"), url: "/collections" },
+  ];
 
   const page = await getCollections(lang);
 
   return (
     <Container className="desktop:py-6 flex flex-col gap-4 py-4">
+      <Breadcrumbs items={crumbs} />
       <h1 className="desktop:text-2xl text-xl font-bold">{t("title")}</h1>
 
       {page.results.length === 0 ? (

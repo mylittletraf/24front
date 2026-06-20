@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import {
   ActorsFiltersBar,
@@ -6,15 +7,22 @@ import {
 } from "@/components/actor/actors-filters";
 import { ActorsGrid } from "@/components/actor/actors-grid";
 import { Container } from "@/components/layout/container";
+import { Breadcrumbs, type Crumb } from "@/components/seo/breadcrumbs";
 import {
   getActorAttributes,
   getActors,
   type ActorListParams,
   type ActorSort,
 } from "@/lib/api/actors";
+import { SITE_URL } from "@/lib/api/config";
 import { resolveLocale, type Locale } from "@/lib/i18n/locales";
 
 export const revalidate = 300;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("actorsFilters");
+  return { title: t("title"), alternates: { canonical: `${SITE_URL}/actors` } };
+}
 
 type SP = Record<string, string | string[] | undefined>;
 
@@ -34,6 +42,11 @@ export default async function ActorsPage({ searchParams }: { searchParams: Promi
   const sp = await searchParams;
   const lang = sp.lang ? resolveLocale(str(sp.lang)) : ((await getLocale()) as Locale);
   const t = await getTranslations("actorsFilters");
+  const tb = await getTranslations("breadcrumbs");
+  const crumbs: Crumb[] = [
+    { name: tb("home"), url: "/" },
+    { name: tb("actors"), url: "/actors" },
+  ];
 
   // Default to women; "any" explicitly clears the gender filter.
   const genderValue = str(sp.gender) ?? "woman";
@@ -83,6 +96,7 @@ export default async function ActorsPage({ searchParams }: { searchParams: Promi
 
   return (
     <Container className="desktop:py-6 flex flex-col gap-4 py-4">
+      <Breadcrumbs items={crumbs} />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-bold">
           {t("title")} <span className="text-muted text-base font-normal">{initialPage.count}</span>

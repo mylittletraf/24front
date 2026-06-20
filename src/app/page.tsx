@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { ActiveFilters, RefineBlock } from "@/components/catalog/refine-block";
 import { SaveFilterButton } from "@/components/catalog/save-filter-button";
@@ -5,6 +6,7 @@ import { FiltersDialog } from "@/components/catalog/filters-dialog";
 import { SortSelect } from "@/components/catalog/sort-select";
 import { Container } from "@/components/layout/container";
 import { InfiniteVideoFeed } from "@/components/video/infinite-video-feed";
+import { SITE_URL } from "@/lib/api/config";
 import type { QueryValue } from "@/lib/api/fetcher";
 import { getFilterLabels } from "@/lib/api/filter-labels";
 import { getCatalogRelatedFilters } from "@/lib/api/related";
@@ -18,6 +20,9 @@ import {
 import type { Locale } from "@/lib/i18n/locales";
 
 export const revalidate = 60;
+
+// Filtered catalog views (?actor_country=…, ?sort=…) all canonicalize to the clean home URL.
+export const metadata: Metadata = { alternates: { canonical: SITE_URL } };
 
 export default async function HomePage({
   searchParams,

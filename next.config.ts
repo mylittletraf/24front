@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
   // 308-redirecting them away.
   skipTrailingSlashRedirect: true,
   images: {
+    // Serve modern formats (smaller = better LCP / Core Web Vitals).
+    formats: ["image/avif", "image/webp"],
     // The dev backend serves images from localhost (a private IP); Next 16's SSRF
     // guard blocks optimizing those, so allow local IPs in development only.
     dangerouslyAllowLocalIP: process.env.NODE_ENV === "development",

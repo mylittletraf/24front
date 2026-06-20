@@ -1,11 +1,19 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Container } from "@/components/layout/container";
+import { Breadcrumbs, type Crumb } from "@/components/seo/breadcrumbs";
+import { SITE_URL } from "@/lib/api/config";
 import { getCategories, getTags } from "@/lib/api/taxonomy";
 import { resolveLocale, type Locale } from "@/lib/i18n/locales";
 
 export const revalidate = 1800;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("categoriesPage");
+  return { title: t("categories"), alternates: { canonical: `${SITE_URL}/categories` } };
+}
 
 export default async function CategoriesPage({
   searchParams,
@@ -15,6 +23,11 @@ export default async function CategoriesPage({
   const sp = await searchParams;
   const lang = sp.lang ? resolveLocale(sp.lang) : ((await getLocale()) as Locale);
   const t = await getTranslations("categoriesPage");
+  const tb = await getTranslations("breadcrumbs");
+  const crumbs: Crumb[] = [
+    { name: tb("home"), url: "/" },
+    { name: tb("categories"), url: "/categories" },
+  ];
 
   const [categories, tags] = await Promise.all([
     getCategories({ lang, pageSize: 100 }),
@@ -25,6 +38,7 @@ export default async function CategoriesPage({
 
   return (
     <Container className="desktop:py-6 flex flex-col gap-8 py-4">
+      <Breadcrumbs items={crumbs} />
       {categories.length > 0 ? (
         <section className="flex flex-col gap-4">
           <h1 className="desktop:text-2xl text-xl font-bold">{t("categories")}</h1>
