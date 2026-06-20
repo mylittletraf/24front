@@ -31,29 +31,54 @@ function uniq(values: string[]): string[] {
   return [...new Set(values)];
 }
 
+/** Per-taxonomy wiring: route base, redirect entity, breadcrumb index, header style, base filter. */
+const KIND_CONF = {
+  tags: {
+    base: "/tag",
+    redirect: "tag",
+    indexCrumb: null,
+    hashPrefix: true,
+    filterKey: "include_tags",
+  },
+  categories: {
+    base: "/category",
+    redirect: "category",
+    indexCrumb: { key: "categories", path: "/categories" },
+    hashPrefix: false,
+    filterKey: "categories",
+  },
+  studios: {
+    base: "/studio",
+    redirect: "studio",
+    indexCrumb: { key: "studios", path: "/studios" },
+    hashPrefix: false,
+    filterKey: "studios",
+  },
+} as const;
+
 export async function EntityVideoPage({
   kind,
   slug,
   lang,
   searchParams,
 }: {
-  kind: "tags" | "categories";
+  kind: "tags" | "categories" | "studios";
   slug: string;
   lang: Locale;
   searchParams: Record<string, string | string[] | undefined>;
 }) {
   const t = await getTranslations("catalog");
   const tb = await getTranslations("breadcrumbs");
-  const isCategory = kind === "categories";
-  const basePath = `/${isCategory ? "category" : "tag"}/${slug}`;
+  const conf = KIND_CONF[kind];
+  const basePath = `${conf.base}/${slug}`;
 
   let detail;
   try {
     detail = await getTaxonomyDetail(kind, slug, lang);
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) {
-      const r = await getRedirect(slug, isCategory ? "category" : "tag", lang);
-      if (r.redirect && r.new_slug) redirect(`${isCategory ? "/category" : "/tag"}/${r.new_slug}`);
+      const r = await getRedirect(slug, conf.redirect, lang);
+      if (r.redirect && r.new_slug) redirect(`${conf.base}/${r.new_slug}`);
       notFound();
     }
     throw error;
@@ -63,13 +88,8 @@ export async function EntityVideoPage({
   const refineFilters = parseFilters(searchParams);
 
   // The entity itself is the fixed base filter; refine selections are added on top.
-  const combined: VideoFilters = {
-    ...refineFilters,
-    categories: isCategory ? uniq([slug, ...refineFilters.categories]) : refineFilters.categories,
-    include_tags: isCategory
-      ? refineFilters.include_tags
-      : uniq([slug, ...refineFilters.include_tags]),
-  };
+  const combined: VideoFilters = { ...refineFilters };
+  combined[conf.filterKey] = uniq([slug, ...refineFilters[conf.filterKey]]);
 
   const apiParams: Record<string, QueryValue> = {
     lang,
@@ -83,9 +103,9 @@ export async function EntityVideoPage({
     getFilterLabels(refineFilters, lang),
   ]);
 
-  // Breadcrumbs: Home › Categories › name (categories have an index page; tags don't).
+  // Breadcrumbs: Home › <index> › name (categories/studios have an index page; tags don't).
   const crumbs: Crumb[] = [{ name: tb("home"), url: "/" }];
-  if (isCategory) crumbs.push({ name: tb("categories"), url: "/categories" });
+  if (conf.indexCrumb) crumbs.push({ name: tb(conf.indexCrumb.key), url: conf.indexCrumb.path });
   crumbs.push({ name: detail.name, url: basePath });
 
   // Tag synonyms (categories rarely have them) — fed to alternateName + a visible "also known as".
@@ -120,7 +140,7 @@ export async function EntityVideoPage({
         ) : null}
         <div className="flex-1">
           <h1 className="desktop:text-2xl text-xl font-bold">
-            {isCategory ? detail.name : `#${detail.name}`}
+            {conf.hashPrefix ? `#${detail.name}` : detail.name}
           </h1>
           <p className="text-muted text-sm">
             {detail.videos_count.toLocaleString()} {t("title").toLowerCase()}

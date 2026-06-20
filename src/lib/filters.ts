@@ -5,6 +5,7 @@ export interface VideoFilters {
   include_tags: string[];
   exclude_tags: string[];
   categories: string[];
+  studios: string[];
   actors: string[];
   q?: string;
   duration_min?: number;
@@ -35,6 +36,7 @@ export const emptyFilters: VideoFilters = {
   include_tags: [],
   exclude_tags: [],
   categories: [],
+  studios: [],
   actors: [],
 };
 
@@ -77,6 +79,7 @@ export function parseFilters(sp: RawParams): VideoFilters {
     include_tags: csv(sp.include_tags),
     exclude_tags: csv(sp.exclude_tags),
     categories: csv(sp.categories),
+    studios: csv(sp.studios),
     actors: csv(sp.actors),
     q: str(sp.q),
     duration_min: num(sp.duration_min),
@@ -99,6 +102,7 @@ export function filtersToApiParams(f: VideoFilters): Record<string, QueryValue> 
     include_tags: f.include_tags.length ? f.include_tags.join(",") : undefined,
     exclude_tags: f.exclude_tags.length ? f.exclude_tags.join(",") : undefined,
     categories: f.categories.length ? f.categories.join(",") : undefined,
+    studios: f.studios.length ? f.studios.join(",") : undefined,
     actors: f.actors.length ? f.actors.join(",") : undefined,
     q: f.q,
     duration_min: f.duration_min,
@@ -131,6 +135,7 @@ export function hasActiveFilters(f: VideoFilters): boolean {
     f.include_tags.length > 0 ||
     f.exclude_tags.length > 0 ||
     f.categories.length > 0 ||
+    f.studios.length > 0 ||
     f.actors.length > 0 ||
     ACTOR_ATTR_KEYS.some((k) => f[k]) ||
     Boolean(f.q || f.duration_min || f.duration_max || f.published_after || f.published_before)

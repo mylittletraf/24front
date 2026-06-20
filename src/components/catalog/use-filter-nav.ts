@@ -5,7 +5,7 @@ import { useCallback } from "react";
 import type { VideoSort } from "@/lib/api/videos";
 import { filtersToSearchString, type VideoFilters } from "@/lib/filters";
 
-type ListKey = "categories" | "actors";
+type ListKey = "categories" | "studios" | "actors";
 
 export function useFilterNav(basePath: string, filters: VideoFilters) {
   const router = useRouter();

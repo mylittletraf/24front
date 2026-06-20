@@ -7,7 +7,8 @@
     "feed": "Лента",
     "allCategories": "Все категории",
     "home": "Главная",
-    "contacts": "Контакты"
+    "contacts": "Контакты",
+    "studios": "Студии"
   },
   "feed": {
     "title": "Лента",
@@ -111,7 +112,8 @@
     "noComments": "Пока нет комментариев",
     "screenshotsTitle": "Скриншоты",
     "frame": "кадр",
-    "faqTitle": "Вопросы и ответы"
+    "faqTitle": "Вопросы и ответы",
+    "studiosTitle": "Студии"
   },
   "common": {
     "loadMore": "Загрузить ещё",
@@ -227,7 +229,8 @@
     "actors": "Актёры",
     "categories": "Категории",
     "tags": "Теги",
-    "collections": "Подборки"
+    "collections": "Подборки",
+    "studios": "Студии"
   },
   "actorFaq": {
     "title": "Вопросы о {name}",
@@ -239,5 +242,9 @@
     "birthDate": "Какая дата рождения у {name}?",
     "aliases": "Какие псевдонимы у {name}?",
     "videos": "Сколько видео с {name}?"
+  },
+  "studiosPage": {
+    "title": "Студии",
+    "videosCount": "{count} видео"
   }
 }

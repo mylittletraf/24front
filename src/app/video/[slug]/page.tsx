@@ -96,6 +96,7 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
   const hasMeta =
     detail.actors.length > 0 ||
     detail.categories.length > 0 ||
+    detail.studios.length > 0 ||
     attrGroups.length > 0 ||
     detail.tags.length > 0;
 
@@ -241,6 +242,16 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
                     {detail.categories.map((category) => (
                       <Chip key={category.uuid} href={`/category/${category.slug}`}>
                         {category.name}
+                      </Chip>
+                    ))}
+                  </MetaRow>
+                ) : null}
+
+                {detail.studios.length > 0 ? (
+                  <MetaRow label={t("studiosTitle")}>
+                    {detail.studios.map((studio) => (
+                      <Chip key={studio.uuid} href={`/studio/${studio.slug}`}>
+                        {studio.name}
                       </Chip>
                     ))}
                   </MetaRow>

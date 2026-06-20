@@ -4,7 +4,7 @@ import type { Locale } from "@/lib/i18n/locales";
 import { maskMediaDeep } from "@/lib/media";
 import { apiFetch } from "./fetcher";
 
-export type SeoEntity = "video" | "tag" | "category" | "actor" | "collection";
+export type SeoEntity = "video" | "tag" | "category" | "actor" | "collection" | "studio";
 
 const OpenGraphSchema = z
   .object({

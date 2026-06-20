@@ -113,7 +113,7 @@ const RedirectSchema = z.object({
 /** Slug redirect lookup used after a 404 on detail pages. */
 export async function getRedirect(
   slug: string,
-  entityType: "video" | "tag" | "actor" | "collection" | "category",
+  entityType: "video" | "tag" | "actor" | "collection" | "category" | "studio",
   lang?: Locale,
 ): Promise<{ redirect: boolean; new_slug?: string }> {
   try {

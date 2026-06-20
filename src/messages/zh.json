@@ -7,7 +7,8 @@
     "feed": "Feed",
     "allCategories": "All categories",
     "home": "Home",
-    "contacts": "Contacts"
+    "contacts": "Contacts",
+    "studios": "制片厂"
   },
   "feed": {
     "title": "Feed",
@@ -111,7 +112,8 @@
     "noComments": "No comments yet",
     "screenshotsTitle": "截图",
     "frame": "画面",
-    "faqTitle": "常见问题"
+    "faqTitle": "常见问题",
+    "studiosTitle": "制片厂"
   },
   "common": {
     "loadMore": "Load more",
@@ -227,7 +229,8 @@
     "actors": "演员",
     "categories": "分类",
     "tags": "标签",
-    "collections": "合集"
+    "collections": "合集",
+    "studios": "制片厂"
   },
   "actorFaq": {
     "title": "关于{name}的常见问题",
@@ -239,5 +242,9 @@
     "birthDate": "{name}的出生日期是什么时候？",
     "aliases": "{name}有哪些别名？",
     "videos": "有多少{name}的视频？"
+  },
+  "studiosPage": {
+    "title": "制片厂",
+    "videosCount": "{count} 个视频"
   }
 }

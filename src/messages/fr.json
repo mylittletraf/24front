@@ -7,7 +7,8 @@
     "feed": "Feed",
     "allCategories": "All categories",
     "home": "Home",
-    "contacts": "Contacts"
+    "contacts": "Contacts",
+    "studios": "Studios"
   },
   "feed": {
     "title": "Feed",
@@ -111,7 +112,8 @@
     "noComments": "No comments yet",
     "screenshotsTitle": "Captures",
     "frame": "image",
-    "faqTitle": "Questions fréquentes"
+    "faqTitle": "Questions fréquentes",
+    "studiosTitle": "Studios"
   },
   "common": {
     "loadMore": "Load more",
@@ -227,7 +229,8 @@
     "actors": "Acteurs",
     "categories": "Catégories",
     "tags": "Tags",
-    "collections": "Collections"
+    "collections": "Collections",
+    "studios": "Studios"
   },
   "actorFaq": {
     "title": "Questions sur {name}",
@@ -239,5 +242,9 @@
     "birthDate": "Quelle est la date de naissance de {name} ?",
     "aliases": "Quels sont les alias de {name} ?",
     "videos": "Combien de vidéos avec {name} ?"
+  },
+  "studiosPage": {
+    "title": "Studios",
+    "videosCount": "{count} vidéos"
   }
 }

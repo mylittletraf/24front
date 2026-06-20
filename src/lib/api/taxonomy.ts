@@ -33,9 +33,22 @@ export async function getTags({ lang, pageSize = 300 }: ListOpts = {}): Promise<
   }
 }
 
-/** Tag or category detail by slug (throws ApiError on 404). */
+/** Studios list (page-number, sorted by sort_order) for the studios page. */
+export async function getStudios({ lang, pageSize = 100 }: ListOpts = {}): Promise<Tag[]> {
+  try {
+    const data = await apiFetch<unknown>("/studios/", {
+      params: { lang, page_size: pageSize },
+      revalidate: 1800,
+    });
+    return parseList(TagSchema, data).results;
+  } catch {
+    return [];
+  }
+}
+
+/** Tag / category / studio detail by slug (throws ApiError on 404). */
 export async function getTaxonomyDetail(
-  kind: "tags" | "categories",
+  kind: "tags" | "categories" | "studios",
   slug: string,
   lang?: Locale,
 ): Promise<Tag> {
