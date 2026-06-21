@@ -1,5 +1,5 @@
 export const REFRESH_COOKIE = "refresh_token";
-export const REFRESH_MAX_AGE = 60 * 60 * 24 * 30; // 30 days (refresh lifetime)
+export const REFRESH_MAX_AGE = 60 * 60 * 24 * 365; // 1 year (matches the backend refresh lifetime)
 
 export function refreshCookieOptions() {
   return {
