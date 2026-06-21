@@ -96,14 +96,9 @@ empty/short today.
 | `seo_text` / long `description` (HTML) | tag, category | content block + text relevance |
 | `faq` (array of `{question, answer}`) | category, tag, (video) | `FAQPage` (frontend already renders the accordion for actors) |
 
-### 8. Tag `aliases` — **data exists; fix localization** ✅ frontend done
-The frontend now reads `tags[].aliases` → `CollectionPage.alternateName` + a visible "also known
-as" line. Two backend issues to confirm:
-
-1. **Localize per language.** In current data the EN endpoint returns **Russian** aliases:
-   `GET /tags/?lang=en` → tag `tag-1` (`"TAg 1"`) has `aliases: ["тег 1","тег один"]`. Each
-   language must return its own synonyms (Cyrillic aliases must not leak into the EN page).
-2. Keep returning `aliases` as a localized `string[]` (already the shape on `/tags/`).
+### 8. Tag `aliases` — ✅ delivered
+The backend returns localized `aliases` per language, and the frontend renders them as
+`CollectionPage.alternateName` + a visible "also known as" line. Nothing left to do.
 
 ---
 
