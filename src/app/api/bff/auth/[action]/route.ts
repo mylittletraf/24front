@@ -52,6 +52,11 @@ function commitSession(data: Record<string, unknown> | null, status = 200): Next
  * Renew the session from the refresh cookie. `soft` (used by the on-load bootstrap) returns
  * 200 `{ access: null }` for the anonymous/expired case so the browser doesn't log a 401;
  * the explicit mid-session refresh keeps returning 401.
+ *
+ * The backend no longer rotates the refresh token: `/auth/refresh/` returns only a new `access`
+ * (no `refresh` field), the same long-lived token is reused across tabs/reloads. We re-set the
+ * same cookie to slide its expiry (keeps active users signed in). If a rotated `refresh` is ever
+ * returned, we persist that instead — so both backends work.
  */
 async function refreshSession(soft = false): Promise<NextResponse> {
   const noSession = (detail: string) =>
@@ -62,12 +67,13 @@ async function refreshSession(soft = false): Promise<NextResponse> {
   if (!refresh) return noSession("No session");
 
   const { ok, data } = await backend("/auth/refresh/", { refresh });
-  if (!ok || typeof data?.access !== "string" || typeof data?.refresh !== "string") {
+  if (!ok || typeof data?.access !== "string") {
     const res = noSession("Session expired");
     res.cookies.delete(REFRESH_COOKIE);
     return res;
   }
-  return sessionResponse({ access: data.access }, data.refresh);
+  const nextRefresh = typeof data.refresh === "string" ? data.refresh : refresh;
+  return sessionResponse({ access: data.access }, nextRefresh);
 }
 
 export async function POST(req: NextRequest, ctx: { params: Promise<{ action: string }> }) {
