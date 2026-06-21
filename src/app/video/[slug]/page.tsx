@@ -222,7 +222,7 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
             </div>
           </div>
 
-          {tabs.length > 0 ? <VideoTabs key={detail.uuid} items={tabs} /> : null}
+          {tabs.length > 0 ? <VideoTabs items={tabs} videoKey={detail.uuid} /> : null}
 
           {hasMeta ? (
             <TrackTaxonomy>
@@ -290,7 +290,12 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
 
           {/* Mobile: Related / Popular tabs with a load-more button (+10). */}
           <div className="desktop:hidden">
-            <MobileFeedTabs related={related} popular={popular} lang={lang} />
+            <MobileFeedTabs
+              related={related}
+              popular={popular}
+              lang={lang}
+              videoKey={detail.uuid}
+            />
           </div>
         </div>
 

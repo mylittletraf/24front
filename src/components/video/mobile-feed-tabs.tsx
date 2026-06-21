@@ -16,10 +16,12 @@ export function MobileFeedTabs({
   related,
   popular,
   lang,
+  videoKey,
 }: {
   related: VideoCardData[];
   popular: CursorPage<VideoCardData>;
   lang: Locale;
+  videoKey: string;
 }) {
   const t = useTranslations("video");
 
@@ -53,5 +55,5 @@ export function MobileFeedTabs({
     ),
   });
 
-  return <VideoTabs items={items} />;
+  return <VideoTabs items={items} videoKey={videoKey} />;
 }
