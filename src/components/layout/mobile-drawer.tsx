@@ -8,14 +8,23 @@ import { useAuthUI } from "@/components/auth/auth-ui";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
-import type { Tag } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
 
-export function MobileDrawer({ categories }: { categories: Tag[] }) {
+export function MobileDrawer() {
   const t = useTranslations();
   const { open: openAuth } = useAuthUI();
   const { isAuthenticated, user, logout } = useAuth();
   const [open, setOpen] = useState(false);
+
+  // Primary navigation (the whole nav lives in the hamburger on mobile).
+  const navLinks = [
+    { href: "/", label: t("nav.videos") },
+    { href: "/categories", label: t("nav.categories") },
+    { href: "/actors", label: t("nav.actors") },
+    { href: "/studios", label: t("nav.studios") },
+    { href: "/collections", label: t("nav.collections") },
+    { href: "/feed", label: t("nav.feed") },
+  ];
 
   const accountLinks = [
     { href: "/me?tab=settings", label: t("profile.title"), icon: User },
@@ -74,8 +83,21 @@ export function MobileDrawer({ categories }: { categories: Tag[] }) {
           )}
         </div>
 
+        <nav className="flex flex-col">
+          {navLinks.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              onClick={() => setOpen(false)}
+              className="hover:bg-surface rounded-md px-2 py-2.5 text-sm font-medium"
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
+
         {isAuthenticated ? (
-          <nav className="flex flex-col">
+          <nav className="border-border flex flex-col border-t pt-3">
             {accountLinks.map(({ href, label, icon: Icon }, i) => (
               <Link
                 key={`${href}-${i}`}
@@ -99,32 +121,6 @@ export function MobileDrawer({ categories }: { categories: Tag[] }) {
               {t("auth.logout")}
             </button>
           </nav>
-        ) : null}
-
-        {categories.length > 0 ? (
-          <div className="border-border flex min-h-0 flex-1 flex-col border-t pt-3">
-            <h3 className="px-2 pb-1 text-sm font-semibold">{t("nav.categories")}</h3>
-            <ul className="flex-1 overflow-y-auto">
-              {categories.map((cat) => (
-                <li key={cat.uuid}>
-                  <Link
-                    href={`/category/${cat.slug}`}
-                    onClick={() => setOpen(false)}
-                    className="hover:bg-surface block truncate rounded-md px-2 py-2 text-sm"
-                  >
-                    {cat.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <Link
-              href="/categories"
-              onClick={() => setOpen(false)}
-              className="text-link px-2 py-2 text-sm font-medium"
-            >
-              {t("nav.allCategories")} →
-            </Link>
-          </div>
         ) : null}
       </DialogContent>
     </Dialog>

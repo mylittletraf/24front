@@ -8,7 +8,7 @@ export async function SiteHeader() {
   const categories = await getCategories({ pageSize: 35 });
   return (
     <CategoriesDisclosureProvider>
-      <Header categories={categories} />
+      <Header />
       <CategoryGrid categories={categories} />
     </CategoriesDisclosureProvider>
   );

@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { track } from "@/lib/analytics/track";
 import { SITE_NAME } from "@/lib/api/config";
-import type { Tag } from "@/lib/api/types";
 import { cn } from "@/lib/utils/cn";
 import { useCategoriesDisclosure } from "./categories-disclosure";
 import { MobileDrawer } from "./mobile-drawer";
@@ -99,20 +98,7 @@ function FeedNavLink({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-/** Plain links used in the mobile sub-nav (categories live in the hamburger there). */
-function MobileNavLinks({ onNavigate }: { onNavigate?: () => void }) {
-  const t = useTranslations("nav");
-  return (
-    <>
-      <NavLink href="/" label={t("videos")} onNavigate={onNavigate} />
-      <NavLink href="/actors" label={t("actors")} onNavigate={onNavigate} />
-      <NavLink href="/collections" label={t("collections")} onNavigate={onNavigate} />
-      <FeedNavLink onNavigate={onNavigate} />
-    </>
-  );
-}
-
-export function Header({ categories }: { categories: Tag[] }) {
+export function Header() {
   const t = useTranslations("search");
   const tNav = useTranslations("nav");
   const [searchOpen, setSearchOpen] = useState(false);
@@ -128,6 +114,7 @@ export function Header({ categories }: { categories: Tag[] }) {
           <NavLink href="/" label={tNav("videos")} />
           <CategoriesNavItem />
           <NavLink href="/actors" label={tNav("actors")} />
+          <NavLink href="/studios" label={tNav("studios")} />
           <NavLink href="/collections" label={tNav("collections")} />
           <FeedNavLink />
         </nav>
@@ -161,14 +148,9 @@ export function Header({ categories }: { categories: Tag[] }) {
           >
             <Search size={22} />
           </Button>
-          <MobileDrawer categories={categories} />
+          <MobileDrawer />
         </div>
       </div>
-
-      {/* Mobile sub-nav under the header (centered) */}
-      <nav className="border-border desktop:hidden flex justify-center gap-8 border-t px-4 py-2">
-        <MobileNavLinks />
-      </nav>
 
       <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
         <DialogContent side="center" className="pt-8" showClose>
