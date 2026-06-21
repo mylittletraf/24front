@@ -35,12 +35,12 @@ export async function ActorHero({ actor, subscribe }: { actor: Actor; subscribe?
       {/* Cover sits on the right (desktop only) and fades into the info area via a gradient mask,
           so it decorates the block instead of dimming the whole header. */}
       {actor.cover_image ? (
-        <div aria-hidden className="desktop:block absolute inset-y-0 right-0 hidden w-2/5">
+        <div aria-hidden className="desktop:block absolute inset-y-0 right-0 hidden w-3/5">
           <Image
             src={actor.cover_image}
             alt=""
             fill
-            sizes="40vw"
+            sizes="60vw"
             className="object-cover object-right"
             priority
           />
