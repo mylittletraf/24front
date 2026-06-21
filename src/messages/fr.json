@@ -113,7 +113,8 @@
     "screenshotsTitle": "Captures",
     "frame": "image",
     "faqTitle": "Questions fréquentes",
-    "studiosTitle": "Studios"
+    "studiosTitle": "Studios",
+    "relatedTab": "Similaires"
   },
   "common": {
     "loadMore": "Load more",

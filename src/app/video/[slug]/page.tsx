@@ -13,6 +13,7 @@ import { Description } from "@/components/video/description";
 import { MetaRow } from "@/components/video/meta-row";
 import { VideoPlayer } from "@/components/video/player";
 import { ReportModal } from "@/components/video/report-modal";
+import { MobileFeedTabs } from "@/components/video/mobile-feed-tabs";
 import { Screenshots } from "@/components/video/screenshots";
 import { VideoActions } from "@/components/video/video-actions";
 import { VideoSection } from "@/components/video/video-section";
@@ -282,7 +283,15 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
 
           <CommentsSection videoUuid={detail.uuid} commentsCount={detail.comments_count} />
 
-          <VideoSection title={t("popular")} videos={popular.results} />
+          {/* Desktop: popular grid below comments (related lives in the sidebar). */}
+          <div className="desktop:block hidden">
+            <VideoSection title={t("popular")} videos={popular.results} />
+          </div>
+
+          {/* Mobile: Related / Popular tabs with a load-more button (+10). */}
+          <div className="desktop:hidden">
+            <MobileFeedTabs related={related} popular={popular} lang={lang} />
+          </div>
         </div>
 
         <VideoSidebar title={t("related")} videos={related} />
