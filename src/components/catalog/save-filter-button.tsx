@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { BellPlus } from "lucide-react";
+import { BellPlus, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ import { createSubscription, filtersToSubscriptionFields } from "@/lib/api/filte
 import { useAuth } from "@/lib/auth/auth-context";
 import { ACTOR_ATTR_KEYS, type VideoFilters } from "@/lib/filters";
 import { toastApiError } from "@/lib/toast-error";
+import { formatCount } from "@/lib/utils/format";
 
 /** Build a human-readable default name from the active filters' localized labels. */
 function buildName(filters: VideoFilters, labels: Record<string, string>): string {
@@ -32,9 +33,12 @@ function buildName(filters: VideoFilters, labels: Record<string, string>): strin
 export function SaveFilterButton({
   filters,
   labels = {},
+  count,
 }: {
   filters: VideoFilters;
   labels?: Record<string, string>;
+  /** Subscriber count shown inside the button (omitted when 0/undefined). */
+  count?: number;
 }) {
   const t = useTranslations("feed");
   const { status, getToken } = useAuth();
@@ -77,6 +81,12 @@ export function SaveFilterButton({
       <Button variant="secondary" size="sm" onClick={start}>
         <BellPlus size={16} />
         {t("subscribe")}
+        {count && count > 0 ? (
+          <span className="text-muted border-border ml-1 inline-flex items-center gap-1 border-l pl-2">
+            <Users size={14} />
+            {formatCount(count)}
+          </span>
+        ) : null}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>

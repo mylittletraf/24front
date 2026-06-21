@@ -68,7 +68,6 @@ export async function EntityVideoPage({
 }) {
   const t = await getTranslations("catalog");
   const tb = await getTranslations("breadcrumbs");
-  const tc = await getTranslations("common");
   const conf = KIND_CONF[kind];
   const basePath = `${conf.base}/${slug}`;
 
@@ -145,9 +144,6 @@ export async function EntityVideoPage({
           </h1>
           <p className="text-muted text-sm">
             {detail.videos_count.toLocaleString()} {t("title").toLowerCase()}
-            {detail.subscribers_count
-              ? ` · ${tc("subscribers", { count: detail.subscribers_count })}`
-              : ""}
           </p>
           {aliases.length > 0 ? (
             // Hidden visually but kept in the DOM (+ in CollectionPage.alternateName JSON-LD) so
@@ -169,7 +165,11 @@ export async function EntityVideoPage({
       ) : null}
 
       <div className="flex flex-wrap items-center justify-end gap-2">
-        <SaveFilterButton filters={combined} labels={{ ...labels, [slug]: detail.name }} />
+        <SaveFilterButton
+          filters={combined}
+          labels={{ ...labels, [slug]: detail.name }}
+          count={detail.subscribers_count}
+        />
         <SortSelect filters={refineFilters} basePath={basePath} />
       </div>
 
