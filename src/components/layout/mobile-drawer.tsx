@@ -89,7 +89,7 @@ export function MobileDrawer() {
               key={href}
               href={href}
               onClick={() => setOpen(false)}
-              className="hover:bg-surface rounded-md px-2 py-2.5 text-sm font-medium"
+              className="hover:bg-surface rounded-md px-2 py-3 text-center text-lg font-semibold"
             >
               {label}
             </Link>
