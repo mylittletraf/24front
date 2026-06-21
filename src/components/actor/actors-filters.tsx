@@ -226,15 +226,26 @@ function SortControl({ current, compact = false }: { current: Current; compact?:
     );
   }
 
+  // No visible "Сортировка" label (matches the catalog sort on other pages) — only an aria-label.
   return (
-    <FieldSelect
-      label={tSort("label")}
-      placeholder={t("sortPopular")}
-      value={value}
-      allowEmpty={false}
-      options={options}
-      onChange={(v) => update({ sort: (v as ActorSort) || undefined })}
-    />
+    <div className="relative shrink-0">
+      <select
+        aria-label={tSort("label")}
+        value={value}
+        onChange={(e) => update({ sort: (e.target.value as ActorSort) || undefined })}
+        className="border-border bg-surface focus:border-muted h-9 w-44 appearance-none rounded-lg border pr-8 pl-3 text-sm outline-none"
+      >
+        {options.map((o) => (
+          <option key={o.slug} value={o.slug}>
+            {o.name}
+          </option>
+        ))}
+      </select>
+      <ChevronDown
+        size={15}
+        className="text-muted pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2"
+      />
+    </div>
   );
 }
 
