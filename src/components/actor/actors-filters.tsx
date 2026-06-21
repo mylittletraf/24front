@@ -65,14 +65,16 @@ function useActorsNav(current: Current) {
 function FieldShell({
   label,
   onRemove,
+  fluid = false,
   children,
 }: {
   label: string;
   onRemove?: () => void;
+  fluid?: boolean;
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex shrink-0 flex-col gap-1">
+    <div className={cn("flex flex-col gap-1", fluid ? "w-full" : "shrink-0")}>
       <span className="text-muted px-0.5 text-xs font-medium">{label}</span>
       <div className="flex items-center gap-1">
         {children}
@@ -99,6 +101,7 @@ function FieldSelect({
   onChange,
   onRemove,
   allowEmpty = true,
+  fluid = false,
 }: {
   label: string;
   placeholder: string;
@@ -107,15 +110,19 @@ function FieldSelect({
   onChange: (v: string) => void;
   onRemove?: () => void;
   allowEmpty?: boolean;
+  fluid?: boolean;
 }) {
   return (
-    <FieldShell label={label} onRemove={onRemove}>
-      <div className="relative">
+    <FieldShell label={label} onRemove={onRemove} fluid={fluid}>
+      <div className={cn("relative", fluid && "flex-1")}>
         <select
           aria-label={label}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="border-border bg-surface focus:border-muted h-9 w-44 appearance-none rounded-lg border pr-8 pl-3 text-sm outline-none"
+          className={cn(
+            "border-border bg-surface focus:border-muted h-9 appearance-none rounded-lg border pr-8 pl-3 text-sm outline-none",
+            fluid ? "w-full" : "w-44",
+          )}
         >
           {allowEmpty ? <option value="">{placeholder}</option> : null}
           {options.map((o) => (
@@ -140,6 +147,7 @@ function FieldRange({
   value,
   onCommit,
   onRemove,
+  fluid = false,
 }: {
   label: string;
   unit: string;
@@ -147,11 +155,21 @@ function FieldRange({
   value: [number, number];
   onCommit: (v: [number, number]) => void;
   onRemove?: () => void;
+  fluid?: boolean;
 }) {
   const [local, setLocal] = useState<[number, number]>(value);
   return (
-    <FieldShell label={`${label}: ${local[0]}–${local[1]} ${unit}`} onRemove={onRemove}>
-      <div className="border-border bg-surface flex h-9 w-44 items-center rounded-lg border px-3">
+    <FieldShell
+      label={`${label}: ${local[0]}–${local[1]} ${unit}`}
+      onRemove={onRemove}
+      fluid={fluid}
+    >
+      <div
+        className={cn(
+          "border-border bg-surface flex h-9 items-center rounded-lg border px-3",
+          fluid ? "w-full flex-1" : "w-44",
+        )}
+      >
         <Slider.Root
           className="relative flex h-5 w-full touch-none items-center"
           min={bounds.min}
@@ -225,10 +243,13 @@ function FilterControls({
   attributes,
   current,
   layout,
+  onApply,
 }: {
   attributes: ActorAttributes;
   current: Current;
-  layout: "row" | "wrap";
+  layout: "row" | "wrap" | "column";
+  /** Drawer-only: a big "Apply" button that closes the panel (filters already apply live). */
+  onApply?: () => void;
 }) {
   const t = useTranslations("actorsFilters");
   const tCommon = useTranslations("common");
@@ -285,8 +306,10 @@ function FilterControls({
       ? Boolean(current[def.key])
       : Boolean(current[def.minKey] || current[def.maxKey]);
 
-  const shown = defs.filter((def) => hasValue(def) || added.includes(def.key));
-  const remaining = defs.filter((def) => !shown.includes(def));
+  // The drawer (column) shows every filter at once; the row/wrap bars reveal them on demand.
+  const fluid = layout === "column";
+  const shown = fluid ? defs : defs.filter((def) => hasValue(def) || added.includes(def.key));
+  const remaining = fluid ? [] : defs.filter((def) => !shown.includes(def));
 
   function removeField(def: AttrDef) {
     setAdded((a) => a.filter((k) => k !== def.key));
@@ -297,14 +320,21 @@ function FilterControls({
   return (
     <div
       className={cn(
-        "items-end gap-3",
-        layout === "row" ? "no-scrollbar flex overflow-x-auto pb-1" : "flex flex-wrap gap-y-3",
+        "gap-3",
+        layout === "row" && "no-scrollbar flex items-end overflow-x-auto pb-1",
+        layout === "wrap" && "flex flex-wrap items-end gap-y-3",
+        layout === "column" && "flex flex-col gap-4",
       )}
     >
       {/* Gender — segmented */}
-      <div className="flex shrink-0 flex-col gap-1">
+      <div className={cn("flex flex-col gap-1", fluid ? "w-full" : "shrink-0")}>
         <span className="text-muted px-0.5 text-xs font-medium">{t("gender")}</span>
-        <div className="border-border bg-surface inline-flex rounded-lg border p-0.5">
+        <div
+          className={cn(
+            "border-border bg-surface rounded-lg border p-0.5",
+            fluid ? "flex" : "inline-flex",
+          )}
+        >
           {[
             { v: "woman", l: t("women") },
             { v: "man", l: t("men") },
@@ -318,6 +348,7 @@ function FilterControls({
                 onClick={() => update({ gender: opt.v })}
                 className={cn(
                   "rounded-md px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
+                  fluid && "flex-1",
                   active
                     ? "bg-background font-medium shadow-sm"
                     : "text-muted hover:text-foreground",
@@ -340,6 +371,7 @@ function FilterControls({
             options={def.options}
             onChange={(v) => update({ [def.key]: v || undefined })}
             onRemove={() => removeField(def)}
+            fluid={fluid}
           />
         ) : (
           <FieldRange
@@ -355,11 +387,27 @@ function FilterControls({
               })
             }
             onRemove={() => removeField(def)}
+            fluid={fluid}
           />
         ),
       )}
 
-      <div className="flex shrink-0 items-center gap-3 self-end pb-1">
+      {fluid ? (
+        <Button
+          variant="primary"
+          onClick={onApply}
+          className="mt-1 h-12 w-full rounded-xl text-base font-semibold"
+        >
+          {tCommon("apply")}
+        </Button>
+      ) : null}
+
+      <div
+        className={cn(
+          "flex items-center gap-3",
+          fluid ? "justify-center" : "shrink-0 self-end pb-1",
+        )}
+      >
         {remaining.length > 0 ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -405,7 +453,7 @@ export function ActorsFiltersBar(props: { attributes: ActorAttributes; current: 
   );
 }
 
-/** Narrow-screen sort + "Filters" button (modal holds the attribute filters). Place next to the heading. */
+/** Narrow-screen sort + "Filters" button opening a right-side drawer with all attribute filters. */
 export function ActorsFiltersTrigger(props: { attributes: ActorAttributes; current: Current }) {
   const tCommon = useTranslations("common");
   const [open, setOpen] = useState(false);
@@ -418,9 +466,9 @@ export function ActorsFiltersTrigger(props: { attributes: ActorAttributes; curre
             {tCommon("filters")}
           </Button>
         </DialogTrigger>
-        <DialogContent side="center" className="gap-4">
+        <DialogContent side="right" className="gap-4">
           <DialogTitle className="text-lg font-semibold">{tCommon("filters")}</DialogTitle>
-          <FilterControls {...props} layout="wrap" />
+          <FilterControls {...props} layout="column" onApply={() => setOpen(false)} />
         </DialogContent>
       </Dialog>
       <SortControl current={props.current} compact />

@@ -131,7 +131,8 @@
     "backHome": "Back home",
     "somethingWrong": "Something went wrong",
     "addFilter": "Add filter",
-    "select": "Select"
+    "select": "Select",
+    "apply": "Aplicar"
   },
   "refine": {
     "title": "Refine"
