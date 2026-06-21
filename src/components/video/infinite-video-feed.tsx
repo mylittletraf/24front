@@ -18,6 +18,18 @@ import { VideoGrid } from "./video-grid";
 
 const NATIVE_EVERY = 15;
 
+/** Override the `page_size` baked into a cursor `next` URL (initial page can be larger). */
+function withPageSize(url: string, size?: number): string {
+  if (!size) return url;
+  try {
+    const u = new URL(url, "http://_");
+    u.searchParams.set("page_size", String(size));
+    return `${u.pathname}${u.search}`;
+  } catch {
+    return url;
+  }
+}
+
 export function InfiniteVideoFeed({
   queryKey,
   endpoint = "/videos/",
@@ -25,6 +37,8 @@ export function InfiniteVideoFeed({
   initialPage,
   priorityCount = 4,
   emptyTitle,
+  manual = false,
+  loadMorePageSize,
 }: {
   queryKey: readonly unknown[];
   endpoint?: string;
@@ -32,23 +46,30 @@ export function InfiniteVideoFeed({
   initialPage: CursorPage<VideoCardData>;
   priorityCount?: number;
   emptyTitle?: string;
+  /** Replace auto infinite-scroll with an explicit "Load more" button. */
+  manual?: boolean;
+  /** page_size for button-triggered loads (the initial page may have loaded more). */
+  loadMorePageSize?: number;
 }) {
   const t = useTranslations();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isError } = useInfiniteQuery({
     queryKey,
     queryFn: ({ pageParam }) =>
-      pageParam ? getVideoPageByUrl(pageParam) : getVideoList(endpoint, params),
+      pageParam
+        ? getVideoPageByUrl(withPageSize(pageParam, loadMorePageSize))
+        : getVideoList(endpoint, params),
     initialPageParam: null as string | null,
     getNextPageParam: (last) => last.next,
     initialData: { pages: [initialPage], pageParams: [null] },
   });
 
-  // Prefetch the next page once the sentinel approaches (~1.5 screens early).
+  // Auto infinite-scroll: prefetch the next page as the sentinel approaches. Skipped in manual mode.
   const { ref, inView } = useInView<HTMLDivElement>({ rootMargin: "1200px" });
   useEffect(() => {
+    if (manual) return;
     if (inView && hasNextPage && !isFetchingNextPage && !isError) void fetchNextPage();
-  }, [inView, hasNextPage, isFetchingNextPage, isError, fetchNextPage]);
+  }, [manual, inView, hasNextPage, isFetchingNextPage, isError, fetchNextPage]);
 
   const videos = data.pages.flatMap((p) => p.results);
 
@@ -77,11 +98,11 @@ export function InfiniteVideoFeed({
           : null}
       </VideoGrid>
 
-      <div ref={ref} className="h-px w-full" />
+      {!manual ? <div ref={ref} className="h-px w-full" /> : null}
 
-      {isError && hasNextPage ? (
+      {(manual || isError) && hasNextPage ? (
         <div className="flex justify-center py-6">
-          <Button variant="secondary" onClick={() => fetchNextPage()}>
+          <Button variant="secondary" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
             {t("common.loadMore")}
           </Button>
         </div>

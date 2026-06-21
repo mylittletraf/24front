@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { ActiveFilters, RefineBlock } from "@/components/catalog/refine-block";
 import { SaveFilterButton } from "@/components/catalog/save-filter-button";
-import { FiltersDialog } from "@/components/catalog/filters-dialog";
 import { SortSelect } from "@/components/catalog/sort-select";
 import { Container } from "@/components/layout/container";
 import { InfiniteVideoFeed } from "@/components/video/infinite-video-feed";
@@ -37,7 +36,7 @@ export default async function HomePage({
   const filterParams = filtersToApiParams(filters);
   const apiParams: Record<string, QueryValue> = {
     lang: locale,
-    page_size: 24,
+    page_size: 50,
     ...filterParams,
   };
 
@@ -55,7 +54,6 @@ export default async function HomePage({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-bold">{t("title")}</h1>
         <div className="flex items-center gap-2">
-          <FiltersDialog filters={filters} basePath="/" />
           <SortSelect filters={filters} basePath="/" />
         </div>
       </div>
@@ -71,6 +69,8 @@ export default async function HomePage({
         params={apiParams}
         initialPage={initialPage}
         emptyTitle={t("empty")}
+        manual
+        loadMorePageSize={20}
       />
     </Container>
   );
