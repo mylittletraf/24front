@@ -118,13 +118,13 @@ export function Header() {
           <FeedNavLink />
         </nav>
 
-        <div className="desktop:flex hidden flex-1 justify-center">
-          <div className="w-full max-w-[520px]">
-            <SearchBox />
-          </div>
-        </div>
-
+        {/* Spacer (mobile) — pushes the actions to the right. */}
         <div className="desktop:hidden flex-1" />
+
+        {/* Search (desktop) — right-aligned next to the profile actions (ml-auto eats the slack). */}
+        <div className="desktop:block ml-auto hidden w-full max-w-[380px] min-w-0">
+          <SearchBox />
+        </div>
 
         <div className="desktop:flex hidden items-center gap-1">
           <Link
