@@ -132,7 +132,8 @@
     "somethingWrong": "Something went wrong",
     "addFilter": "Add filter",
     "select": "Select",
-    "apply": "Appliquer"
+    "apply": "Appliquer",
+    "subscribers": "{count} abonnés"
   },
   "refine": {
     "title": "Refine"

@@ -132,7 +132,8 @@
     "somethingWrong": "Что-то пошло не так",
     "addFilter": "Добавить фильтр",
     "select": "Выбрать",
-    "apply": "Применить"
+    "apply": "Применить",
+    "subscribers": "{count} подписчиков"
   },
   "refine": {
     "title": "Уточнить выборку"

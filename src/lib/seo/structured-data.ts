@@ -30,6 +30,16 @@ function compact(obj: Json): Json {
   return out;
 }
 
+/** Subscriber count → schema.org InteractionCounter (SubscribeAction). Omitted when 0/absent. */
+function subscribeCounter(n: number | undefined): Json | undefined {
+  if (!n || n <= 0) return undefined;
+  return {
+    "@type": "InteractionCounter",
+    interactionType: "https://schema.org/SubscribeAction",
+    userInteractionCount: n,
+  };
+}
+
 /** Genuine AggregateRating (backend `rating`; null until enough votes). */
 function aggregateRating(r: Rating | null | undefined): Json | undefined {
   if (!r) return undefined;
@@ -83,6 +93,7 @@ export function collectionPageJsonLd(input: {
   /** Tag synonyms — captures synonymous queries (schema.org `alternateName`). */
   alternateName?: string[];
   dateModified?: string | null;
+  subscribersCount?: number;
   videos: Pick<VideoCard, "slug" | "title">[];
 }): Json {
   return compact({
@@ -93,6 +104,7 @@ export function collectionPageJsonLd(input: {
     url: absolute(input.url),
     description: input.description ?? undefined,
     dateModified: input.dateModified ?? undefined,
+    interactionStatistic: subscribeCounter(input.subscribersCount),
     isPartOf: { "@type": "WebSite", name: SITE_NAME, url: SITE_URL },
     mainEntity: itemListJsonLd(input.videos),
   });
@@ -181,6 +193,7 @@ export function personJsonLd(
     worksFor: (actor.studios ?? []).map((s) => ({ "@type": "Organization", name: s.name })),
     sameAs,
     aggregateRating: aggregateRating(actor.rating),
+    interactionStatistic: subscribeCounter(actor.subscribers_count),
     dateModified: actor.date_modified ?? undefined,
     additionalProperty: opts.attributes.map((a) => ({
       "@type": "PropertyValue",

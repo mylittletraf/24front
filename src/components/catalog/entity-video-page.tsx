@@ -68,6 +68,7 @@ export async function EntityVideoPage({
 }) {
   const t = await getTranslations("catalog");
   const tb = await getTranslations("breadcrumbs");
+  const tc = await getTranslations("common");
   const conf = KIND_CONF[kind];
   const basePath = `${conf.base}/${slug}`;
 
@@ -118,6 +119,7 @@ export async function EntityVideoPage({
       description: detail.description,
       alternateName: aliases,
       dateModified: detail.date_modified,
+      subscribersCount: detail.subscribers_count,
       videos: initialPage.results,
     }),
     detail.faq.length > 0 ? faqPageJsonLd(detail.faq) : [],
@@ -143,6 +145,9 @@ export async function EntityVideoPage({
           </h1>
           <p className="text-muted text-sm">
             {detail.videos_count.toLocaleString()} {t("title").toLowerCase()}
+            {detail.subscribers_count
+              ? ` · ${tc("subscribers", { count: detail.subscribers_count })}`
+              : ""}
           </p>
           {aliases.length > 0 ? (
             // Hidden visually but kept in the DOM (+ in CollectionPage.alternateName JSON-LD) so

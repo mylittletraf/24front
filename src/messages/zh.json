@@ -132,7 +132,8 @@
     "somethingWrong": "Something went wrong",
     "addFilter": "Add filter",
     "select": "Select",
-    "apply": "应用"
+    "apply": "应用",
+    "subscribers": "{count} 位订阅者"
   },
   "refine": {
     "title": "Refine"

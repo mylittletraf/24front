@@ -47,6 +47,7 @@ export default async function ActorPage({
   const lang = sp.lang ? resolveLocale(sp.lang) : ((await getLocale()) as Locale);
   const t = await getTranslations("actor");
   const tb = await getTranslations("breadcrumbs");
+  const tc = await getTranslations("common");
 
   let actor;
   try {
@@ -98,9 +99,16 @@ export default async function ActorPage({
       <ActorFaq actor={actor} />
       <section className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-lg font-semibold">
-            {t("videosWith", { name: actor.name })} ({actor.videos_count})
-          </h2>
+          <div className="flex flex-col">
+            <h2 className="text-lg font-semibold">
+              {t("videosWith", { name: actor.name })} ({actor.videos_count})
+            </h2>
+            {actor.subscribers_count ? (
+              <span className="text-muted text-sm">
+                {tc("subscribers", { count: actor.subscribers_count })}
+              </span>
+            ) : null}
+          </div>
           <SaveFilterButton
             filters={{ ...emptyFilters, actors: [slug] }}
             labels={{ [slug]: actor.name }}
