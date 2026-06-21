@@ -161,16 +161,14 @@ export async function EntityVideoPage({
         </section>
       ) : null}
 
-      <div className="flex items-center justify-end gap-2">
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <SaveFilterButton filters={combined} labels={{ ...labels, [slug]: detail.name }} />
         <SortSelect filters={refineFilters} basePath={basePath} />
       </div>
 
       {/* Refine in place — chips stay on this page and accumulate (basePath = this entity). */}
       <RefineBlock related={related} filters={refineFilters} basePath={basePath} />
-      <div className="flex flex-wrap items-center gap-2">
-        <ActiveFilters filters={refineFilters} basePath={basePath} labels={labels} />
-        <SaveFilterButton filters={combined} labels={{ ...labels, [slug]: detail.name }} />
-      </div>
+      <ActiveFilters filters={refineFilters} basePath={basePath} labels={labels} />
 
       <InfiniteVideoFeed
         queryKey={["videos", kind, slug, lang, filtersToSearchString(refineFilters)]}
