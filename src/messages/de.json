@@ -181,7 +181,9 @@
     "kg": "kg",
     "relatedActors": "Ähnliche Schauspieler",
     "birthPlace": "Geburtsort",
-    "career": "Aktive Jahre"
+    "career": "Aktive Jahre",
+    "videosCount": "{count, plural, one {# Video} other {# Videos}}",
+    "subscribersCount": "{count, plural, one {# Abonnent} other {# Abonnenten}}"
   },
   "actorsFilters": {
     "title": "Actors",
@@ -235,17 +237,6 @@
     "tags": "Tags",
     "collections": "Sammlungen",
     "studios": "Studios"
-  },
-  "actorFaq": {
-    "title": "Fragen zu {name}",
-    "height": "Wie groß ist {name}?",
-    "weight": "Wie viel wiegt {name}?",
-    "country": "Woher kommt {name}?",
-    "hairColor": "Welche Haarfarbe hat {name}?",
-    "eyeColor": "Welche Augenfarbe hat {name}?",
-    "birthDate": "Wann ist das Geburtsdatum von {name}?",
-    "aliases": "Welche Aliase hat {name}?",
-    "videos": "Wie viele Videos gibt es mit {name}?"
   },
   "studiosPage": {
     "title": "Studios",

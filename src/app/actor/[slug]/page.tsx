@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { notFound, redirect } from "next/navigation";
-import { ActorFaq } from "@/components/actor/actor-faq";
 import { ActorHero } from "@/components/actor/actor-hero";
 import { RelatedActors } from "@/components/actor/related-actors";
 import { SaveFilterButton } from "@/components/catalog/save-filter-button";
@@ -94,21 +93,19 @@ export default async function ActorPage({
     <Container className="desktop:py-6 flex flex-col gap-6 py-4">
       <JsonLd data={actorGraph} />
       <Breadcrumbs items={crumbs} />
-      <ActorHero actor={actor} />
-      <ActorFaq actor={actor} />
-      <section className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-lg font-semibold">
-            {t("videosWith", { name: actor.name })} ({actor.videos_count})
-          </h2>
+      <ActorHero
+        actor={actor}
+        subscribe={
           <SaveFilterButton
             filters={{ ...emptyFilters, actors: [slug] }}
             labels={{ [slug]: actor.name }}
-            count={actor.subscribers_count}
             entity={{ type: "actor", slug }}
             entityName={actor.name}
           />
-        </div>
+        }
+      />
+      <section className="flex flex-col gap-3">
+        <h2 className="text-lg font-semibold">{t("videosWith", { name: actor.name })}</h2>
         <InfiniteVideoFeed
           queryKey={["videos", "actor", slug, lang]}
           endpoint={endpoint}

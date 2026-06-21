@@ -181,7 +181,9 @@
     "kg": "кг",
     "relatedActors": "Похожие актёры",
     "birthPlace": "Место рождения",
-    "career": "Годы активности"
+    "career": "Годы активности",
+    "videosCount": "{count} видео",
+    "subscribersCount": "{count, plural, one {# подписчик} few {# подписчика} many {# подписчиков} other {# подписчиков}}"
   },
   "actorsFilters": {
     "title": "Актёры",
@@ -235,17 +237,6 @@
     "tags": "Теги",
     "collections": "Подборки",
     "studios": "Студии"
-  },
-  "actorFaq": {
-    "title": "Вопросы о {name}",
-    "height": "Какой рост у {name}?",
-    "weight": "Сколько весит {name}?",
-    "country": "Из какой страны {name}?",
-    "hairColor": "Какой цвет волос у {name}?",
-    "eyeColor": "Какой цвет глаз у {name}?",
-    "birthDate": "Какая дата рождения у {name}?",
-    "aliases": "Какие псевдонимы у {name}?",
-    "videos": "Сколько видео с {name}?"
   },
   "studiosPage": {
     "title": "Студии",

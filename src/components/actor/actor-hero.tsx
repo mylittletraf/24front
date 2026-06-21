@@ -1,11 +1,12 @@
 import Image from "next/image";
 import { getLocale, getTranslations } from "next-intl/server";
+import type { ReactNode } from "react";
 import { Description } from "@/components/video/description";
 import type { Actor } from "@/lib/api/types";
 import type { Locale } from "@/lib/i18n/locales";
 import { formatDate } from "@/lib/utils/format";
 
-export async function ActorHero({ actor }: { actor: Actor }) {
+export async function ActorHero({ actor, subscribe }: { actor: Actor; subscribe?: ReactNode }) {
   const t = await getTranslations("actor");
   const locale = (await getLocale()) as Locale;
 
@@ -30,31 +31,31 @@ export async function ActorHero({ actor }: { actor: Actor }) {
     });
 
   return (
-    <section className="relative overflow-hidden rounded-2xl">
+    <section className="bg-surface relative overflow-hidden rounded-2xl">
+      {/* Cover sits on the right (desktop only) and fades into the info area via a gradient mask,
+          so it decorates the block instead of dimming the whole header. */}
       {actor.cover_image ? (
-        <>
+        <div aria-hidden className="desktop:block absolute inset-y-0 right-0 hidden w-1/2">
           <Image
             src={actor.cover_image}
             alt=""
             fill
-            sizes="100vw"
+            sizes="50vw"
             className="object-cover"
             priority
           />
-          <div className="bg-overlay absolute inset-0" />
-        </>
-      ) : (
-        <div className="bg-surface absolute inset-0" />
-      )}
+          <div className="from-surface via-surface/85 absolute inset-0 bg-gradient-to-r to-transparent" />
+        </div>
+      ) : null}
 
       <div className="desktop:flex-row desktop:p-6 relative flex flex-col gap-4 p-4">
-        <div className="desktop:w-64 relative aspect-[3/4] w-full shrink-0 overflow-hidden rounded-xl shadow-lg">
+        <div className="desktop:w-56 relative aspect-[3/4] w-full shrink-0 overflow-hidden rounded-xl shadow-lg">
           {actor.photo ? (
             <Image
               src={actor.photo}
               alt={actor.name}
               fill
-              sizes="(max-width: 1024px) 100vw, 256px"
+              sizes="(max-width: 1024px) 100vw, 224px"
               className="object-cover"
               priority
             />
@@ -65,28 +66,29 @@ export async function ActorHero({ actor }: { actor: Actor }) {
           )}
         </div>
 
-        <div
-          className={
-            actor.cover_image
-              ? "flex min-w-0 flex-1 flex-col gap-3 text-white"
-              : "flex min-w-0 flex-1 flex-col gap-3"
-          }
-        >
+        <div className="flex min-w-0 flex-1 flex-col gap-3">
           <h1 className="text-2xl font-bold">{actor.name}</h1>
           {actor.aliases && actor.aliases.length > 0 ? (
-            <p className="text-sm opacity-90">
+            <p className="text-muted text-sm">
               {t("aliases")}: {actor.aliases.join(", ")}
             </p>
           ) : null}
 
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            {subscribe}
+            <div className="text-muted flex items-center gap-3 text-sm">
+              <span>{t("videosCount", { count: actor.videos_count })}</span>
+              {typeof actor.subscribers_count === "number" ? (
+                <span>{t("subscribersCount", { count: actor.subscribers_count })}</span>
+              ) : null}
+            </div>
+          </div>
+
           {rows.length > 0 ? (
-            <dl className="grid grid-cols-1 gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
+            <dl className="grid max-w-md grid-cols-1 gap-y-1 text-sm">
               {rows.map((row) => (
-                <div
-                  key={row.label}
-                  className="flex justify-between gap-2 border-b border-white/10 py-1"
-                >
-                  <dt className="opacity-80">{row.label}</dt>
+                <div key={row.label} className="border-border flex gap-3 border-b py-1">
+                  <dt className="text-muted w-32 shrink-0">{row.label}</dt>
                   <dd className="font-medium">{row.value}</dd>
                 </div>
               ))}
