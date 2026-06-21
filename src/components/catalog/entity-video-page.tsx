@@ -145,7 +145,9 @@ export async function EntityVideoPage({
             {detail.videos_count.toLocaleString()} {t("title").toLowerCase()}
           </p>
           {aliases.length > 0 ? (
-            <p className="text-muted mt-1 text-sm">
+            // Hidden visually but kept in the DOM (+ in CollectionPage.alternateName JSON-LD) so
+            // search engines still index the synonyms.
+            <p className="sr-only">
               {t("alsoKnownAs")}: {aliases.join(", ")}
             </p>
           ) : null}
