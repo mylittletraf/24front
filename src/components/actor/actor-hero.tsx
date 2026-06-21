@@ -41,7 +41,7 @@ export async function ActorHero({ actor, subscribe }: { actor: Actor; subscribe?
             alt=""
             fill
             sizes="50vw"
-            className="object-cover"
+            className="object-contain object-right"
             priority
           />
           <div className="from-surface via-surface/85 absolute inset-0 bg-gradient-to-r to-transparent" />
