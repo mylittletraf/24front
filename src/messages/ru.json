@@ -37,7 +37,8 @@
       "last_month": "В прошлом месяце",
       "prev_month": "Месяц назад",
       "3_months": "За 3 месяца"
-    }
+    },
+    "subscribed": "Вы подписаны"
   },
   "search": {
     "placeholder": "Поиск",

@@ -37,7 +37,8 @@
       "last_month": "Last month",
       "prev_month": "A month ago",
       "3_months": "Last 3 months"
-    }
+    },
+    "subscribed": "Suscrito"
   },
   "search": {
     "placeholder": "Search",
