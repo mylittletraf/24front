@@ -4,7 +4,7 @@ import { Bookmark, ChevronDown, Search, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useFeedUnread } from "@/components/feed/feed-unread-context";
 import { Button } from "@/components/ui/button";
 import { track } from "@/lib/analytics/track";
@@ -97,7 +97,7 @@ function FeedNavLink({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-export function Header() {
+export function Header({ categoryPanel }: { categoryPanel?: ReactNode }) {
   const t = useTranslations("search");
   const tNav = useTranslations("nav");
   const [searchOpen, setSearchOpen] = useState(false);
@@ -151,6 +151,9 @@ export function Header() {
           <MobileDrawer />
         </div>
       </div>
+
+      {/* Desktop category panel: rendered inside the sticky header so it stays in view when toggled. */}
+      {categoryPanel}
 
       {/* Mobile search: a panel that drops down under the header (like the desktop category panel). */}
       {searchOpen ? (
