@@ -13,6 +13,22 @@ async function bff<T>(action: string, body?: unknown, method: "GET" | "POST" = "
   return data as T;
 }
 
+/**
+ * Coalesce concurrent calls into a single in-flight request. The refresh cookie rotates on every
+ * `/auth/refresh/`, so two simultaneous session/refresh calls (React StrictMode double-mount,
+ * rapid remounts, racing components) would otherwise hit the backend twice — the second with an
+ * already-rotated token — tripping the auth throttle and logging the user out.
+ */
+function coalesce<T>(fn: () => Promise<T>): () => Promise<T> {
+  let inFlight: Promise<T> | null = null;
+  return () => {
+    inFlight ??= fn().finally(() => {
+      inFlight = null;
+    });
+    return inFlight;
+  };
+}
+
 export interface SessionResult {
   access: string;
 }
@@ -26,8 +42,9 @@ export interface BootstrapResult {
   access: string | null;
 }
 
-export const bffSession = () => bff<BootstrapResult>("session", undefined, "GET");
-export const bffRefresh = () => bff<SessionResult>("refresh");
+// Deduped: both hit the rotating /auth/refresh/ on the backend, so concurrent calls must share one.
+export const bffSession = coalesce(() => bff<BootstrapResult>("session", undefined, "GET"));
+export const bffRefresh = coalesce(() => bff<SessionResult>("refresh"));
 export const bffLogin = (username: string, password: string) =>
   bff<SessionResult>("login", { username, password });
 export const bffRegister = (payload: {
