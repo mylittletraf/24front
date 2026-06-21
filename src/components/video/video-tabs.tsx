@@ -16,8 +16,12 @@ export interface TabItem {
  * passed in as nodes, so no data fetching happens on the client.
  */
 export function VideoTabs({ items }: { items: TabItem[] }) {
-  const [active, setActive] = useState(items[0]?.key);
+  const [activeKey, setActiveKey] = useState(items[0]?.key);
   if (!items.length) return null;
+
+  // Fall back to the first tab when the remembered key isn't in the current set — e.g. after a
+  // client-side navigation to a video that lacks that tab — so a panel is always shown.
+  const active = items.some((it) => it.key === activeKey) ? activeKey : items[0].key;
 
   return (
     <div className="flex flex-col gap-3">
@@ -28,7 +32,7 @@ export function VideoTabs({ items }: { items: TabItem[] }) {
             type="button"
             role="tab"
             aria-selected={active === it.key}
-            onClick={() => setActive(it.key)}
+            onClick={() => setActiveKey(it.key)}
             className={cn(
               "-mb-px border-b-2 px-3 py-2 text-sm font-medium transition-colors",
               active === it.key

@@ -222,7 +222,7 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
             </div>
           </div>
 
-          {tabs.length > 0 ? <VideoTabs items={tabs} /> : null}
+          {tabs.length > 0 ? <VideoTabs key={detail.uuid} items={tabs} /> : null}
 
           {hasMeta ? (
             <TrackTaxonomy>
