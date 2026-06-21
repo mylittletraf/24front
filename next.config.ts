@@ -22,12 +22,9 @@ const nextConfig: NextConfig = {
   async rewrites() {
     const api = process.env.API_INTERNAL_URL ?? "http://127.0.0.1:8000/api/v1";
     const origin = api.replace(/\/api\/v1\/?$/, "");
-    // Storage host masking: public /media/* maps back to the real storage server, so the
-    // storage origin never appears in page URLs (see src/lib/media.ts → toMediaUrl).
-    const mediaOrigin = process.env.MEDIA_ORIGIN ?? origin;
-    const stripPrefix = process.env.NEXT_PUBLIC_MEDIA_STRIP_PREFIX ?? "/local-storage";
+    // Note: /media/* is handled by the dynamic proxy route (src/app/media/[...path]/route.ts),
+    // which forwards to whatever storage host the API masked into the path — not a static rewrite.
     return [
-      { source: "/media/:path*", destination: `${mediaOrigin}${stripPrefix}/:path*` },
       // Proxy SEO infra files from the backend through the frontend domain.
       { source: "/sitemap.xml", destination: `${origin}/sitemap.xml` },
       { source: "/sitemap-:slug.xml", destination: `${origin}/sitemap-:slug.xml` },
