@@ -1,13 +1,12 @@
 "use client";
 
-import { Bookmark, ChevronDown, Search } from "lucide-react";
+import { Bookmark, ChevronDown, Search, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useFeedUnread } from "@/components/feed/feed-unread-context";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { track } from "@/lib/analytics/track";
 import { SITE_NAME } from "@/lib/api/config";
 import { cn } from "@/lib/utils/cn";
@@ -144,20 +143,21 @@ export function Header() {
             variant="icon"
             size="icon"
             aria-label={t("placeholder")}
-            onClick={() => setSearchOpen(true)}
+            aria-expanded={searchOpen}
+            onClick={() => setSearchOpen((o) => !o)}
           >
-            <Search size={22} />
+            {searchOpen ? <X size={22} /> : <Search size={22} />}
           </Button>
           <MobileDrawer />
         </div>
       </div>
 
-      <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
-        <DialogContent side="center" className="pt-8" showClose>
-          <DialogTitle className="sr-only">{t("placeholder")}</DialogTitle>
-          <SearchBox autoFocus onNavigate={() => setSearchOpen(false)} />
-        </DialogContent>
-      </Dialog>
+      {/* Mobile search: a panel that drops down under the header (like the desktop category panel). */}
+      {searchOpen ? (
+        <div className="border-border desktop:hidden border-t p-3">
+          <SearchBox large autoFocus onNavigate={() => setSearchOpen(false)} />
+        </div>
+      ) : null}
     </header>
   );
 }

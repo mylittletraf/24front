@@ -20,10 +20,13 @@ export function SearchBox({
   className,
   autoFocus = false,
   onNavigate,
+  large = false,
 }: {
   className?: string;
   autoFocus?: boolean;
   onNavigate?: () => void;
+  /** Taller field + prominent accent search button (used in the mobile search panel). */
+  large?: boolean;
 }) {
   const t = useTranslations("search");
   const locale = useLocale() as Locale;
@@ -83,7 +86,10 @@ export function SearchBox({
           }}
           onFocus={() => setOpen(true)}
           placeholder={t("placeholder")}
-          className="border-border bg-surface focus:border-muted h-10 w-full rounded-full border px-4 pr-20 text-sm outline-none"
+          className={cn(
+            "border-border bg-surface focus:border-muted w-full rounded-full border outline-none",
+            large ? "h-12 px-5 pr-24 text-base" : "h-10 px-4 pr-20 text-sm",
+          )}
         />
         {value ? (
           <button
@@ -93,17 +99,25 @@ export function SearchBox({
               setValue("");
               setSuggestions([]);
             }}
-            className="text-muted hover:bg-surface-2 absolute right-10 grid h-7 w-7 place-items-center rounded-full"
+            className={cn(
+              "text-muted hover:bg-surface-2 absolute grid place-items-center rounded-full",
+              large ? "right-12 h-9 w-9" : "right-10 h-7 w-7",
+            )}
           >
-            <X size={16} />
+            <X size={large ? 18 : 16} />
           </button>
         ) : null}
         <button
           type="submit"
           aria-label={t("placeholder")}
-          className="text-muted hover:bg-surface-2 absolute right-1 grid h-8 w-8 place-items-center rounded-full"
+          className={cn(
+            "absolute grid place-items-center rounded-full",
+            large
+              ? "bg-accent hover:bg-accent-hover right-1.5 h-9 w-9 text-white"
+              : "text-muted hover:bg-surface-2 right-1 h-8 w-8",
+          )}
         >
-          <Search size={18} />
+          <Search size={large ? 20 : 18} />
         </button>
       </form>
 
