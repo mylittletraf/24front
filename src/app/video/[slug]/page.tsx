@@ -144,17 +144,77 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
     detail.faq.length > 0 ? faqPageJsonLd(detail.faq) : [],
   );
 
-  // Tabs: description (when present) + screenshots. Both panels are server-rendered and stay
-  // mounted, so the screenshots remain in the crawlable HTML even when the tab isn't active.
+  // Structured info (actors/categories/studios/attributes/tags) — lives inside the "Описание"
+  // tab so the whole info block opens by default, not in a separate section below the tabs.
+  const metaBlock = hasMeta ? (
+    <TrackTaxonomy>
+      <dl className="border-border bg-surface/40 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 rounded-2xl border p-4 text-sm">
+        {detail.actors.length > 0 ? (
+          <MetaRow label={t("actorsTitle")}>
+            {detail.actors.map((actor) => (
+              <Chip key={actor.uuid} href={`/actor/${actor.slug}`}>
+                {actor.gender === "woman" ? "♀ " : actor.gender === "man" ? "♂ " : ""}
+                {actor.name}
+              </Chip>
+            ))}
+          </MetaRow>
+        ) : null}
+
+        {detail.categories.length > 0 ? (
+          <MetaRow label={t("categoriesTitle")}>
+            {detail.categories.map((category) => (
+              <Chip key={category.uuid} href={`/category/${category.slug}`}>
+                {category.name}
+              </Chip>
+            ))}
+          </MetaRow>
+        ) : null}
+
+        {detail.studios.length > 0 ? (
+          <MetaRow label={t("studiosTitle")}>
+            {detail.studios.map((studio) => (
+              <Chip key={studio.uuid} href={`/studio/${studio.slug}`}>
+                {studio.name}
+              </Chip>
+            ))}
+          </MetaRow>
+        ) : null}
+
+        {attrGroups.map((g) => (
+          <MetaRow key={g.param} label={g.label}>
+            {g.items!.map((it) => (
+              <Chip key={it.uuid} href={`/?${g.param}=${it.slug}`}>
+                {it.name}
+              </Chip>
+            ))}
+          </MetaRow>
+        ))}
+
+        {detail.tags.length > 0 ? (
+          <MetaRow label={t("tagsTitle")}>
+            {detail.tags.map((tag) => (
+              <Chip key={tag.uuid} href={`/tag/${tag.slug}`}>
+                #{tag.name}
+              </Chip>
+            ))}
+          </MetaRow>
+        ) : null}
+      </dl>
+    </TrackTaxonomy>
+  ) : null;
+
+  // Tabs: "Описание" (description text + info block) + screenshots + FAQ. All panels are
+  // server-rendered and stay mounted, so their content is crawlable even when not active.
   const tabs: TabItem[] = [];
-  if (detail.description) {
+  if (detail.description || metaBlock) {
     tabs.push({
       key: "description",
       label: t("descriptionTitle"),
       panel: (
-        <section className="flex flex-col gap-1.5">
+        <section className="flex flex-col gap-3">
           <h2 className="sr-only">{t("descriptionTitle")}</h2>
-          <Description text={detail.description} />
+          {detail.description ? <Description text={detail.description} /> : null}
+          {metaBlock}
         </section>
       ),
     });
@@ -223,63 +283,6 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
           </div>
 
           {tabs.length > 0 ? <VideoTabs items={tabs} videoKey={detail.uuid} /> : null}
-
-          {hasMeta ? (
-            <TrackTaxonomy>
-              <dl className="border-border bg-surface/40 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 rounded-2xl border p-4 text-sm">
-                {detail.actors.length > 0 ? (
-                  <MetaRow label={t("actorsTitle")}>
-                    {detail.actors.map((actor) => (
-                      <Chip key={actor.uuid} href={`/actor/${actor.slug}`}>
-                        {actor.gender === "woman" ? "♀ " : actor.gender === "man" ? "♂ " : ""}
-                        {actor.name}
-                      </Chip>
-                    ))}
-                  </MetaRow>
-                ) : null}
-
-                {detail.categories.length > 0 ? (
-                  <MetaRow label={t("categoriesTitle")}>
-                    {detail.categories.map((category) => (
-                      <Chip key={category.uuid} href={`/category/${category.slug}`}>
-                        {category.name}
-                      </Chip>
-                    ))}
-                  </MetaRow>
-                ) : null}
-
-                {detail.studios.length > 0 ? (
-                  <MetaRow label={t("studiosTitle")}>
-                    {detail.studios.map((studio) => (
-                      <Chip key={studio.uuid} href={`/studio/${studio.slug}`}>
-                        {studio.name}
-                      </Chip>
-                    ))}
-                  </MetaRow>
-                ) : null}
-
-                {attrGroups.map((g) => (
-                  <MetaRow key={g.param} label={g.label}>
-                    {g.items!.map((it) => (
-                      <Chip key={it.uuid} href={`/?${g.param}=${it.slug}`}>
-                        {it.name}
-                      </Chip>
-                    ))}
-                  </MetaRow>
-                ))}
-
-                {detail.tags.length > 0 ? (
-                  <MetaRow label={t("tagsTitle")}>
-                    {detail.tags.map((tag) => (
-                      <Chip key={tag.uuid} href={`/tag/${tag.slug}`}>
-                        #{tag.name}
-                      </Chip>
-                    ))}
-                  </MetaRow>
-                ) : null}
-              </dl>
-            </TrackTaxonomy>
-          ) : null}
 
           <CommentsSection videoUuid={detail.uuid} commentsCount={detail.comments_count} />
 
