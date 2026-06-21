@@ -12,10 +12,12 @@ import { ApiError } from "@/lib/api/errors";
 import {
   createSubscription,
   deleteSubscription,
-  type FilterSubscription,
   filtersToSubscriptionFields,
-  listSubscriptions,
-  subscriptionToFilters,
+  getSubscriptionsState,
+  type SubscriptionEntity,
+  type SubscriptionEntityState,
+  type SubscriptionInput,
+  subscriptionKey,
 } from "@/lib/api/filter-subscriptions";
 import { useAuth } from "@/lib/auth/auth-context";
 import { ACTOR_ATTR_KEYS, type VideoFilters } from "@/lib/filters";
@@ -23,34 +25,12 @@ import { toastApiError } from "@/lib/toast-error";
 import { cn } from "@/lib/utils/cn";
 import { formatCount } from "@/lib/utils/format";
 
-const sameSet = (a: string[], b: string[]) =>
-  a.length === b.length && a.every((v) => b.includes(v));
-
-/** The user's subscription whose filter equals the given one (so the button shows "subscribed"). */
-function matchSubscription(
-  subs: FilterSubscription[],
-  f: VideoFilters,
-): FilterSubscription | undefined {
-  return subs.find((sub) => {
-    const sf = subscriptionToFilters(sub);
-    return (
-      sameSet(sf.categories, f.categories) &&
-      sameSet(sf.include_tags, f.include_tags) &&
-      sameSet(sf.exclude_tags, f.exclude_tags) &&
-      sameSet(sf.actors, f.actors) &&
-      (sf.q ?? "") === (f.q ?? "") &&
-      (sf.duration_min ?? null) === (f.duration_min ?? null) &&
-      (sf.duration_max ?? null) === (f.duration_max ?? null) &&
-      ACTOR_ATTR_KEYS.every((k) => (sf[k] ?? "") === (f[k] ?? ""))
-    );
-  });
-}
-
 /** Build a human-readable default name from the active filters' localized labels. */
 function buildName(filters: VideoFilters, labels: Record<string, string>): string {
   const name = (slug: string) => labels[slug] ?? slug;
   const parts: string[] = [
     ...filters.categories.map(name),
+    ...filters.studios.map(name),
     ...filters.include_tags.map((s) => `#${name(s)}`),
     ...filters.actors.map(name),
     ...ACTOR_ATTR_KEYS.map((k) => filters[k])
@@ -61,15 +41,35 @@ function buildName(filters: VideoFilters, labels: Record<string, string>): strin
   return parts.join(" + ");
 }
 
+/** Single-base subscription fields for an entity (category/tag/studio/actor). */
+function entityFields(entity: SubscriptionEntity): SubscriptionInput {
+  switch (entity.type) {
+    case "category":
+      return { categories: entity.slug };
+    case "tag":
+      return { include_tags: entity.slug };
+    case "studio":
+      return { studios: entity.slug };
+    case "actor":
+      return { actors: entity.slug };
+  }
+}
+
 export function SaveFilterButton({
   filters,
   labels = {},
   count,
+  entity,
+  entityName,
 }: {
   filters: VideoFilters;
   labels?: Record<string, string>;
   /** Subscriber count shown inside the button (omitted when 0/undefined). */
   count?: number;
+  /** When set, the button follows a single entity: live status + instant toggle (no dialog). */
+  entity?: SubscriptionEntity;
+  /** Default subscription name when following `entity`. */
+  entityName?: string;
 }) {
   const t = useTranslations("feed");
   const { status, getToken } = useAuth();
@@ -79,17 +79,58 @@ export function SaveFilterButton({
   const [name, setName] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const { data: subs = [] } = useQuery({
-    queryKey: ["subscriptions"],
-    queryFn: () => {
+  // Entity mode: subscription status comes from the batched /me/subscriptions/state/ endpoint.
+  const { data: stateMap } = useQuery({
+    queryKey: ["subscription-state", entity?.type, entity?.slug],
+    queryFn: (): Promise<Record<string, SubscriptionEntityState>> => {
       const token = getToken();
-      return token ? listSubscriptions(token) : [];
+      return token && entity ? getSubscriptionsState([entity], token) : Promise.resolve({});
     },
-    enabled: status === "authenticated",
+    enabled: status === "authenticated" && !!entity,
     staleTime: 30_000,
   });
-  const subscribed = matchSubscription(subs, filters);
+  const state = entity ? stateMap?.[subscriptionKey(entity)] : undefined;
+  const subscribed = Boolean(state?.subscribed);
 
+  function invalidate() {
+    if (entity)
+      void queryClient.invalidateQueries({
+        queryKey: ["subscription-state", entity.type, entity.slug],
+      });
+    void queryClient.invalidateQueries({ queryKey: ["subscriptions"] });
+    void queryClient.invalidateQueries({ queryKey: ["feed"] });
+  }
+
+  /** Entity follow/unfollow — instant, no naming dialog. */
+  async function toggleEntity() {
+    if (status !== "authenticated") {
+      openAuth("login");
+      return;
+    }
+    const token = getToken();
+    if (!token || !entity) return;
+    setSaving(true);
+    try {
+      if (subscribed && state?.subscription_uuid) {
+        await deleteSubscription(token, state.subscription_uuid);
+        toast.success(t("deleted"));
+      } else {
+        await createSubscription(token, {
+          name: entityName || entity.slug,
+          ...entityFields(entity),
+        });
+        toast.success(t("created"));
+      }
+      invalidate();
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 400) toast.error(t("limitReached"));
+      else toastApiError(error);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  /** Custom-filter flow — open the naming dialog. */
   function start() {
     if (status !== "authenticated") {
       openAuth("login");
@@ -97,22 +138,6 @@ export function SaveFilterButton({
     }
     setName(buildName(filters, labels));
     setOpen(true);
-  }
-
-  async function unsubscribe() {
-    const token = getToken();
-    if (!token || !subscribed) return;
-    setSaving(true);
-    try {
-      await deleteSubscription(token, subscribed.uuid);
-      toast.success(t("deleted"));
-      await queryClient.invalidateQueries({ queryKey: ["subscriptions"] });
-      await queryClient.invalidateQueries({ queryKey: ["feed"] });
-    } catch (error) {
-      toastApiError(error);
-    } finally {
-      setSaving(false);
-    }
   }
 
   async function save() {
@@ -123,8 +148,7 @@ export function SaveFilterButton({
     try {
       await createSubscription(token, { name: trimmed, ...filtersToSubscriptionFields(filters) });
       toast.success(t("created"));
-      await queryClient.invalidateQueries({ queryKey: ["subscriptions"] });
-      await queryClient.invalidateQueries({ queryKey: ["feed"] });
+      invalidate();
       setOpen(false);
     } catch (error) {
       if (error instanceof ApiError && error.status === 400) toast.error(t("limitReached"));
@@ -139,7 +163,7 @@ export function SaveFilterButton({
       <Button
         variant={subscribed ? "primary" : "secondary"}
         size="sm"
-        onClick={subscribed ? unsubscribe : start}
+        onClick={entity ? toggleEntity : start}
         disabled={saving}
       >
         {subscribed ? <BellRing size={16} /> : <BellPlus size={16} />}

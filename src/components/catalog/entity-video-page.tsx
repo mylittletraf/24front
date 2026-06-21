@@ -35,6 +35,7 @@ const KIND_CONF = {
   tags: {
     base: "/tag",
     redirect: "tag",
+    stateType: "tag",
     indexCrumb: null,
     hashPrefix: true,
     filterKey: "include_tags",
@@ -42,6 +43,7 @@ const KIND_CONF = {
   categories: {
     base: "/category",
     redirect: "category",
+    stateType: "category",
     indexCrumb: { key: "categories", path: "/categories" },
     hashPrefix: false,
     filterKey: "categories",
@@ -49,6 +51,7 @@ const KIND_CONF = {
   studios: {
     base: "/studio",
     redirect: "studio",
+    stateType: "studio",
     indexCrumb: { key: "studios", path: "/studios" },
     hashPrefix: false,
     filterKey: "studios",
@@ -169,6 +172,8 @@ export async function EntityVideoPage({
           filters={combined}
           labels={{ ...labels, [slug]: detail.name }}
           count={detail.subscribers_count}
+          entity={{ type: conf.stateType, slug }}
+          entityName={detail.name}
         />
         <SortSelect filters={refineFilters} basePath={basePath} />
       </div>

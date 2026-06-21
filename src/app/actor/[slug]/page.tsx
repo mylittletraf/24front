@@ -105,6 +105,8 @@ export default async function ActorPage({
             filters={{ ...emptyFilters, actors: [slug] }}
             labels={{ [slug]: actor.name }}
             count={actor.subscribers_count}
+            entity={{ type: "actor", slug }}
+            entityName={actor.name}
           />
         </div>
         <InfiniteVideoFeed
