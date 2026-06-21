@@ -8,7 +8,7 @@ export const chipVariants = cva(
     variants: {
       state: {
         default: "bg-surface text-foreground hover:bg-surface-2",
-        active: "bg-accent text-white hover:bg-accent-hover",
+        active: "bg-accent text-on-accent hover:bg-accent-hover",
         exclude: "border border-accent bg-transparent text-accent",
       },
     },

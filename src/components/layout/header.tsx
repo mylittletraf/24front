@@ -103,9 +103,12 @@ export function Header({ categoryPanel }: { categoryPanel?: ReactNode }) {
   const [searchOpen, setSearchOpen] = useState(false);
 
   return (
-    <header className="border-border bg-background sticky top-0 z-40 border-b">
+    <header className="border-border bg-background/80 sticky top-0 z-40 border-b backdrop-blur">
       <div className="desktop:px-6 flex h-14 w-full items-center gap-4 px-4">
-        <Link href="/" className="text-accent shrink-0 text-xl font-bold">
+        <Link
+          href="/"
+          className="font-display text-accent shrink-0 text-xl font-bold tracking-tight"
+        >
           {SITE_NAME}
         </Link>
 

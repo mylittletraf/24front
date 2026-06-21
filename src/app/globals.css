@@ -4,33 +4,39 @@
    follow that class instead of the OS preference. */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ---- Design tokens (UI_SPEC §1.1) ---- */
+/* ---- Design tokens — "Cinema Ember": graphite-charcoal surfaces + warm ember accent ---- */
 :root {
-  --bg-primary: #ffffff;
-  --bg-surface: #f2f2f2;
-  --bg-surface-2: #e5e5e5;
-  --bg-overlay: rgba(0, 0, 0, 0.5);
-  --text-primary: #0f0f0f;
-  --text-secondary: #606060;
-  --text-link: #065fd4;
-  --accent: #ff0000;
-  --accent-hover: #cc0000;
-  --border: #e5e5e5;
-  --skeleton: #e0e0e0;
+  /* Light = warm-neutral companion to the dark theme. */
+  --bg-primary: #fbf9f6;
+  --bg-surface: #f1ece4;
+  --bg-surface-2: #e7e0d6;
+  --bg-overlay: rgba(20, 12, 6, 0.5);
+  --text-primary: #17151a;
+  --text-secondary: #6b6770;
+  --text-link: #b24a12;
+  --accent: #e85d1f;
+  --accent-hover: #c94e16;
+  --accent-2: #f08a4a;
+  --on-accent: #fff7f1;
+  --border: #e4ddd2;
+  --skeleton: #e7e0d6;
 }
 
 .dark {
-  --bg-primary: #0f0f0f;
-  --bg-surface: #212121;
-  --bg-surface-2: #2d2d2d;
+  /* Dark is the primary theme: cool graphite ink + ember. */
+  --bg-primary: #0b0b0f;
+  --bg-surface: #15151c;
+  --bg-surface-2: #20202b;
   --bg-overlay: rgba(0, 0, 0, 0.7);
-  --text-primary: #f1f1f1;
-  --text-secondary: #aaaaaa;
-  --text-link: #3ea6ff;
-  --accent: #ff0000;
-  --accent-hover: #cc0000;
-  --border: #3d3d3d;
-  --skeleton: #2a2a2a;
+  --text-primary: #f4f2ec;
+  --text-secondary: #9a97a8;
+  --text-link: #ffb37a;
+  --accent: #ff6a2b;
+  --accent-hover: #ff8a4f;
+  --accent-2: #ffb37a;
+  --on-accent: #14100b;
+  --border: #262630;
+  --skeleton: #20202b;
 }
 
 /* ---- Map tokens to Tailwind theme so `bg-surface`, `text-muted`, … work ---- */
@@ -44,10 +50,13 @@
   --color-link: var(--text-link);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
+  --color-accent-2: var(--accent-2);
+  --color-on-accent: var(--on-accent);
   --color-border: var(--border);
   --color-skeleton: var(--skeleton);
 
   --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: var(--font-unbounded), var(--font-inter), sans-serif;
 
   --breakpoint-tablet: 40rem; /* 640px */
   --breakpoint-desktop: 64rem; /* 1024px */
@@ -79,6 +88,41 @@ body {
 .skeleton {
   background: var(--skeleton);
   animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+/* ---- Signature: warm "ember" cues ---- */
+
+/* Cards lift with a warm glow on hover. Motion gated by reduced-motion preference; the glow
+   itself is harmless either way. Apply to a thumbnail/card wrapper (often inside a `group`). */
+.card-glow {
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .group:hover .card-glow,
+  .card-glow:hover {
+    transform: translateY(-2px);
+  }
+}
+.group:hover .card-glow,
+.card-glow:hover {
+  box-shadow: 0 10px 30px -8px rgb(255 106 43 / 0.35);
+}
+
+/* Section headings carry a short ember rail to the left of the text. */
+.heading-rail {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+.heading-rail::before {
+  content: "";
+  flex: none;
+  width: 0.25rem;
+  height: 1.1em;
+  border-radius: 9999px;
+  background: var(--accent);
 }
 
 /* Video.js: fill the container width (fluid) and never crop the frame */

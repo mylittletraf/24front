@@ -38,7 +38,7 @@ export function VideoCard({
         ref={ref}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
-        className="bg-surface relative aspect-video w-full overflow-hidden rounded-xl"
+        className="card-glow bg-surface relative aspect-video w-full overflow-hidden rounded-xl"
       >
         {video.poster ? (
           <Image

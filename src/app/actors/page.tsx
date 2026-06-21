@@ -98,8 +98,9 @@ export default async function ActorsPage({ searchParams }: { searchParams: Promi
     <Container className="desktop:py-6 flex flex-col gap-4 py-4">
       <Breadcrumbs items={crumbs} />
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-bold">
-          {t("title")} <span className="text-muted text-base font-normal">{initialPage.count}</span>
+        <h1 className="font-display text-xl font-bold tracking-tight">
+          {t("title")}{" "}
+          <span className="text-muted font-sans text-base font-normal">{initialPage.count}</span>
         </h1>
         <ActorsFiltersTrigger attributes={attributes} current={current} />
       </div>

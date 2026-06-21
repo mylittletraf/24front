@@ -46,7 +46,7 @@ export function CommentsSection({
 
   return (
     <section className="border-border bg-surface/40 desktop:p-5 flex flex-col gap-4 rounded-2xl border p-4">
-      <h2 className="text-lg font-semibold">
+      <h2 className="heading-rail text-lg font-semibold">
         {t("comments")} ({commentsCount})
       </h2>
 

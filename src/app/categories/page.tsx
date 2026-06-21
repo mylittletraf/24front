@@ -41,7 +41,9 @@ export default async function CategoriesPage({
       <Breadcrumbs items={crumbs} />
       {categories.length > 0 ? (
         <section className="flex flex-col gap-4">
-          <h1 className="desktop:text-2xl text-xl font-bold">{t("categories")}</h1>
+          <h1 className="font-display desktop:text-2xl text-xl font-bold tracking-tight">
+            {t("categories")}
+          </h1>
           <div className="desktop:grid-cols-8 grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
             {categories.map((cat) => (
               <Link
@@ -49,7 +51,7 @@ export default async function CategoriesPage({
                 href={`/category/${cat.slug}`}
                 className="group flex flex-col gap-2"
               >
-                <div className="bg-surface-2 relative aspect-square w-full overflow-hidden rounded-lg">
+                <div className="card-glow bg-surface-2 relative aspect-square w-full overflow-hidden rounded-lg">
                   {cat.preview_image ? (
                     <Image
                       src={cat.preview_image}
@@ -79,7 +81,7 @@ export default async function CategoriesPage({
 
       {contentTags.length > 0 ? (
         <section className="flex flex-col gap-4">
-          <h2 className="text-lg font-semibold">{t("tags")}</h2>
+          <h2 className="heading-rail text-lg font-semibold">{t("tags")}</h2>
           <div className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-2">
             {contentTags.map((tag) => (
               <Link

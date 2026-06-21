@@ -142,7 +142,7 @@ export async function EntityVideoPage({
           />
         ) : null}
         <div className="flex-1">
-          <h1 className="desktop:text-2xl text-xl font-bold">
+          <h1 className="font-display desktop:text-2xl text-xl font-bold tracking-tight">
             {conf.hashPrefix ? `#${detail.name}` : detail.name}
           </h1>
           <p className="text-muted text-sm">
@@ -162,7 +162,7 @@ export async function EntityVideoPage({
 
       {detail.faq.length > 0 ? (
         <section className="flex flex-col gap-2">
-          <h2 className="text-lg font-semibold">{t("faqTitle")}</h2>
+          <h2 className="heading-rail text-lg font-semibold">{t("faqTitle")}</h2>
           <Accordion items={detail.faq} />
         </section>
       ) : null}

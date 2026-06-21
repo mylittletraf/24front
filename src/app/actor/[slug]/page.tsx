@@ -105,7 +105,9 @@ export default async function ActorPage({
         }
       />
       <section className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold">{t("videosWith", { name: actor.name })}</h2>
+        <h2 className="heading-rail text-lg font-semibold">
+          {t("videosWith", { name: actor.name })}
+        </h2>
         <InfiniteVideoFeed
           queryKey={["videos", "actor", slug, lang]}
           endpoint={endpoint}

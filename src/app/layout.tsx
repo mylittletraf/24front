@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Unbounded } from "next/font/google";
 import { headers } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
@@ -14,6 +14,15 @@ import "./globals.css";
 const inter = Inter({
   subsets: ["latin", "cyrillic"],
   variable: "--font-inter",
+  display: "swap",
+});
+
+// Display face for the logo + short page headings. Cyrillic-capable (the site is RU-first),
+// used with restraint so it stays a signature rather than the whole voice.
+const unbounded = Unbounded({
+  subsets: ["latin", "cyrillic"],
+  weight: ["600", "700"],
+  variable: "--font-unbounded",
   display: "swap",
 });
 
@@ -38,7 +47,11 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const isEmbed = (await headers()).get("x-pathname")?.startsWith("/embed") ?? false;
 
   return (
-    <html lang={locale} className={`${inter.variable} h-full`} suppressHydrationWarning>
+    <html
+      lang={locale}
+      className={`${inter.variable} ${unbounded.variable} h-full`}
+      suppressHydrationWarning
+    >
       <body className="bg-background text-foreground flex min-h-full flex-col">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers>

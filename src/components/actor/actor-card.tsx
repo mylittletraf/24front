@@ -12,7 +12,7 @@ export function ActorCard({ actor, className }: { actor: Actor; className?: stri
   const gender = GENDER_SYMBOL[actor.gender];
   return (
     <Link href={`/actor/${actor.slug}`} className={cn("group flex flex-col gap-2", className)}>
-      <div className="bg-surface-2 relative aspect-[3/4] w-full overflow-hidden rounded-xl">
+      <div className="card-glow bg-surface-2 relative aspect-[3/4] w-full overflow-hidden rounded-xl">
         {actor.photo ? (
           <Image
             src={actor.photo}

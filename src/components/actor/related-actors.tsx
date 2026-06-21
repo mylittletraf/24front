@@ -10,7 +10,7 @@ export function RelatedActors({ title, actors }: { title: string; actors: Relate
   if (!actors.length) return null;
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-lg font-semibold">{title}</h2>
+      <h2 className="heading-rail text-lg font-semibold">{title}</h2>
       <div className="desktop:grid-cols-6 grid grid-cols-3 gap-3 sm:grid-cols-4">
         {actors.map((a) => (
           <Link key={a.uuid} href={`/actor/${a.slug}`} className="group flex flex-col gap-2">

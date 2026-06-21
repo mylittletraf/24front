@@ -3,15 +3,17 @@ import { forwardRef } from "react";
 import { cn } from "@/lib/utils/cn";
 
 export const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 font-medium transition-colors focus-visible:ring-accent/50 focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 font-medium transition focus-visible:ring-accent/50 focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        primary: "rounded-full bg-accent text-white hover:bg-accent-hover",
+        primary:
+          "rounded-full bg-accent text-on-accent hover:bg-accent-hover hover:shadow-[0_8px_24px_-8px_rgb(255_106_43_/0.5)]",
         secondary: "rounded-full border border-border text-foreground hover:bg-surface",
         ghost: "rounded-full text-foreground hover:bg-surface",
         icon: "rounded-full text-foreground hover:bg-surface",
-        danger: "rounded-full border border-accent text-accent hover:bg-accent hover:text-white",
+        danger:
+          "rounded-full border border-accent text-accent hover:bg-accent hover:text-on-accent",
       },
       size: {
         sm: "h-8 px-3 text-sm",
