@@ -16,12 +16,22 @@ export interface TabItem {
  * passed in as nodes, so no data fetching happens on the client.
  */
 export function VideoTabs({ items }: { items: TabItem[] }) {
-  const [activeKey, setActiveKey] = useState(items[0]?.key);
+  // The set of tab keys identifies the current video's tabs. /video/[slug] is the same route for
+  // every video, so a client-side navigation re-renders this component with new `items` but may
+  // reuse the instance instead of remounting it — leaving `selected` pointing at the previous
+  // video's tab (e.g. Screenshots), which then shows the wrong panel.
+  const signature = items.map((it) => it.key).join("|");
+  const [selected, setSelected] = useState({ signature, key: items[0]?.key });
+
   if (!items.length) return null;
 
-  // Fall back to the first tab when the remembered key isn't in the current set — e.g. after a
-  // client-side navigation to a video that lacks that tab — so a panel is always shown.
-  const active = items.some((it) => it.key === activeKey) ? activeKey : items[0].key;
+  // Reset to the first tab when the tab set changes (new video) or the remembered key is gone.
+  // Done during render so the correct tab paints immediately, with no remount required.
+  let active = selected.key;
+  if (selected.signature !== signature || !items.some((it) => it.key === active)) {
+    active = items[0].key;
+    setSelected({ signature, key: active });
+  }
 
   return (
     <div className="flex flex-col gap-3">
@@ -32,7 +42,7 @@ export function VideoTabs({ items }: { items: TabItem[] }) {
             type="button"
             role="tab"
             aria-selected={active === it.key}
-            onClick={() => setActiveKey(it.key)}
+            onClick={() => setSelected({ signature, key: it.key })}
             className={cn(
               "-mb-px border-b-2 px-3 py-2 text-sm font-medium transition-colors",
               active === it.key
