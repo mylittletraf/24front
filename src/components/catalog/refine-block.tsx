@@ -25,7 +25,7 @@ export function RefineBlock({
   return (
     <section className="flex flex-col gap-2">
       <h2 className="text-base font-semibold">{t("title")}</h2>
-      <div className="no-scrollbar desktop:mx-0 desktop:px-0 -mx-4 grid auto-cols-max grid-flow-col grid-rows-2 gap-2 overflow-x-auto px-4 pb-1">
+      <div className="flex flex-wrap gap-2">
         {categories.map((c) => (
           <Chip
             key={c.uuid}
