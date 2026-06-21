@@ -6,7 +6,7 @@ import { isLocale, LOCALE_COOKIE } from "@/lib/i18n/locales";
  * on the current request so the page renders in that language immediately (the request config
  * reads the cookie first). Without `?lang`, locale falls back to cookie → Accept-Language → default.
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const lang = request.nextUrl.searchParams.get("lang");
   const persistLang =
     !!lang && isLocale(lang) && request.cookies.get(LOCALE_COOKIE)?.value !== lang;

@@ -9,7 +9,7 @@ import {
 } from "./locales";
 
 // Locale is chosen automatically (no manual switcher): an explicit NEXT_LOCALE cookie
-// wins (set from a ?lang deep link by the middleware), otherwise the browser's
+// wins (set from a ?lang deep link by the proxy), otherwise the browser's
 // Accept-Language, then the default. UI strings fall back to en/ru via uiLocale().
 export default getRequestConfig(async () => {
   const cookieStore = await cookies();
