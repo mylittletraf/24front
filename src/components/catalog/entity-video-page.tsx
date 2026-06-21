@@ -4,7 +4,6 @@ import { notFound, redirect } from "next/navigation";
 import { Container } from "@/components/layout/container";
 import { ActiveFilters, RefineBlock } from "@/components/catalog/refine-block";
 import { SaveFilterButton } from "@/components/catalog/save-filter-button";
-import { FiltersDialog } from "@/components/catalog/filters-dialog";
 import { SortSelect } from "@/components/catalog/sort-select";
 import { Breadcrumbs, type Crumb } from "@/components/seo/breadcrumbs";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -163,7 +162,6 @@ export async function EntityVideoPage({
       ) : null}
 
       <div className="flex items-center justify-end gap-2">
-        <FiltersDialog filters={refineFilters} basePath={basePath} />
         <SortSelect filters={refineFilters} basePath={basePath} />
       </div>
 
