@@ -15,7 +15,13 @@ import { useAuth } from "@/lib/auth/auth-context";
 export function ProfileMenu() {
   const t = useTranslations();
   const { open } = useAuthUI();
-  const { isAuthenticated, user, logout } = useAuth();
+  const { status, isAuthenticated, user, logout } = useAuth();
+
+  // While the session rehydrates, reserve the avatar's footprint instead of flashing the
+  // login buttons — keeps the header's right side a constant width (no search shift).
+  if (status === "loading") {
+    return <div className="bg-surface-2 h-9 w-9 shrink-0 rounded-full" aria-hidden />;
+  }
 
   if (!isAuthenticated) {
     return (
