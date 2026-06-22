@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { SafeImage } from "@/components/ui/safe-image";
 import type { Tag } from "@/lib/api/types";
 import { formatCount } from "@/lib/utils/format";
 import { useCategoriesDisclosure } from "./categories-disclosure";
@@ -26,19 +26,18 @@ export function CategoryGrid({ categories }: { categories: Tag[] }) {
               onClick={() => setOpen(false)}
               className="border-border bg-surface hover:bg-surface-2 flex items-center gap-3 rounded-xl border p-2.5 transition-colors"
             >
-              {cat.preview_image ? (
-                <Image
-                  src={cat.preview_image}
-                  alt=""
-                  width={44}
-                  height={44}
-                  className="h-11 w-11 shrink-0 rounded-lg object-cover"
-                />
-              ) : (
-                <span className="bg-surface-2 text-muted grid h-11 w-11 shrink-0 place-items-center rounded-lg text-base font-semibold">
-                  {cat.name.charAt(0).toUpperCase()}
-                </span>
-              )}
+              <SafeImage
+                src={cat.preview_image}
+                alt=""
+                width={44}
+                height={44}
+                className="h-11 w-11 shrink-0 rounded-lg object-cover"
+                fallback={
+                  <span className="bg-surface-2 text-muted grid h-11 w-11 shrink-0 place-items-center rounded-lg text-base font-semibold">
+                    {cat.name.charAt(0).toUpperCase()}
+                  </span>
+                }
+              />
               <span className="min-w-0">
                 <span className="block truncate text-sm font-medium">{cat.name}</span>
                 <span className="text-muted block text-xs">

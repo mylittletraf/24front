@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/safe-image";
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Container } from "@/components/layout/container";
@@ -45,20 +45,19 @@ export default async function StudiosPage({
                 className="group flex flex-col gap-2"
               >
                 <div className="bg-surface-2 relative aspect-square w-full overflow-hidden rounded-lg">
-                  {studio.preview_image ? (
-                    <Image
-                      src={studio.preview_image}
-                      alt={studio.name}
-                      fill
-                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                      loading="lazy"
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="text-muted grid h-full w-full place-items-center text-3xl font-semibold">
-                      {studio.name.charAt(0).toUpperCase()}
-                    </div>
-                  )}
+                  <SafeImage
+                    src={studio.preview_image}
+                    alt={studio.name}
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    loading="lazy"
+                    className="object-cover"
+                    fallback={
+                      <div className="text-muted grid h-full w-full place-items-center text-3xl font-semibold">
+                        {studio.name.charAt(0).toUpperCase()}
+                      </div>
+                    }
+                  />
                 </div>
                 <div>
                   <p className="truncate text-sm font-medium">{studio.name}</p>

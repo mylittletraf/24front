@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { SafeImage } from "@/components/ui/safe-image";
 import type { Actor } from "@/lib/api/types";
 import { formatCount } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
@@ -13,20 +13,19 @@ export function ActorCard({ actor, className }: { actor: Actor; className?: stri
   return (
     <Link href={`/actor/${actor.slug}`} className={cn("group flex flex-col gap-2", className)}>
       <div className="card-glow bg-surface-2 relative aspect-[3/4] w-full overflow-hidden rounded-xl">
-        {actor.photo ? (
-          <Image
-            src={actor.photo}
-            alt={actor.name}
-            fill
-            sizes={SIZES}
-            loading="lazy"
-            className="object-cover"
-          />
-        ) : (
-          <div className="text-muted absolute inset-0 grid place-items-center text-3xl font-semibold">
-            {actor.name.charAt(0).toUpperCase()}
-          </div>
-        )}
+        <SafeImage
+          src={actor.photo}
+          alt={actor.name}
+          fill
+          sizes={SIZES}
+          loading="lazy"
+          className="object-cover"
+          fallback={
+            <div className="text-muted absolute inset-0 grid place-items-center text-3xl font-semibold">
+              {actor.name.charAt(0).toUpperCase()}
+            </div>
+          }
+        />
         {gender ? (
           <span className="absolute top-1.5 left-1.5 grid h-6 w-6 place-items-center rounded-full bg-black/80 text-sm text-white">
             {gender}

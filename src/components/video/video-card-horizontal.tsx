@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { Play, ThumbsUp } from "lucide-react";
+import { SafeImage } from "@/components/ui/safe-image";
 import { useLocale } from "next-intl";
 import type { VideoCard as VideoCardData } from "@/lib/api/types";
 import type { Locale } from "@/lib/i18n/locales";
@@ -28,20 +28,19 @@ export function VideoCardHorizontal({
   return (
     <Link href={`/video/${video.slug}`} className={cn("group flex gap-3", className)}>
       <div className="bg-surface relative aspect-video w-40 shrink-0 overflow-hidden rounded-lg">
-        {video.poster ? (
-          <Image
-            src={video.poster}
-            alt={video.title}
-            fill
-            sizes="160px"
-            loading="lazy"
-            className="object-cover"
-          />
-        ) : (
-          <div className="text-muted absolute inset-0 grid place-items-center">
-            <Play size={24} />
-          </div>
-        )}
+        <SafeImage
+          src={video.poster}
+          alt={video.title}
+          fill
+          sizes="160px"
+          loading="lazy"
+          className="object-cover"
+          fallback={
+            <div className="text-muted absolute inset-0 grid place-items-center">
+              <Play size={24} />
+            </div>
+          }
+        />
         {rating !== null ? (
           <span className="absolute top-1 left-1 inline-flex items-center gap-0.5 rounded bg-black/80 px-1 py-0.5 text-[11px] text-white">
             <ThumbsUp size={10} />

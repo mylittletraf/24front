@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/safe-image";
 import { getLocale, getTranslations } from "next-intl/server";
 import { notFound, redirect } from "next/navigation";
 import { Container } from "@/components/layout/container";
@@ -80,18 +80,15 @@ export default async function CollectionPage({
       <JsonLd data={pageGraph} />
       <Breadcrumbs items={crumbs} />
       <section className="desktop:min-h-[400px] relative min-h-[250px] overflow-hidden rounded-2xl">
-        {collection.cover_image ? (
-          <Image
-            src={collection.cover_image}
-            alt=""
-            fill
-            sizes="100vw"
-            priority
-            className="object-cover"
-          />
-        ) : (
-          <div className="bg-surface absolute inset-0" />
-        )}
+        <SafeImage
+          src={collection.cover_image}
+          alt=""
+          fill
+          sizes="100vw"
+          priority
+          className="object-cover"
+          fallback={<div className="bg-surface absolute inset-0" />}
+        />
         <div className="bg-overlay absolute inset-0" />
         <div className="desktop:min-h-[400px] desktop:flex-row desktop:items-end desktop:justify-between relative flex min-h-[250px] flex-col justify-end gap-3 p-6 text-white">
           <div className="flex flex-col gap-2">
@@ -104,7 +101,7 @@ export default async function CollectionPage({
           </div>
           {collection.cover_poster ? (
             <div className="relative aspect-[3/4] w-40 shrink-0 overflow-hidden rounded-xl shadow-lg">
-              <Image
+              <SafeImage
                 src={collection.cover_poster}
                 alt=""
                 fill

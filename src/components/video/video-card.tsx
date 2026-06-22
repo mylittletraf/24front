@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { Eye, Play, ThumbsUp } from "lucide-react";
+import { SafeImage } from "@/components/ui/safe-image";
 import { useLocale } from "next-intl";
 import type { VideoCard as VideoCardData } from "@/lib/api/types";
 import type { Locale } from "@/lib/i18n/locales";
@@ -40,21 +40,20 @@ export function VideoCard({
         onMouseLeave={onMouseLeave}
         className="card-glow bg-surface relative aspect-video w-full overflow-hidden rounded-xl"
       >
-        {video.poster ? (
-          <Image
-            src={video.poster}
-            alt={video.title}
-            fill
-            sizes={THUMB_SIZES}
-            priority={priority}
-            loading={priority ? undefined : "lazy"}
-            className="object-cover"
-          />
-        ) : (
-          <div className="text-muted absolute inset-0 grid place-items-center">
-            <Play size={32} />
-          </div>
-        )}
+        <SafeImage
+          src={video.poster}
+          alt={video.title}
+          fill
+          sizes={THUMB_SIZES}
+          priority={priority}
+          loading={priority ? undefined : "lazy"}
+          className="object-cover"
+          fallback={
+            <div className="text-muted absolute inset-0 grid place-items-center">
+              <Play size={32} />
+            </div>
+          }
+        />
 
         {hasTrailer && playing ? (
           <video

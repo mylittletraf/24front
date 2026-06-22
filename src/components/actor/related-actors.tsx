@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { SafeImage } from "@/components/ui/safe-image";
 import type { RelatedActorItem } from "@/lib/api/related";
 import { formatCount } from "@/lib/utils/format";
 
@@ -15,20 +15,19 @@ export function RelatedActors({ title, actors }: { title: string; actors: Relate
         {actors.map((a) => (
           <Link key={a.uuid} href={`/actor/${a.slug}`} className="group flex flex-col gap-2">
             <div className="bg-surface-2 relative aspect-[3/4] w-full overflow-hidden rounded-xl">
-              {a.photo ? (
-                <Image
-                  src={a.photo}
-                  alt={a.name}
-                  fill
-                  sizes={SIZES}
-                  loading="lazy"
-                  className="object-cover"
-                />
-              ) : (
-                <div className="text-muted absolute inset-0 grid place-items-center text-2xl font-semibold">
-                  {a.name.charAt(0).toUpperCase()}
-                </div>
-              )}
+              <SafeImage
+                src={a.photo}
+                alt={a.name}
+                fill
+                sizes={SIZES}
+                loading="lazy"
+                className="object-cover"
+                fallback={
+                  <div className="text-muted absolute inset-0 grid place-items-center text-2xl font-semibold">
+                    {a.name.charAt(0).toUpperCase()}
+                  </div>
+                }
+              />
               <span className="absolute right-1.5 bottom-1.5 rounded bg-black/80 px-1.5 py-0.5 text-xs text-white">
                 {formatCount(a.videos_count)}
               </span>

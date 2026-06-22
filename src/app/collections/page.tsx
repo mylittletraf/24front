@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/safe-image";
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { EmptyState } from "@/components/common/empty-state";
@@ -48,16 +48,14 @@ export default async function CollectionsPage({
               className="group flex flex-col gap-2"
             >
               <div className="bg-surface relative aspect-video w-full overflow-hidden rounded-xl">
-                {collection.cover_image ? (
-                  <Image
-                    src={collection.cover_image}
-                    alt={collection.title}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    loading="lazy"
-                    className="object-cover"
-                  />
-                ) : null}
+                <SafeImage
+                  src={collection.cover_image}
+                  alt={collection.title}
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  loading="lazy"
+                  className="object-cover"
+                />
               </div>
               <h2 className="font-medium">{collection.title}</h2>
               {collection.short_description ? (

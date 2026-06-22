@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/safe-image";
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Container } from "@/components/layout/container";
@@ -52,20 +52,19 @@ export default async function CategoriesPage({
                 className="group flex flex-col gap-2"
               >
                 <div className="card-glow bg-surface-2 relative aspect-square w-full overflow-hidden rounded-lg">
-                  {cat.preview_image ? (
-                    <Image
-                      src={cat.preview_image}
-                      alt={cat.name}
-                      fill
-                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                      loading="lazy"
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="text-muted grid h-full w-full place-items-center text-3xl font-semibold">
-                      {cat.name.charAt(0).toUpperCase()}
-                    </div>
-                  )}
+                  <SafeImage
+                    src={cat.preview_image}
+                    alt={cat.name}
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    loading="lazy"
+                    className="object-cover"
+                    fallback={
+                      <div className="text-muted grid h-full w-full place-items-center text-3xl font-semibold">
+                        {cat.name.charAt(0).toUpperCase()}
+                      </div>
+                    }
+                  />
                 </div>
                 <div>
                   <p className="truncate text-sm font-medium">{cat.name}</p>

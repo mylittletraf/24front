@@ -1,6 +1,6 @@
-import Image from "next/image";
 import { getLocale, getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
+import { SafeImage } from "@/components/ui/safe-image";
 import { Description } from "@/components/video/description";
 import type { Actor } from "@/lib/api/types";
 import type { Locale } from "@/lib/i18n/locales";
@@ -36,7 +36,7 @@ export async function ActorHero({ actor, subscribe }: { actor: Actor; subscribe?
           so it decorates the block instead of dimming the whole header. */}
       {actor.cover_image ? (
         <div aria-hidden className="desktop:block absolute inset-y-0 right-0 hidden w-3/5">
-          <Image
+          <SafeImage
             src={actor.cover_image}
             alt=""
             fill
@@ -50,20 +50,19 @@ export async function ActorHero({ actor, subscribe }: { actor: Actor; subscribe?
 
       <div className="desktop:flex-row desktop:p-6 relative flex flex-col gap-4 p-4">
         <div className="desktop:w-56 relative aspect-[3/4] w-full shrink-0 overflow-hidden rounded-xl shadow-lg">
-          {actor.photo ? (
-            <Image
-              src={actor.photo}
-              alt={actor.name}
-              fill
-              sizes="(max-width: 1024px) 100vw, 224px"
-              className="object-cover"
-              priority
-            />
-          ) : (
-            <div className="bg-surface-2 grid h-full w-full place-items-center text-5xl font-semibold">
-              {actor.name.charAt(0).toUpperCase()}
-            </div>
-          )}
+          <SafeImage
+            src={actor.photo}
+            alt={actor.name}
+            fill
+            sizes="(max-width: 1024px) 100vw, 224px"
+            className="object-cover"
+            priority
+            fallback={
+              <div className="bg-surface-2 grid h-full w-full place-items-center text-5xl font-semibold">
+                {actor.name.charAt(0).toUpperCase()}
+              </div>
+            }
+          />
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col gap-3">

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { notFound, redirect } from "next/navigation";
 import { Container } from "@/components/layout/container";
@@ -8,6 +7,7 @@ import { SortSelect } from "@/components/catalog/sort-select";
 import { Breadcrumbs, type Crumb } from "@/components/seo/breadcrumbs";
 import { JsonLd } from "@/components/seo/json-ld";
 import { Accordion } from "@/components/ui/accordion";
+import { SafeImage } from "@/components/ui/safe-image";
 import { Description } from "@/components/video/description";
 import { InfiniteVideoFeed } from "@/components/video/infinite-video-feed";
 import { ApiError } from "@/lib/api/errors";
@@ -132,15 +132,13 @@ export async function EntityVideoPage({
       <JsonLd data={pageGraph} />
       <Breadcrumbs items={crumbs} />
       <header className="flex items-center gap-4">
-        {detail.preview_image ? (
-          <Image
-            src={detail.preview_image}
-            alt=""
-            width={64}
-            height={64}
-            className="h-16 w-16 shrink-0 rounded-full object-cover"
-          />
-        ) : null}
+        <SafeImage
+          src={detail.preview_image}
+          alt=""
+          width={64}
+          height={64}
+          className="h-16 w-16 shrink-0 rounded-full object-cover"
+        />
         <div className="flex-1">
           <h1 className="font-display desktop:text-2xl text-xl font-bold tracking-tight">
             {conf.hashPrefix ? `#${detail.name}` : detail.name}
