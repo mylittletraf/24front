@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { Inter, Unbounded } from "next/font/google";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { AdLayer } from "@/components/ads/ad-layer";
 import { Analytics } from "@/components/analytics";
 import { Footer } from "@/components/layout/footer";
 import { SiteHeader } from "@/components/layout/site-header";
-import { AgeGate } from "@/components/legal/age-gate";
+import { AgeGate, AGE_VERIFIED_COOKIE } from "@/components/legal/age-gate";
 import { CookieConsent } from "@/components/legal/cookie-consent";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/api/config";
 import { Providers } from "./providers";
@@ -47,6 +47,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   // The Yandex Video embed (/embed/[slug]) renders only the player — no site chrome,
   // ad overlays or analytics — so it stays clean inside a third-party iframe.
   const isEmbed = (await headers()).get("x-pathname")?.startsWith("/embed") ?? false;
+  const ageVerified = (await cookies()).get(AGE_VERIFIED_COOKIE)?.value === "1";
 
   return (
     <html
@@ -65,7 +66,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
                 <div className="flex flex-1 flex-col">{children}</div>
                 <Footer />
                 <AdLayer />
-                <AgeGate />
+                <AgeGate initialVerified={ageVerified} />
                 <CookieConsent />
               </>
             )}

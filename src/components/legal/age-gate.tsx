@@ -2,31 +2,33 @@
 
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { ADULT_CONTENT } from "@/lib/api/config";
-import { useMounted } from "@/lib/hooks/use-media-query";
 
-const AGE_VERIFIED_KEY = "age_verified";
+export const AGE_VERIFIED_COOKIE = "age_verified";
 
 /**
- * First-visit 18+ confirmation. Renders a non-dismissible modal over a blurred backdrop until the
- * visitor confirms; the choice is remembered in localStorage. Declining attempts to close the tab
- * (and redirects away as a fallback, since browsers won't close tabs they didn't open via script).
- * Only shown when the catalog is adult content ({@link ADULT_CONTENT}).
+ * First-visit 18+ confirmation. Rendered inline (no portal) so the blurred backdrop is part of the
+ * SSR HTML and shows from the first paint — no flash of the site before the modal appears. The
+ * verified state comes from a cookie read on the server ({@link AGE_VERIFIED_COOKIE}) so SSR and the
+ * client agree. Skipped on /privacy so the policy stays readable, and only shown for adult content.
+ *
+ * Declining attempts to close the tab (and redirects away as a fallback, since browsers won't close
+ * tabs they didn't open via script).
  */
-export function AgeGate() {
+export function AgeGate({ initialVerified }: { initialVerified: boolean }) {
   const t = useTranslations("ageGate");
-  const mounted = useMounted();
-  const [confirmed, setConfirmed] = useState(false);
+  const pathname = usePathname();
+  const [verified, setVerified] = useState(initialVerified);
 
-  const open =
-    mounted && ADULT_CONTENT && !confirmed && localStorage.getItem(AGE_VERIFIED_KEY) !== "1";
+  const open = ADULT_CONTENT && !verified && pathname !== "/privacy";
 
   function confirm() {
-    localStorage.setItem(AGE_VERIFIED_KEY, "1");
-    setConfirmed(true);
+    // ~1 year, readable by the server layout on the next load to render gate-free.
+    document.cookie = `${AGE_VERIFIED_COOKIE}=1; path=/; max-age=31536000; samesite=lax`;
+    setVerified(true);
   }
 
   function decline() {
@@ -37,21 +39,17 @@ export function AgeGate() {
     window.location.replace("https://www.google.com");
   }
 
+  if (!open) return null;
+
   return (
-    <Dialog open={open}>
-      <DialogContent
-        side="center"
-        showClose={false}
-        overlayClassName="bg-black/50 backdrop-blur-xl"
-        className="items-center gap-4 text-center"
-        onEscapeKeyDown={(e) => e.preventDefault()}
-        onPointerDownOutside={(e) => e.preventDefault()}
-        onInteractOutside={(e) => e.preventDefault()}
-      >
-        <DialogTitle className="text-xl font-semibold">{t("title")}</DialogTitle>
-        <DialogDescription className="text-muted text-sm leading-relaxed">
-          {t("description")}
-        </DialogDescription>
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xl"
+    >
+      <div className="border-border bg-background flex w-full max-w-md flex-col items-center gap-4 rounded-2xl border p-6 text-center shadow-xl">
+        <h2 className="text-xl font-semibold">{t("title")}</h2>
+        <p className="text-muted text-sm leading-relaxed">{t("description")}</p>
         <div className="mt-2 flex w-full flex-col gap-2">
           <Button variant="primary" onClick={confirm}>
             {t("confirm")}
@@ -62,11 +60,11 @@ export function AgeGate() {
         </div>
         <p className="text-muted text-xs">
           {t("notice")}{" "}
-          <Link href="/privacy" className="text-link hover:underline">
+          <Link href="/privacy" target="_blank" className="text-link hover:underline">
             {t("policyLink")}
           </Link>
         </p>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }
