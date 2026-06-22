@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -78,6 +79,7 @@ function FormattedText({ text }: { text: string }) {
 
 export function FooterLinks() {
   const t = useTranslations("footer");
+  const tp = useTranslations("privacy");
   const [modal, setModal] = useState<Modal>(null);
   const close = () => setModal(null);
 
@@ -101,6 +103,12 @@ export function FooterLinks() {
         <button type="button" className={linkClass} onClick={() => setModal("advertising")}>
           {t("advertising")}
         </button>
+        <span aria-hidden className="text-border">
+          ·
+        </span>
+        <Link href="/privacy" className={linkClass}>
+          {tp("title")}
+        </Link>
       </nav>
 
       <Dialog open={modal !== null} onOpenChange={(o) => !o && close()}>

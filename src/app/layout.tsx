@@ -7,6 +7,8 @@ import { AdLayer } from "@/components/ads/ad-layer";
 import { Analytics } from "@/components/analytics";
 import { Footer } from "@/components/layout/footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { AgeGate } from "@/components/legal/age-gate";
+import { CookieConsent } from "@/components/legal/cookie-consent";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/api/config";
 import { Providers } from "./providers";
 import "./globals.css";
@@ -63,6 +65,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
                 <div className="flex flex-1 flex-col">{children}</div>
                 <Footer />
                 <AdLayer />
+                <AgeGate />
+                <CookieConsent />
               </>
             )}
           </Providers>

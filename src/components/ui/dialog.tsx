@@ -25,6 +25,8 @@ function Overlay({ className, ...props }: React.ComponentProps<typeof DialogPrim
 type ContentProps = React.ComponentProps<typeof DialogPrimitive.Content> & {
   side?: "center" | "right" | "bottom";
   showClose?: boolean;
+  /** Extra classes for the backdrop overlay (e.g. blur for the age gate). */
+  overlayClassName?: string;
 };
 
 const sideClasses: Record<NonNullable<ContentProps["side"]>, string> = {
@@ -40,11 +42,12 @@ export function DialogContent({
   children,
   side = "center",
   showClose = true,
+  overlayClassName,
   ...props
 }: ContentProps) {
   return (
     <DialogPrimitive.Portal>
-      <Overlay />
+      <Overlay className={overlayClassName} />
       <DialogPrimitive.Content
         className={cn(
           "border-border bg-background fixed z-50 flex flex-col overflow-y-auto border p-4 shadow-xl focus:outline-none",

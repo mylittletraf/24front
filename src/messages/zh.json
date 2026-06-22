@@ -1,4 +1,21 @@
 {
+  "ageGate": {
+    "title": "您年满18岁了吗？",
+    "description": "本网站包含成人（18+）内容。请确认您的年龄以继续。",
+    "confirm": "我已年满18岁 — 进入",
+    "decline": "我未满18岁 — 离开",
+    "notice": "进入即表示您同意我们的",
+    "policyLink": "隐私政策"
+  },
+  "cookies": {
+    "message": "我们使用 Cookie 以确保网站正常运行并改善您的体验。继续使用本网站即表示您同意我们使用 Cookie。",
+    "accept": "接受",
+    "learnMore": "了解更多"
+  },
+  "privacy": {
+    "title": "隐私政策",
+    "body": "这是一份隐私政策示例。上线前请替换为您真实的法律文本。\n\n我们仅处理必要的最少数据，并使用 Cookie 来运行网站、进行分析和展示广告。您可以在浏览器设置中禁用 Cookie。\n\n如对个人数据处理有任何疑问，请通过页脚的表单与我们联系。"
+  },
   "nav": {
     "videos": "Videos",
     "actors": "Actors",

@@ -1,4 +1,21 @@
 {
+  "ageGate": {
+    "title": "Bist du 18 Jahre oder älter?",
+    "description": "Diese Website enthält Inhalte für Erwachsene (18+). Bitte bestätige dein Alter, um fortzufahren.",
+    "confirm": "Ich bin 18 oder älter — eintreten",
+    "decline": "Ich bin unter 18 — verlassen",
+    "notice": "Mit dem Betreten stimmst du unserer",
+    "policyLink": "Datenschutzerklärung"
+  },
+  "cookies": {
+    "message": "Wir verwenden Cookies, damit die Website korrekt funktioniert und besser nutzbar ist. Wenn du die Website weiter nutzt, stimmst du der Verwendung von Cookies zu.",
+    "accept": "Akzeptieren",
+    "learnMore": "Mehr erfahren"
+  },
+  "privacy": {
+    "title": "Datenschutzerklärung",
+    "body": "Dies ist eine Beispiel-Datenschutzerklärung. Ersetze sie vor dem Livegang durch deinen echten Rechtstext.\n\nWir verarbeiten nur die notwendigsten Daten und verwenden Cookies für den Betrieb der Website, für Analysen und zur Anzeige von Werbung. Du kannst Cookies in den Einstellungen deines Browsers deaktivieren.\n\nBei Fragen zur Verarbeitung personenbezogener Daten kontaktiere uns über das Formular im Footer."
+  },
   "nav": {
     "videos": "Videos",
     "actors": "Actors",

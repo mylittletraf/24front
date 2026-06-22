@@ -1,4 +1,21 @@
 {
+  "ageGate": {
+    "title": "Are you 18 or older?",
+    "description": "This website contains adult (18+) content. Please confirm your age to continue.",
+    "confirm": "I am 18 or older — enter",
+    "decline": "I am under 18 — leave",
+    "notice": "By entering, you agree to our",
+    "policyLink": "Privacy Policy"
+  },
+  "cookies": {
+    "message": "We use cookies to make the site work properly and improve your experience. By continuing to use the site, you agree to our use of cookies.",
+    "accept": "Accept",
+    "learnMore": "Learn more"
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "body": "This is a sample Privacy Policy. Replace it with your real legal text before going live.\n\nWe process the minimum data necessary and use cookies to operate the site, for analytics and to show ads. You can disable cookies in your browser settings.\n\nFor any questions about personal data processing, contact us via the form in the site footer."
+  },
   "nav": {
     "videos": "Videos",
     "actors": "Actors",
