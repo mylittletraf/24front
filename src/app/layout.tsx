@@ -7,8 +7,9 @@ import { AdLayer } from "@/components/ads/ad-layer";
 import { Analytics } from "@/components/analytics";
 import { Footer } from "@/components/layout/footer";
 import { SiteHeader } from "@/components/layout/site-header";
-import { AgeGate, AGE_VERIFIED_COOKIE } from "@/components/legal/age-gate";
+import { AgeGate } from "@/components/legal/age-gate";
 import { CookieConsent } from "@/components/legal/cookie-consent";
+import { AGE_VERIFIED_COOKIE } from "@/lib/legal";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/api/config";
 import { Providers } from "./providers";
 import "./globals.css";
@@ -47,6 +48,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   // The Yandex Video embed (/embed/[slug]) renders only the player — no site chrome,
   // ad overlays or analytics — so it stays clean inside a third-party iframe.
   const isEmbed = (await headers()).get("x-pathname")?.startsWith("/embed") ?? false;
+  // Read server-side so the gate's blurred backdrop is correct on first paint (no flash).
   const ageVerified = (await cookies()).get(AGE_VERIFIED_COOKIE)?.value === "1";
 
   return (

@@ -6,8 +6,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ADULT_CONTENT } from "@/lib/api/config";
-
-export const AGE_VERIFIED_COOKIE = "age_verified";
+import { AGE_VERIFIED_COOKIE } from "@/lib/legal";
 
 /**
  * First-visit 18+ confirmation. Rendered inline (no portal) so the blurred backdrop is part of the
