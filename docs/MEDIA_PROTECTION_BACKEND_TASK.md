@@ -84,6 +84,22 @@ segments до `expires`. При варианте C — то же самое на
 - **Логи скачиваний** + бан подозрительных IP (аномальный объём/частота).
 - `X-Robots-Tag: noindex` на файловые URL storage.
 
+## ⚠️ CORS на сегментах storage (обязательно для HLS.js)
+
+Плеер на сайте (video.js / HLS.js в Chrome/Firefox) грузит сегменты `.ts/.m4s` через `fetch`/XHR,
+поэтому **storage(nginx) должен отдавать CORS-заголовки на файлах сегментов**, иначе браузер
+заблокирует загрузку и видео не запустится (в Safari нативный HLS работает и без этого — отсюда
+«у меня играет, у других нет»).
+
+Сейчас: master/variant-плейлисты (хост API) уже отдают `Access-Control-Allow-Origin: *`, а **сегменты
+на storage — нет**. Добавить на storage в `location` сегментов:
+```nginx
+add_header Access-Control-Allow-Origin "*" always;   # или конкретный origin сайта
+add_header Access-Control-Allow-Methods "GET, HEAD, OPTIONS" always;
+add_header Access-Control-Expose-Headers "Content-Length, Content-Range, Accept-Ranges" always;
+# (Range уже работает: Accept-Ranges: bytes присутствует)
+```
+
 ## Чего НЕ надо (не защита)
 CORS, скрытие API, обфускация JS, запрет правой кнопки, UUID без signed-URL (только от перебора),
 только-Referer (обходится).
