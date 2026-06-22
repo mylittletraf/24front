@@ -140,7 +140,9 @@ if [[ "$ROLE" == "video" ]]; then
             image/webp webp;
         }
 EOF
-    CACHE_RE='\.(mp4|m3u8|ts|webp)$'
+    # Streaming files (m3u8/ts/m4s) are served ONLY by the protected /v/ location, so they must
+    # NOT appear here — otherwise this public cache location shadows them and serves them unsigned.
+    CACHE_RE='\.(mp4|webp)$'
     CACHE_TTL="30d"
 elif [[ "$ROLE" == "image" ]]; then
     LOCATION="/"
@@ -165,7 +167,9 @@ else  # combined
             image/png png;
         }
 EOF
-    CACHE_RE='\.(mp4|m3u8|ts|webp|jpg|jpeg|png)$'
+    # Streaming files (m3u8/ts/m4s) are served ONLY by the protected /v/ location — keep them out
+    # of this public cache regex or it shadows the secure_link location and serves them unsigned.
+    CACHE_RE='\.(mp4|webp|jpg|jpeg|png)$'
     CACHE_TTL="30d"
 fi
 
