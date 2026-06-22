@@ -174,16 +174,16 @@ EOF
 fi
 
 # Signed-HLS protection (MEDIA_PROTECTION). One token signs the /v/<uuid>/ prefix,
-# so it's valid for all segments until $arg_expires. Only the SEGMENTS (.ts/.m4s) are
-# protected — NOT .m3u8: the player gets playlists from the backend, and the backend builds
-# them by reading the source .m3u8 from storage over HTTP unsigned, so protecting .m3u8 here
-# would 403 that read (→ backend 500). Posters/trailer fall through to the public location.
-# nginx vars are escaped (\$) so bash doesn't expand them; the literal secret IS
-# substituted. As a top-level regex location it is matched before the prefix one.
+# so it's valid for the master, variants and all segments until $arg_expires. All streaming
+# files (.m3u8/.m4s/.ts) are protected; the backend reads the source .m3u8 from storage with a
+# matching signed URL (same MEDIA_SIGNING_SECRET), so its playlist build still works.
+# Posters/trailer fall through to the public location. nginx vars are escaped (\$) so bash
+# doesn't expand them; the literal secret IS substituted. As a top-level regex location it is
+# matched before the prefix one.
 PROTECTED=""
 if [[ "$ROLE" != "image" ]]; then
     PROTECTED=$(cat <<EOF
-    location ~ ^/v/(?<vid>[0-9a-f-]+)/.+\.(m4s|ts)\$ {
+    location ~ ^/v/(?<vid>[0-9a-f-]+)/.+\.(m3u8|m4s|ts)\$ {
         secure_link      \$arg_token,\$arg_expires;
         secure_link_md5  "${MEDIA_SECRET}/v/\$vid/\$arg_expires";
         if (\$secure_link = "")  { return 403; }
