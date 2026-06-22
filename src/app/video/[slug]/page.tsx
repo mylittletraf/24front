@@ -262,7 +262,7 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
       <div className="desktop:flex-row flex flex-col gap-6">
         <div className="flex min-w-0 flex-1 flex-col gap-4">
           <Breadcrumbs items={crumbs} />
-          <VideoPlayer uuid={detail.uuid} hls={detail.sources.hls} poster={detail.poster} />
+          <VideoPlayer uuid={detail.uuid} poster={detail.poster} />
 
           <h1 className="text-xl font-bold">{detail.seo_h1 || detail.title}</h1>
 

@@ -73,6 +73,32 @@ export async function getVast(videoUuid: string, placement: AdPlacement): Promis
   return parsed.success ? parsed.data.vast_url : null;
 }
 
+const PlaybackSchema = z.object({
+  // Backend master playlist (signed variants/segments inside); fed straight to the player.
+  hls: z.string().nullable().optional(),
+  poster: z.string().nullable().optional(),
+  expires_at: z.string().nullable().optional(),
+});
+export type Playback = z.infer<typeof PlaybackSchema>;
+
+/**
+ * Short-lived signed playback URL — fetched fresh on play (no-store), never cached. The `hls` is
+ * the backend master playlist whose variants/segments are already signed, so it's used as-is (no
+ * media masking). Returns null when the video is unavailable (403/404) or the body is unparseable.
+ */
+export async function getPlayback(
+  videoUuid: string,
+  token?: string | null,
+): Promise<Playback | null> {
+  const { status, data } = await apiFetchStatus(`/videos/${videoUuid}/playback/`, {
+    cache: "no-store",
+    token: token ?? undefined,
+  });
+  if (status !== 200) return null;
+  const parsed = PlaybackSchema.safeParse(data);
+  return parsed.success ? parsed.data : null;
+}
+
 export const ReportTopicSchema = z.object({ slug: z.string(), name: z.string() });
 export type ReportTopic = z.infer<typeof ReportTopicSchema>;
 

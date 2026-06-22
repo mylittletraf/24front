@@ -2,10 +2,17 @@
 
 import "video.js/dist/video-js.css";
 import { useTranslations } from "next-intl";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import type Player from "video.js/dist/types/player";
 import { track } from "@/lib/analytics/track";
-import { getVast, postProgress, postView, type AdPlacement } from "@/lib/api/video-actions";
+import {
+  getPlayback,
+  getVast,
+  postProgress,
+  postView,
+  type AdPlacement,
+} from "@/lib/api/video-actions";
 import { useAuth } from "@/lib/auth/auth-context";
 import { cooldownOk } from "@/lib/ads";
 import { useAdSlot } from "@/lib/hooks/use-ad-slot";
@@ -99,7 +106,6 @@ const DEFAULT_VAST: VastPlacements = { pre: "pre_roll", post: "post_roll" };
 
 export function VideoPlayer({
   uuid,
-  hls,
   poster,
   resumeSeconds = 0,
   vastPlacements = DEFAULT_VAST,
@@ -107,7 +113,6 @@ export function VideoPlayer({
   embed = false,
 }: {
   uuid: string;
-  hls: string | null;
   poster: string | null;
   resumeSeconds?: number;
   /** Which VAST placements to request. The embed player uses the Yandex-only tags. */
@@ -122,6 +127,22 @@ export function VideoPlayer({
   const playerRef = useRef<Player | null>(null);
   const { getToken } = useAuth();
   const viewedRef = useRef(false);
+
+  // HLS source comes from the short-lived signed /playback/ endpoint (fetched fresh, never cached),
+  // not from the ISR-cached detail. Keyed by uuid so a client-side navigation re-fetches.
+  const playbackQuery = useQuery({
+    queryKey: ["playback", uuid],
+    queryFn: () => getPlayback(uuid, getToken()),
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnWindowFocus: false,
+  });
+  const hls = playbackQuery.data?.hls ?? null;
+  const status = playbackQuery.isPending ? "loading" : hls ? "ready" : "error";
+
+  // When a signed segment 403s mid-playback (token TTL expired on a long video), re-fetch a fresh
+  // /playback/ URL and resume — bounded so a genuinely broken source can't loop forever.
+  const reloadsRef = useRef(0);
 
   // Clickunder (popunder) — direct link in the slot's `script`, opened on the Nth Play.
   const clickunder = useAdSlot(clickunderSlot);
@@ -183,6 +204,28 @@ export function VideoPlayer({
         );
       }
       player.src({ src: hls, type: "application/x-mpegURL" });
+
+      // Recover from an expired signed source: on a media/network error, fetch a fresh playback URL
+      // and resume from where we were. Reset the budget once playback is actually progressing.
+      player.on("playing", () => {
+        reloadsRef.current = 0;
+      });
+      player.on("error", () => {
+        const err = player.error();
+        // 1 = ABORTED (user/navigation) — don't retry; 2 = NETWORK, 3 = DECODE, 4 = SRC unsupported.
+        if (!err || err.code === 1 || reloadsRef.current >= 2) return;
+        reloadsRef.current += 1;
+        const at = player.currentTime() ?? 0;
+        void (async () => {
+          const pb = await getPlayback(uuid, getToken());
+          if (disposed || !pb?.hls) return;
+          player.src({ src: pb.hls, type: "application/x-mpegURL" });
+          player.one("loadedmetadata", () => {
+            if (at > 0) player.currentTime(at);
+            void player.play();
+          });
+        })();
+      });
 
       // HLS resolution selector in the control bar (replaces the playback-speed menu).
       try {
@@ -262,7 +305,7 @@ export function VideoPlayer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hls, poster, uuid, resumeSeconds, getToken, embed, vastPlacements.pre, vastPlacements.post]);
 
-  if (!hls) {
+  if (status === "error") {
     return (
       <div className="grid aspect-video w-full place-items-center rounded-xl bg-black text-white">
         {t("unavailable")}
@@ -271,7 +314,16 @@ export function VideoPlayer({
   }
 
   return (
-    <div data-vjs-player className="w-full overflow-hidden rounded-xl bg-black">
+    <div data-vjs-player className="relative w-full overflow-hidden rounded-xl bg-black">
+      {/* Placeholder (poster) until the signed source resolves — keeps the 16:9 box, no layout jump. */}
+      {!hls ? (
+        <div className="grid aspect-video w-full place-items-center">
+          {poster ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={poster} alt="" className="h-full w-full object-contain" />
+          ) : null}
+        </div>
+      ) : null}
       <div ref={containerRef} className="w-full" />
     </div>
   );

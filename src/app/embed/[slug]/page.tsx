@@ -35,7 +35,6 @@ export default async function EmbedPage({ params, searchParams }: PageParams) {
     <div className="grid min-h-dvh w-full place-items-center bg-black">
       <VideoPlayer
         uuid={detail.uuid}
-        hls={detail.sources.hls}
         poster={detail.poster}
         vastPlacements={{ pre: "ya_vast_preroll", post: "ya_vast_postroll" }}
         clickunderSlot=""
