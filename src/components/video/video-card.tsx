@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Eye, Play, ThumbsUp } from "lucide-react";
+import { useClickunder } from "@/components/ads/use-clickunder";
 import { SafeImage } from "@/components/ui/safe-image";
 import { useLocale } from "next-intl";
 import type { VideoCard as VideoCardData } from "@/lib/api/types";
@@ -31,9 +32,14 @@ export function VideoCard({
   const hasTrailer = Boolean(video.trailer);
   const { ref, playing, hasHover, onMouseEnter, onMouseLeave } = useTrailer(hasTrailer);
   const rating = reactionRating(video.likes_count, video.dislikes_count);
+  const fireClickunder = useClickunder();
 
   return (
-    <Link href={`/video/${video.slug}`} className={cn("group flex flex-col gap-2", className)}>
+    <Link
+      href={`/video/${video.slug}`}
+      onClick={fireClickunder}
+      className={cn("group flex flex-col gap-2", className)}
+    >
       <div
         ref={ref}
         onMouseEnter={onMouseEnter}

@@ -14,12 +14,9 @@ import {
   type AdPlacement,
 } from "@/lib/api/video-actions";
 import { useAuth } from "@/lib/auth/auth-context";
-import { clickunderClickStep } from "@/lib/ads";
-import { useAdSlot } from "@/lib/hooks/use-ad-slot";
 import { setupQualityMenu } from "./quality-menu";
 
 const PROGRESS_INTERVAL_MS = 15000;
-const CLICKUNDER_PAUSE_MS = 60 * 60 * 1000; // pause 60 min after the 5th qualifying click
 
 // --- VAST via Google IMA (videojs-contrib-ads + videojs-ima) -----------------------------
 interface ImaApi {
@@ -108,7 +105,6 @@ export function VideoPlayer({
   poster,
   resumeSeconds = 0,
   vastPlacements = DEFAULT_VAST,
-  clickunderSlot = "clickander_play",
   embed = false,
 }: {
   uuid: string;
@@ -116,8 +112,6 @@ export function VideoPlayer({
   resumeSeconds?: number;
   /** Which VAST placements to request. The embed player uses the Yandex-only tags. */
   vastPlacements?: VastPlacements;
-  /** On-site clickunder slot code; pass "" to disable (e.g. in the Yandex Video embed). */
-  clickunderSlot?: string;
   /** True when rendered in the Yandex Video embed — tags the play events accordingly. */
   embed?: boolean;
 }) {
@@ -142,37 +136,6 @@ export function VideoPlayer({
   // When a signed segment 403s mid-playback (token TTL expired on a long video), re-fetch a fresh
   // /playback/ URL and resume — bounded so a genuinely broken source can't loop forever.
   const reloadsRef = useRef(0);
-
-  // Clickunder (popunder) — direct link in the slot's `script`, opened on clicks on the video.
-  const clickunder = useAdSlot(clickunderSlot);
-  const clickunderRef = useRef<string | null>(null);
-  useEffect(() => {
-    clickunderRef.current = clickunder?.script || null;
-  }, [clickunder]);
-
-  // Fire the clickunder on the 1st/3rd/5th click on the video (slot id suffixed _click-1/3/5),
-  // then pause 60 min before the cadence restarts. window.open runs inside the click gesture so it
-  // isn't popup-blocked. Disabled when there's no slot (e.g. the embed passes clickunderSlot="").
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el || !clickunderSlot) return;
-    const onClick = () => {
-      const link = clickunderRef.current;
-      if (!link) return;
-      const step = clickunderClickStep(clickunderSlot, CLICKUNDER_PAUSE_MS);
-      if (step === null) return; // 2nd/4th click, or inside the 60-min pause
-      track("ad_clickunder", { slot: `${clickunderSlot}_click-${step}` });
-      const w = window.open(link, "_blank", "noopener");
-      try {
-        w?.blur?.();
-        window.focus();
-      } catch {
-        // ignore
-      }
-    };
-    el.addEventListener("click", onClick);
-    return () => el.removeEventListener("click", onClick);
-  }, [clickunderSlot]);
 
   useEffect(() => {
     if (!hls) return;

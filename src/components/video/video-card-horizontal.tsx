@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Play, ThumbsUp } from "lucide-react";
+import { useClickunder } from "@/components/ads/use-clickunder";
 import { SafeImage } from "@/components/ui/safe-image";
 import { useLocale } from "next-intl";
 import type { VideoCard as VideoCardData } from "@/lib/api/types";
@@ -25,8 +26,13 @@ export function VideoCardHorizontal({
 }) {
   const locale = useLocale() as Locale;
   const rating = reactionRating(video.likes_count, video.dislikes_count);
+  const fireClickunder = useClickunder();
   return (
-    <Link href={`/video/${video.slug}`} className={cn("group flex gap-3", className)}>
+    <Link
+      href={`/video/${video.slug}`}
+      onClick={fireClickunder}
+      className={cn("group flex gap-3", className)}
+    >
       <div className="bg-surface relative aspect-video w-40 shrink-0 overflow-hidden rounded-lg">
         <SafeImage
           src={video.poster}
