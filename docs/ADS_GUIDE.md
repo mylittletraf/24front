@@ -245,35 +245,35 @@ export function InPagePushAd() {
 - Если push-сеть сама позиционирует блок — `html`/`script` это сделают; div-контейнер скрыт, скрипт
   работает. Если нужно своё позиционирование — оберните в `fixed top-0`/`bottom-0`.
 
-### 4.3. Кликандер (popunder) после нажатия Play — **direct link**
-**Шаг 0 (бэк):** код слота `clickunder`, где **директ-ссылка** лежит в `script` (или отдельном поле —
-согласовать). 204/пусто ⇒ не открываем ничего.
-**Где:** `src/components/video/player.tsx`. Кликандер обязан срабатывать **в момент пользовательского
-жеста** (клик по Play), иначе блокировщик попапов зарежет окно.
+### 4.3. Кликандер (popunder) по кликам на видео — **direct link**
+**Шаг 0 (бэк):** код слота `clickander_play` (на detail-странице; в embed выключен —
+`clickunderSlot=""`), где **директ-ссылка** лежит в `script`. 204/пусто ⇒ не открываем ничего.
+**Где:** `src/components/video/player.tsx` + `clickunderClickStep` в `src/lib/ads.ts`. Кликандер
+открывается **в момент пользовательского жеста** (клик по плееру), иначе блокировщик попапов зарежет окно.
 
-1. Загрузить ссылку рядом с плеером (клиентский хук):
+**Каденс (detail page):** окно открывается на **1-м, 3-м и 5-м** клике на видео, после чего —
+**пауза 60 минут**, затем цикл повторяется. Клики 2 и 4 (и любые во время паузы) проглатываются.
+Состояние счётчика и паузы хранится в `localStorage` (`ad:cu:clickander_play`), поэтому каденс
+сквозной между переходами по страницам сайта. К идентификатору слота в аналитике дописывается номер
+клика: `clickander_play_click-1` / `_click-3` / `_click-5`.
+
 ```tsx
-const clickunder = useAdSlot("clickunder"); // slot.script = директ-URL
-const firedRef = useRef(false);
-```
-2. Открыть при первом `play` (с капом):
-```tsx
-player.one("play", () => {
-  if (!firedRef.current && clickunder?.script && frequencyOk("clickunder", 1)) {
-    firedRef.current = true;
-    // popunder: открыть фон и вернуть фокус на вкладку
-    const w = window.open(clickunder.script, "_blank", "noopener");
-    w?.blur?.();
-    window.focus();
-  }
-  // ... существующая логика postView
-});
+// ссылка слота — рядом с плеером
+const clickunder = useAdSlot(clickunderSlot); // slot.script = директ-URL
+
+// нативный click-листенер на контейнере плеера
+const step = clickunderClickStep(clickunderSlot, 60 * 60 * 1000); // 1/3/5 → номер, иначе null
+if (step !== null && link) {
+  track("ad_clickunder", { slot: `${clickunderSlot}_click-${step}` });
+  const w = window.open(link, "_blank", "noopener");
+  w?.blur?.();
+  window.focus();
+}
 ```
 > Нюансы:
-> - Если попап режется — привяжите открытие к самому клику по большой кнопке Play
->   (`player.on("click", …)` / нативный `pointerdown` на контейнере), т.к. `play`-событие иногда
->   асинхронно и теряет «доверенный жест».
-> - 1 показ/сессия — стандарт; повторные клики не должны открывать окно (`firedRef`).
+> - Открытие привязано к нативному `click` на контейнере плеера (`containerRef`), а не к `play` —
+>   так жест гарантированно «доверенный».
+> - Счётчик не тикает, пока нет ссылки (`script`) или слот пуст (`clickunderSlot=""` в embed).
 > - Это агрессивный формат: убедитесь, что это разрешено вашим инвентарём/политикой.
 
 ### 4.4. VAST pre-roll и post-roll (в плеере)
@@ -359,7 +359,7 @@ const showNative = useMounted() && isMobile && !!native;
 2. **Тестирование каждого формата** (dev-сервер поднимаете вы):
    - catfish — только мобильная ширина, кнопка закрытия, не перекрывает контент;
    - push — только desktop, не чаще кап;
-   - clickunder — окно открывается строго по клику Play, 1 раз/сессию;
+   - clickunder — окно открывается по клику на видео на 1/3/5-м клике, затем пауза 60 мин (detail page);
    - VAST — pre-roll до контента, post-roll после `ended`, 204 не ломает воспроизведение;
    - нативка — каждые 15 карточек, только mobile, на всю ширину строки.
 3. **Частотные капы и память закрытия** — проверить `frequencyOk` и `localStorage`-флаги.
@@ -387,7 +387,7 @@ const showNative = useMounted() && isMobile && !!native;
 |---|---|---|---|---|
 | Catfish/стикер | ad-slot | `catfish` | `AdLayer` → `CatfishAd` (layout) | mobile |
 | In-page push | ad-slot | `inpage_push` | `AdLayer` → `InPagePushAd` (layout) | desktop |
-| Clickunder (директ) | ad-slot | `clickunder` | `player.tsx` на `play` | both |
+| Clickunder (директ) | ad-slot | `clickander_play` | `player.tsx` на клик по видео (1/3/5, пауза 60 мин) | detail |
 | VAST pre-roll | VAST | `pre_roll` | `player.tsx` (IMA) | both |
 | VAST post-roll | VAST | `post_roll` | `player.tsx` на `ended` (IMA) | both |
 | Нативка в каталоге | ad-slot | `native_catalog` | `infinite-video-feed.tsx`, каждые 15 | mobile |

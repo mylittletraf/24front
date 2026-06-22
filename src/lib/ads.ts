@@ -43,3 +43,38 @@ export function frequencyOk(key: string, maxPerDay = 1): boolean {
   }
   return true;
 }
+
+/** Clicks within a cycle at which the clickunder fires; after the last it pauses. */
+const CLICKUNDER_FIRE_ON = new Set([1, 3, 5]);
+const CLICKUNDER_CYCLE_END = 5;
+
+/**
+ * Clickunder click cadence for the detail-page player: fire on the 1st, 3rd and 5th click on the
+ * video, then pause for `pauseMs` (60 min) before the cycle restarts. Persisted in localStorage so
+ * the cadence spans page navigations across the site. Returns the firing click ordinal (1/3/5) — use
+ * it to suffix the slot id — or `null` when this click is swallowed (2nd/4th, or during the pause).
+ */
+export function clickunderClickStep(key: string, pauseMs: number): number | null {
+  if (typeof window === "undefined") return null;
+  const storeKey = `ad:cu:${key}`;
+  let rec: { n: number; until: number };
+  try {
+    const raw = localStorage.getItem(storeKey);
+    rec = raw ? (JSON.parse(raw) as { n: number; until: number }) : { n: 0, until: 0 };
+  } catch {
+    rec = { n: 0, until: 0 };
+  }
+
+  const now = Date.now();
+  if (now < rec.until) return null; // inside the 60-minute pause
+
+  const n = rec.n + 1;
+  const fire = CLICKUNDER_FIRE_ON.has(n) ? n : null;
+  const next = n >= CLICKUNDER_CYCLE_END ? { n: 0, until: now + pauseMs } : { n, until: 0 };
+  try {
+    localStorage.setItem(storeKey, JSON.stringify(next));
+  } catch {
+    // ignore storage errors (private mode, quota)
+  }
+  return fire;
+}

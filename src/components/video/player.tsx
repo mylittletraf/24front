@@ -14,13 +14,12 @@ import {
   type AdPlacement,
 } from "@/lib/api/video-actions";
 import { useAuth } from "@/lib/auth/auth-context";
-import { cooldownOk } from "@/lib/ads";
+import { clickunderClickStep } from "@/lib/ads";
 import { useAdSlot } from "@/lib/hooks/use-ad-slot";
 import { setupQualityMenu } from "./quality-menu";
 
 const PROGRESS_INTERVAL_MS = 15000;
-const CLICKUNDER_ON_NTH_PLAY = 3; // first clickunder fires on the Nth play, not the first
-const CLICKUNDER_COOLDOWN_MS = 15 * 60 * 1000; // then no more often than every 15 minutes
+const CLICKUNDER_PAUSE_MS = 60 * 60 * 1000; // pause 60 min after the 5th qualifying click
 
 // --- VAST via Google IMA (videojs-contrib-ads + videojs-ima) -----------------------------
 interface ImaApi {
@@ -144,13 +143,36 @@ export function VideoPlayer({
   // /playback/ URL and resume — bounded so a genuinely broken source can't loop forever.
   const reloadsRef = useRef(0);
 
-  // Clickunder (popunder) — direct link in the slot's `script`, opened on the Nth Play.
+  // Clickunder (popunder) — direct link in the slot's `script`, opened on clicks on the video.
   const clickunder = useAdSlot(clickunderSlot);
   const clickunderRef = useRef<string | null>(null);
-  const playCountRef = useRef(0);
   useEffect(() => {
     clickunderRef.current = clickunder?.script || null;
   }, [clickunder]);
+
+  // Fire the clickunder on the 1st/3rd/5th click on the video (slot id suffixed _click-1/3/5),
+  // then pause 60 min before the cadence restarts. window.open runs inside the click gesture so it
+  // isn't popup-blocked. Disabled when there's no slot (e.g. the embed passes clickunderSlot="").
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !clickunderSlot) return;
+    const onClick = () => {
+      const link = clickunderRef.current;
+      if (!link) return;
+      const step = clickunderClickStep(clickunderSlot, CLICKUNDER_PAUSE_MS);
+      if (step === null) return; // 2nd/4th click, or inside the 60-min pause
+      track("ad_clickunder", { slot: `${clickunderSlot}_click-${step}` });
+      const w = window.open(link, "_blank", "noopener");
+      try {
+        w?.blur?.();
+        window.focus();
+      } catch {
+        // ignore
+      }
+    };
+    el.addEventListener("click", onClick);
+    return () => el.removeEventListener("click", onClick);
+  }, [clickunderSlot]);
 
   useEffect(() => {
     if (!hls) return;
@@ -264,22 +286,6 @@ export function VideoPlayer({
       player.on("play", () => {
         clearInterval(progressTimer);
         progressTimer = setInterval(sendProgress, PROGRESS_INTERVAL_MS);
-
-        // Clickunder (popunder): first on the Nth play, then no more often than every 15 min.
-        playCountRef.current += 1;
-        if (playCountRef.current >= CLICKUNDER_ON_NTH_PLAY) {
-          const link = clickunderRef.current;
-          if (link && cooldownOk("clickander_play", CLICKUNDER_COOLDOWN_MS)) {
-            track("ad_clickunder", { slot: "clickander_play" });
-            const w = window.open(link, "_blank", "noopener");
-            try {
-              w?.blur?.();
-              window.focus();
-            } catch {
-              // ignore
-            }
-          }
-        }
       });
       player.on("pause", () => {
         clearInterval(progressTimer);
