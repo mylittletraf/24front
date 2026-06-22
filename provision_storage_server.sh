@@ -283,6 +283,13 @@ if [[ "$HARDEN_SSH" -eq 1 ]]; then
     systemctl reload ssh
 fi
 
+# ---- final nginx reload -----------------------------------------------------
+# certbot rewrites the vhost (adds the 443 server + HTTP->HTTPS redirect) after our first
+# reload, so reload once more at the very end to guarantee the running nginx matches the
+# on-disk config — the secure_link/CORS rules only take effect once the worker reloads.
+note "Final nginx reload..."
+nginx -t && systemctl reload nginx
+
 # ---- 9. print backend registration commands ---------------------------------
 print_register_cmd() {
     local stype="$1"
