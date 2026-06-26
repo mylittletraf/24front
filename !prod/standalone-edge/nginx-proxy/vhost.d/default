@@ -1,0 +1,5 @@
+# Catch-all for the edge nginx-proxy's default server: drop connections whose Host
+# header matches no known VIRTUAL_HOST (bots/scanners hitting the bare IP). 444 is
+# nginx's "close without response". Per-vhost ACME challenge + routing snippets are
+# written into this same dir by acme-companion and apply only to their own host.
+return 444;

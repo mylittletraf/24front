@@ -1,0 +1,64 @@
+# Edge reverse proxy with automatic Let's Encrypt TLS — ONLY for when the frontend
+# runs on its OWN host (a dedicated VDS) with no backend edge to reuse.
+#
+# On a SHARED host (frontend + backend together) do NOT use this: the frontend
+# joins the backend's already-running edge on the `ingress_proxy` network. This
+# stack is the standalone alternative for a separate host.
+#
+# nginx-proxy auto-discovers app containers on the shared `ingress_proxy` network
+# that declare VIRTUAL_HOST; acme-companion issues/renews certs for their
+# LETSENCRYPT_HOST. It only terminates TLS and routes by hostname — the frontend
+# itself (../docker-compose.yml) registers here as a virtual host.
+#
+# Start order (handled by `../scripts/init-server.sh --with-edge`):
+#   docker network create ingress_proxy
+#   docker compose --env-file ../.env -f nginx-proxy-compose.yml up -d
+#   docker compose -f ../docker-compose.yml up -d
+services:
+  nginx-proxy:
+    container_name: nginx-proxy
+    image: nginxproxy/nginx-proxy:latest
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - certs:/etc/nginx/certs
+      # Bind-mount (not a named volume) so vhost.d/default (unknown-Host → 444) is
+      # shipped with the repo; acme-companion still writes its per-host snippets here.
+      - ./nginx-proxy/vhost.d:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - conf:/etc/nginx/conf.d
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    labels:
+      # acme-companion finds the proxy by this label.
+      - com.github.nginx-proxy.nginx-proxy=true
+    networks: [ingress_proxy]
+
+  acme-companion:
+    container_name: nginx-proxy-acme
+    image: nginxproxy/acme-companion:latest
+    restart: always
+    depends_on: [nginx-proxy]
+    environment:
+      DEFAULT_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in .env}
+      NGINX_PROXY_CONTAINER: nginx-proxy
+    volumes:
+      - certs:/etc/nginx/certs
+      - ./nginx-proxy/vhost.d:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - conf:/etc/nginx/conf.d
+      - acme:/etc/acme.sh
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks: [ingress_proxy]
+
+networks:
+  ingress_proxy:
+    external: true
+    name: ingress_proxy
+
+volumes:
+  certs:
+  html:
+  conf:
+  acme:

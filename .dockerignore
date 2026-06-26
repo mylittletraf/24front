@@ -1,0 +1,31 @@
+# Keep the build context (and final image) small: the Dockerfile installs deps
+# fresh (npm ci) and runs `next build`, so none of these belong in the image.
+.git
+.gitignore
+node_modules
+.next
+out
+build
+coverage
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.tsbuildinfo
+.idea
+.vscode
+.DS_Store
+
+# Env files — never bake host config into the image. .env.local especially would
+# override the --build-arg public config below. Build-time values come in as
+# --build-arg (see build.sh); runtime values come from the container.
+.env
+.env.*
+.env.build
+
+# Build/deploy tooling — not part of the app image.
+build.sh
+
+# Deployment bundle — never needed in the image (build context = repo root).
+# The **/ prefix is required: a leading '!' is .dockerignore's negation operator.
+**/!prod

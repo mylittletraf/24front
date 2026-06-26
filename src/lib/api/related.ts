@@ -52,7 +52,10 @@ const EMPTY: RelatedFilters = {
 
 async function fetchRelated(path: string, params: Record<string, QueryValue>) {
   try {
-    const data = await apiFetch<unknown>(path, { params, cache: "no-store" });
+    // Cache per filter combo: Next's Data Cache keys on the full URL (incl. query
+    // params), so each combination caches independently. Facet counts are
+    // eventually-consistent, so a 5-min window (matching taxonomy detail) is fine.
+    const data = await apiFetch<unknown>(path, { params, revalidate: 300 });
     const parsed = RelatedFiltersSchema.safeParse(data);
     return parsed.success ? parsed.data : EMPTY;
   } catch {

@@ -29,8 +29,11 @@ export function FeedUnreadProvider({ children }: { children: ReactNode }) {
       return token ? getFeedUnreadCount(token) : 0;
     },
     enabled: status === "authenticated",
-    refetchInterval: 60_000,
-    staleTime: 30_000,
+    // App-wide poll on every authenticated page — a nav badge doesn't need 60s
+    // freshness. 3 min keeps the badge timely while cutting this continuous load
+    // ~3×. (TanStack v5 already pauses the interval while the tab is unfocused.)
+    refetchInterval: 180_000,
+    staleTime: 120_000,
   });
 
   const value = useMemo<FeedUnreadValue>(

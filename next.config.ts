@@ -4,6 +4,9 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./src/lib/i18n/request.ts");
 
 const nextConfig: NextConfig = {
+  // Self-contained server bundle (.next/standalone) for a slim production image:
+  // the Docker runner copies it + .next/static + public and runs `node server.js`.
+  output: "standalone",
   // Keep trailing slashes on /api/proxy/* (DRF endpoints need them) instead of
   // 308-redirecting them away.
   skipTrailingSlashRedirect: true,
