@@ -8,8 +8,10 @@ import { Container } from "@/components/layout/container";
 import { Breadcrumbs, type Crumb } from "@/components/seo/breadcrumbs";
 import { JsonLd } from "@/components/seo/json-ld";
 import { InfiniteVideoFeed } from "@/components/video/infinite-video-feed";
+import { ListingPagination } from "@/components/catalog/listing-pagination";
 import { getActor } from "@/lib/api/actors";
 import { ApiError } from "@/lib/api/errors";
+import { cursorFromSearchParams } from "@/lib/api/pagination";
 import type { QueryValue } from "@/lib/api/fetcher";
 import { getEntityRelatedFilters } from "@/lib/api/related";
 import { getSeo, seoToMetadata } from "@/lib/api/seo";
@@ -39,7 +41,7 @@ export default async function ActorPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ lang?: string }>;
+  searchParams: Promise<{ lang?: string; cursor?: string }>;
 }) {
   const { slug } = await params;
   const sp = await searchParams;
@@ -62,7 +64,13 @@ export default async function ActorPage({
   // The dedicated /actors/{slug}/videos/ endpoint is broken (returns 0); use the
   // working catalog filter instead. See docs/BACKEND_BUGS.md.
   const endpoint = "/videos/";
-  const apiParams: Record<string, QueryValue> = { lang, page_size: 24, actors: slug };
+  const cursor = cursorFromSearchParams(sp);
+  const apiParams: Record<string, QueryValue> = {
+    lang,
+    page_size: 24,
+    actors: slug,
+    ...(cursor ? { cursor } : {}),
+  };
   const [initialPage, related] = await Promise.all([
     getVideoList(endpoint, apiParams, { revalidate: 60 }),
     getEntityRelatedFilters("actors", slug, { lang }),
@@ -109,10 +117,18 @@ export default async function ActorPage({
           {t("videosWith", { name: actor.name })}
         </h2>
         <InfiniteVideoFeed
-          queryKey={["videos", "actor", slug, lang]}
+          queryKey={["videos", "actor", slug, lang, cursor ?? ""]}
           endpoint={endpoint}
           params={apiParams}
           initialPage={initialPage}
+        />
+
+        {/* Crawlable prev/next links (cursor chain) so bots can walk all of this actor's videos. */}
+        <ListingPagination
+          basePath={`/actor/${slug}`}
+          searchParams={sp}
+          prev={initialPage.previous}
+          next={initialPage.next}
         />
       </section>
 

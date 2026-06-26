@@ -151,7 +151,10 @@
     "addFilter": "Добавить фильтр",
     "select": "Выбрать",
     "apply": "Применить",
-    "subscribers": "{count} подписчиков"
+    "subscribers": "{count} подписчиков",
+    "pagination": "Навигация по страницам",
+    "newerVideos": "Новее",
+    "olderVideos": "Старше"
   },
   "refine": {
     "title": "Уточнить выборку"

@@ -151,7 +151,10 @@
     "addFilter": "Add filter",
     "select": "Select",
     "apply": "Aplicar",
-    "subscribers": "{count} suscriptores"
+    "subscribers": "{count} suscriptores",
+    "pagination": "Paginación",
+    "newerVideos": "Más nuevos",
+    "olderVideos": "Más antiguos"
   },
   "refine": {
     "title": "Refine"

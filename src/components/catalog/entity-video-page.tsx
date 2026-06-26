@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { notFound, redirect } from "next/navigation";
 import { Container } from "@/components/layout/container";
 import { ActiveFilters, RefineBlock } from "@/components/catalog/refine-block";
+import { ListingPagination } from "@/components/catalog/listing-pagination";
 import { SaveFilterButton } from "@/components/catalog/save-filter-button";
 import { SortSelect } from "@/components/catalog/sort-select";
 import { Breadcrumbs, type Crumb } from "@/components/seo/breadcrumbs";
@@ -16,6 +17,7 @@ import { getCatalogRelatedFilters } from "@/lib/api/related";
 import { getTaxonomyDetail } from "@/lib/api/taxonomy";
 import { getRedirect } from "@/lib/api/video-detail";
 import { getVideos } from "@/lib/api/videos";
+import { cursorFromSearchParams } from "@/lib/api/pagination";
 import type { QueryValue } from "@/lib/api/fetcher";
 import { collectionPageJsonLd, faqPageJsonLd, graph } from "@/lib/seo/structured-data";
 import {
@@ -93,10 +95,13 @@ export async function EntityVideoPage({
   const combined: VideoFilters = { ...refineFilters };
   combined[conf.filterKey] = uniq([slug, ...refineFilters[conf.filterKey]]);
 
+  // Cursor from this page's own URL (?cursor=…) — the crawlable deep-pagination param.
+  const cursor = cursorFromSearchParams(searchParams);
   const apiParams: Record<string, QueryValue> = {
     lang,
     page_size: 24,
     ...filtersToApiParams(combined),
+    ...(cursor ? { cursor } : {}),
   };
 
   const [initialPage, related, labels] = await Promise.all([
@@ -181,11 +186,19 @@ export async function EntityVideoPage({
       <ActiveFilters filters={refineFilters} basePath={basePath} labels={labels} />
 
       <InfiniteVideoFeed
-        queryKey={["videos", kind, slug, lang, filtersToSearchString(refineFilters)]}
+        queryKey={["videos", kind, slug, lang, filtersToSearchString(refineFilters), cursor ?? ""]}
         endpoint="/videos/"
         params={apiParams}
         initialPage={initialPage}
         emptyTitle={t("empty")}
+      />
+
+      {/* Crawlable prev/next links (cursor chain) so bots can walk the whole catalog. */}
+      <ListingPagination
+        basePath={basePath}
+        searchParams={searchParams}
+        prev={initialPage.previous}
+        next={initialPage.next}
       />
     </Container>
   );

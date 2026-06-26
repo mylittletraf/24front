@@ -151,7 +151,10 @@
     "addFilter": "Add filter",
     "select": "Select",
     "apply": "应用",
-    "subscribers": "{count} 位订阅者"
+    "subscribers": "{count} 位订阅者",
+    "pagination": "分页导航",
+    "newerVideos": "更新",
+    "olderVideos": "更早"
   },
   "refine": {
     "title": "Refine"

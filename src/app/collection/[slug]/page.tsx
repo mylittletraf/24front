@@ -6,12 +6,14 @@ import { Container } from "@/components/layout/container";
 import { Breadcrumbs, type Crumb } from "@/components/seo/breadcrumbs";
 import { JsonLd } from "@/components/seo/json-ld";
 import { InfiniteVideoFeed } from "@/components/video/infinite-video-feed";
+import { ListingPagination } from "@/components/catalog/listing-pagination";
 import { getCollection } from "@/lib/api/collections";
 import { ApiError } from "@/lib/api/errors";
 import type { QueryValue } from "@/lib/api/fetcher";
 import { getSeo, seoToMetadata } from "@/lib/api/seo";
 import { getRedirect } from "@/lib/api/video-detail";
 import { getVideoList } from "@/lib/api/videos";
+import { cursorFromSearchParams } from "@/lib/api/pagination";
 import { resolveLocale, type Locale } from "@/lib/i18n/locales";
 import { collectionPageJsonLd, graph } from "@/lib/seo/structured-data";
 import { sanitizeHtml } from "@/lib/utils/sanitize";
@@ -36,7 +38,7 @@ export default async function CollectionPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ lang?: string }>;
+  searchParams: Promise<{ lang?: string; cursor?: string }>;
 }) {
   const { slug } = await params;
   const sp = await searchParams;
@@ -57,7 +59,12 @@ export default async function CollectionPage({
   }
 
   const endpoint = `/collections/${slug}/videos/`;
-  const apiParams: Record<string, QueryValue> = { lang, page_size: 24 };
+  const cursor = cursorFromSearchParams(sp);
+  const apiParams: Record<string, QueryValue> = {
+    lang,
+    page_size: 24,
+    ...(cursor ? { cursor } : {}),
+  };
   const initialPage = await getVideoList(endpoint, apiParams, { revalidate: 60 });
 
   const crumbs: Crumb[] = [
@@ -123,10 +130,18 @@ export default async function CollectionPage({
       <section className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold">{t("videos")}</h2>
         <InfiniteVideoFeed
-          queryKey={["videos", "collection", slug, lang]}
+          queryKey={["videos", "collection", slug, lang, cursor ?? ""]}
           endpoint={endpoint}
           params={apiParams}
           initialPage={initialPage}
+        />
+
+        {/* Crawlable prev/next links (cursor chain) so bots can walk the whole collection. */}
+        <ListingPagination
+          basePath={`/collection/${slug}`}
+          searchParams={sp}
+          prev={initialPage.previous}
+          next={initialPage.next}
         />
       </section>
     </Container>

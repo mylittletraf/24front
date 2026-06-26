@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { ActiveFilters, RefineBlock } from "@/components/catalog/refine-block";
+import { ListingPagination } from "@/components/catalog/listing-pagination";
 import { SaveFilterButton } from "@/components/catalog/save-filter-button";
 import { SortSelect } from "@/components/catalog/sort-select";
 import { Container } from "@/components/layout/container";
 import { InfiniteVideoFeed } from "@/components/video/infinite-video-feed";
 import { SITE_URL } from "@/lib/api/config";
+import { cursorFromSearchParams } from "@/lib/api/pagination";
 import type { QueryValue } from "@/lib/api/fetcher";
 import { getFilterLabels } from "@/lib/api/filter-labels";
 import { getCatalogRelatedFilters } from "@/lib/api/related";
@@ -34,10 +36,12 @@ export default async function HomePage({
 
   const filters = parseFilters(sp);
   const filterParams = filtersToApiParams(filters);
+  const cursor = cursorFromSearchParams(sp);
   const apiParams: Record<string, QueryValue> = {
     lang: locale,
     page_size: 50,
     ...filterParams,
+    ...(cursor ? { cursor } : {}),
   };
 
   // Refine is shown only on a *filtered* list (not the bare home).
@@ -47,7 +51,7 @@ export default async function HomePage({
     active ? getCatalogRelatedFilters({ lang: locale, ...filterParams }) : Promise.resolve(null),
     active ? getFilterLabels(filters, locale) : Promise.resolve({}),
   ]);
-  const queryKey = ["videos", "catalog", locale, filtersToSearchString(filters)];
+  const queryKey = ["videos", "catalog", locale, filtersToSearchString(filters), cursor ?? ""];
 
   return (
     <Container className="desktop:py-6 flex flex-col gap-4 py-4">
@@ -71,6 +75,14 @@ export default async function HomePage({
         emptyTitle={t("empty")}
         manual
         loadMorePageSize={20}
+      />
+
+      {/* Crawlable prev/next links (cursor chain) so bots can walk the whole catalog. */}
+      <ListingPagination
+        basePath="/"
+        searchParams={sp}
+        prev={initialPage.previous}
+        next={initialPage.next}
       />
     </Container>
   );
