@@ -18,6 +18,7 @@
   },
   "nav": {
     "videos": "Videos",
+    "shorts": "Shorts",
     "actors": "Actors",
     "collections": "Collections",
     "categories": "Categories",
@@ -261,5 +262,21 @@
   "studiosPage": {
     "title": "Estudios",
     "videosCount": "{count} vídeos"
+  },
+  "shorts": {
+    "title": "Shorts",
+    "like": "Me gusta",
+    "dislike": "No me gusta",
+    "favorite": "Guardar",
+    "comments": "Comentarios",
+    "share": "Compartir",
+    "mute": "Silenciar",
+    "unmute": "Activar sonido",
+    "close": "Cerrar",
+    "linkCopied": "Enlace copiado",
+    "copyFailed": "No se pudo copiar el enlace",
+    "emptyTitle": "Aún no hay shorts",
+    "emptyCta": "Ver vídeos",
+    "endOfFeed": "Estás al día"
   }
 }

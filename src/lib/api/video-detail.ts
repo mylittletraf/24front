@@ -32,6 +32,7 @@ export const VideoDetailSchema = z.object({
   uuid: z.string(),
   duration: z.number(),
   is_indexable: z.boolean().optional(),
+  is_vertical: z.boolean().optional(),
   published_at: z.string().nullable(),
   date_modified: z.string().nullable().optional(),
   views_count: z.number(),

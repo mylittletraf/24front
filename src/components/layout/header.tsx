@@ -114,6 +114,7 @@ export function Header({ categoryPanel }: { categoryPanel?: ReactNode }) {
 
         <nav className="desktop:flex hidden items-center gap-5">
           <NavLink href="/" label={tNav("videos")} />
+          <NavLink href="/shorts" label={tNav("shorts")} />
           <CategoriesNavItem />
           <NavLink href="/actors" label={tNav("actors")} />
           <NavLink href="/studios" label={tNav("studios")} />

@@ -18,6 +18,7 @@
   },
   "nav": {
     "videos": "Videos",
+    "shorts": "Shorts",
     "actors": "Actors",
     "collections": "Collections",
     "categories": "Categories",
@@ -261,5 +262,21 @@
   "studiosPage": {
     "title": "Studios",
     "videosCount": "{count} videos"
+  },
+  "shorts": {
+    "title": "Shorts",
+    "like": "Like",
+    "dislike": "Dislike",
+    "favorite": "Save",
+    "comments": "Comments",
+    "share": "Share",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "close": "Close",
+    "linkCopied": "Link copied",
+    "copyFailed": "Couldn't copy the link",
+    "emptyTitle": "No shorts yet",
+    "emptyCta": "Browse videos",
+    "endOfFeed": "You're all caught up"
   }
 }

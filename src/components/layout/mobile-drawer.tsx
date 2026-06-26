@@ -19,6 +19,7 @@ export function MobileDrawer() {
   // Primary navigation (the whole nav lives in the hamburger on mobile).
   const navLinks = [
     { href: "/", label: t("nav.videos") },
+    { href: "/shorts", label: t("nav.shorts") },
     { href: "/categories", label: t("nav.categories") },
     { href: "/actors", label: t("nav.actors") },
     { href: "/studios", label: t("nav.studios") },

@@ -18,6 +18,7 @@
   },
   "nav": {
     "videos": "Videos",
+    "shorts": "短视频",
     "actors": "Actors",
     "collections": "Collections",
     "categories": "Categories",
@@ -261,5 +262,21 @@
   "studiosPage": {
     "title": "制片厂",
     "videosCount": "{count} 个视频"
+  },
+  "shorts": {
+    "title": "短视频",
+    "like": "点赞",
+    "dislike": "不喜欢",
+    "favorite": "收藏",
+    "comments": "评论",
+    "share": "分享",
+    "mute": "静音",
+    "unmute": "取消静音",
+    "close": "关闭",
+    "linkCopied": "链接已复制",
+    "copyFailed": "无法复制链接",
+    "emptyTitle": "暂无短视频",
+    "emptyCta": "浏览视频",
+    "endOfFeed": "您已看完全部内容"
   }
 }

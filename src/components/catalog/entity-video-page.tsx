@@ -1,4 +1,6 @@
+import { Zap } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Container } from "@/components/layout/container";
 import { ActiveFilters, RefineBlock } from "@/components/catalog/refine-block";
@@ -73,6 +75,7 @@ export async function EntityVideoPage({
 }) {
   const t = await getTranslations("catalog");
   const tb = await getTranslations("breadcrumbs");
+  const tNav = await getTranslations("nav");
   const conf = KIND_CONF[kind];
   const basePath = `${conf.base}/${slug}`;
 
@@ -171,6 +174,16 @@ export async function EntityVideoPage({
       ) : null}
 
       <div className="flex flex-wrap items-center justify-end gap-2">
+        {/* Enter the vertical Shorts feed scoped to this category/tag (studios have no shorts entry). */}
+        {kind !== "studios" ? (
+          <Link
+            href={`/shorts?${conf.filterKey}=${slug}`}
+            className="border-border text-foreground hover:bg-surface inline-flex h-9 items-center gap-2 rounded-full border px-4 text-sm font-medium"
+          >
+            <Zap size={16} />
+            {tNav("shorts")}
+          </Link>
+        ) : null}
         <SaveFilterButton
           filters={combined}
           labels={{ ...labels, [slug]: detail.name }}
