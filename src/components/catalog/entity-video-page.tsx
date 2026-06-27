@@ -146,7 +146,11 @@ export async function EntityVideoPage({
           alt=""
           width={64}
           height={64}
-          className="h-16 w-16 shrink-0 rounded-full object-cover"
+          className={
+            kind === "studios"
+              ? "h-16 w-16 shrink-0 rounded-lg object-contain"
+              : "h-16 w-16 shrink-0 rounded-full object-cover"
+          }
         />
         <div className="flex-1">
           <h1 className="font-display desktop:text-2xl text-xl font-bold tracking-tight">

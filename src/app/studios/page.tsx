@@ -38,20 +38,22 @@ export default async function StudiosPage({
         <h1 className="desktop:text-2xl text-xl font-bold">{t("title")}</h1>
         {studios.length > 0 ? (
           <div className="desktop:grid-cols-8 grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
-            {studios.map((studio) => (
+            {studios.map((studio, i) => (
               <Link
                 key={studio.uuid}
                 href={`/studio/${studio.slug}`}
                 className="group flex flex-col gap-2"
               >
-                <div className="bg-surface-2 relative aspect-square w-full overflow-hidden rounded-lg">
+                <div className="border-border bg-surface group-hover:bg-surface-2 relative aspect-square w-full overflow-hidden rounded-xl border p-3 transition-colors">
                   <SafeImage
                     src={studio.preview_image}
                     alt={studio.name}
                     fill
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    loading="lazy"
-                    className="object-cover"
+                    // First row (up to 8 cols on desktop) is above the fold — eager-load to fix the LCP warning.
+                    priority={i < 8}
+                    loading={i < 8 ? undefined : "lazy"}
+                    className="object-contain"
                     fallback={
                       <div className="text-muted grid h-full w-full place-items-center text-3xl font-semibold">
                         {studio.name.charAt(0).toUpperCase()}
