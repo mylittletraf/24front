@@ -1,3 +1,4 @@
+import { Film, Zap } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 import { SafeImage } from "@/components/ui/safe-image";
@@ -9,6 +10,7 @@ import { formatDate } from "@/lib/utils/format";
 export async function ActorHero({ actor, subscribe }: { actor: Actor; subscribe?: ReactNode }) {
   const t = await getTranslations("actor");
   const locale = (await getLocale()) as Locale;
+  const shortsCount = actor.shorts_count ?? 0;
 
   const rows: { label: string; value: string }[] = [];
   if (actor.country) rows.push({ label: t("country"), value: actor.country.name });
@@ -75,8 +77,18 @@ export async function ActorHero({ actor, subscribe }: { actor: Actor; subscribe?
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             {subscribe}
-            <div className="text-muted flex items-center gap-3 text-sm">
-              <span>{t("videosCount", { count: actor.videos_count })}</span>
+            <div className="text-muted flex flex-col gap-0.5 text-sm">
+              {/* `videos_count` includes verticals, so plain videos = total − shorts. */}
+              <span className="flex items-center gap-1.5">
+                <Film size={15} />
+                {t("videosCount", { count: Math.max(0, actor.videos_count - shortsCount) })}
+              </span>
+              {shortsCount > 0 ? (
+                <span className="flex items-center gap-1.5">
+                  <Zap size={15} />
+                  {t("shortsCount", { count: shortsCount })}
+                </span>
+              ) : null}
               {typeof actor.subscribers_count === "number" ? (
                 <span>{t("subscribersCount", { count: actor.subscribers_count })}</span>
               ) : null}

@@ -232,15 +232,18 @@ export function ShortsFeed({
               key={video.uuid}
               ref={setSlideRef(i)}
               data-index={i}
-              className={cn("flex snap-start items-center justify-center gap-3 px-4", DESKTOP_H)}
+              className={cn("flex snap-start justify-center gap-3 px-4 pt-2", DESKTOP_H)}
             >
-              <div className="flex h-full flex-col items-center justify-center gap-2 py-4">
+              {/* Player column — top-aligned so it starts just under the header (YouTube-style). */}
+              <div className="flex h-full flex-col items-center gap-2 pb-3">
                 <div className="relative aspect-[9/16] min-h-0 flex-1 overflow-hidden rounded-2xl bg-black">
                   {play ? (
                     <ShortPlayer
                       uuid={video.uuid}
                       active={i === active}
                       muted={muted}
+                      chrome
+                      onToggleMute={toggleMute}
                       onError={onSlideError(i)}
                       onEnded={onSlideEnded(i)}
                     />
@@ -250,18 +253,21 @@ export function ShortsFeed({
                   {video.title}
                 </p>
               </div>
+              {/* Action rail — bottom-aligned beside the video. */}
               {within ? (
-                <ShortOverlay
-                  variant="side"
-                  uuid={video.uuid}
-                  slug={video.slug}
-                  title={video.title}
-                  likesCount={video.likes_count}
-                  dislikesCount={video.dislikes_count}
-                  commentsCount={video.comments_count}
-                  muted={muted}
-                  onToggleMute={toggleMute}
-                />
+                <div className="flex h-full items-end pb-3">
+                  <ShortOverlay
+                    variant="side"
+                    uuid={video.uuid}
+                    slug={video.slug}
+                    title={video.title}
+                    likesCount={video.likes_count}
+                    dislikesCount={video.dislikes_count}
+                    commentsCount={video.comments_count}
+                    muted={muted}
+                    onToggleMute={toggleMute}
+                  />
+                </div>
               ) : null}
             </div>
           );

@@ -172,6 +172,7 @@ export const ActorSchema = z.object({
   external_links: z.array(z.string()).optional(),
   aliases: z.array(z.string()).optional(),
   videos_count: z.number(),
+  shorts_count: z.number().optional(),
   subscribers_count: z.number().optional(),
   bio: z.string().nullable().optional(),
   short_bio: z.string().nullable().optional(),

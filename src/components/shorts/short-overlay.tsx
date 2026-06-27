@@ -21,6 +21,7 @@ import { useReaction, type Reaction } from "@/lib/hooks/use-reaction";
 import { cn } from "@/lib/utils/cn";
 import { formatCount } from "@/lib/utils/format";
 import { toastApiError } from "@/lib/toast-error";
+import { ShortComments } from "./short-comments";
 
 const GUEST_LIKE_TTL = 1000 * 60 * 60 * 24 * 7;
 
@@ -126,6 +127,7 @@ export function ShortOverlay({
   useEffect(() => register([uuid]), [uuid, register]);
 
   const [guestLiked, setGuestLiked] = useState(() => guestLikedRecently(uuid));
+  const [commentsOpen, setCommentsOpen] = useState(false);
   const initialReaction = getReaction(uuid);
 
   const {
@@ -212,63 +214,78 @@ export function ShortOverlay({
   }
 
   const tone = variant === "side" ? "surface" : "dark";
-  const actions = (
-    <>
-      <RailButton
-        icon={
-          <ThumbsUp
-            size={22}
-            fill={myReaction === "like" || guestLiked ? "currentColor" : "none"}
-          />
-        }
-        label={t("like")}
-        count={likes}
-        active={myReaction === "like" || guestLiked}
-        onClick={handleLike}
-        tone={tone}
-      />
-      <RailButton
-        icon={<ThumbsDown size={22} fill={myReaction === "dislike" ? "currentColor" : "none"} />}
-        label={t("dislike")}
-        count={dislikes}
-        active={myReaction === "dislike"}
-        onClick={handleDislike}
-        tone={tone}
-      />
-      <RailButton
-        icon={<Bookmark size={22} fill={favorited ? "currentColor" : "none"} />}
-        label={t("favorite")}
-        active={favorited}
-        onClick={handleFavorite}
-        tone={tone}
-      />
-      <RailButton
-        icon={<MessageCircle size={22} />}
-        label={t("comments")}
-        count={commentsCount}
-        tone={tone}
-      />
-      <RailButton
-        icon={<Share2 size={22} />}
-        label={t("share")}
-        onClick={handleShare}
-        tone={tone}
-      />
-    </>
+
+  const likeBtn = (
+    <RailButton
+      icon={
+        <ThumbsUp size={22} fill={myReaction === "like" || guestLiked ? "currentColor" : "none"} />
+      }
+      label={t("like")}
+      count={likes}
+      active={myReaction === "like" || guestLiked}
+      onClick={handleLike}
+      tone={tone}
+    />
+  );
+  const dislikeBtn = (
+    <RailButton
+      icon={<ThumbsDown size={22} fill={myReaction === "dislike" ? "currentColor" : "none"} />}
+      label={t("dislike")}
+      count={dislikes}
+      active={myReaction === "dislike"}
+      onClick={handleDislike}
+      tone={tone}
+    />
+  );
+  const favBtn = (
+    <RailButton
+      icon={<Bookmark size={22} fill={favorited ? "currentColor" : "none"} />}
+      label={t("favorite")}
+      active={favorited}
+      onClick={handleFavorite}
+      tone={tone}
+    />
+  );
+  const commentsBtn = (
+    <RailButton
+      icon={<MessageCircle size={22} />}
+      label={t("comments")}
+      count={commentsCount}
+      onClick={() => setCommentsOpen(true)}
+      tone={tone}
+    />
+  );
+  const shareBtn = (
+    <RailButton icon={<Share2 size={22} />} label={t("share")} onClick={handleShare} tone={tone} />
   );
 
-  // Desktop: plain vertical rail (incl. mute) placed beside the player.
+  const commentsPanel = (
+    <ShortComments
+      uuid={uuid}
+      commentsCount={commentsCount}
+      open={commentsOpen}
+      onOpenChange={setCommentsOpen}
+    />
+  );
+
+  // Desktop: plain vertical rail (Like / Bookmark / Comments / Share + mute) beside the player.
   if (variant === "side") {
     return (
-      <div className="flex flex-col items-center gap-4">
-        {actions}
-        <RailButton
-          icon={muted ? <VolumeX size={22} /> : <Volume2 size={22} />}
-          label={muted ? t("unmute") : t("mute")}
-          onClick={onToggleMute}
-          tone={tone}
-        />
-      </div>
+      <>
+        <div className="flex flex-col items-center gap-4">
+          {likeBtn}
+          {favBtn}
+          {commentsBtn}
+          {shareBtn}
+          <RailButton
+            icon={muted ? <VolumeX size={22} /> : <Volume2 size={22} />}
+            label={muted ? t("unmute") : t("mute")}
+            onClick={onToggleMute}
+            tone={tone}
+          />
+        </div>
+        {commentsPanel}
+      </>
     );
   }
 
@@ -276,7 +293,11 @@ export function ShortOverlay({
   return (
     <>
       <div className="absolute right-2 bottom-24 z-10 flex flex-col items-center gap-4">
-        {actions}
+        {likeBtn}
+        {dislikeBtn}
+        {favBtn}
+        {commentsBtn}
+        {shareBtn}
       </div>
       <div className="absolute right-0 bottom-0 left-0 z-10 flex items-end justify-between gap-3 bg-gradient-to-t from-black/70 to-transparent p-4 pb-6">
         <h2 className="line-clamp-2 max-w-[80%] text-sm font-semibold text-white drop-shadow">
@@ -294,6 +315,7 @@ export function ShortOverlay({
           {muted ? <VolumeX size={20} /> : <Volume2 size={20} />}
         </button>
       </div>
+      {commentsPanel}
     </>
   );
 }

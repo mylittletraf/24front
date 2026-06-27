@@ -204,7 +204,8 @@
     "birthPlace": "Birthplace",
     "career": "Active years",
     "videosCount": "{count, plural, one {# video} other {# videos}}",
-    "subscribersCount": "{count, plural, one {# subscriber} other {# subscribers}}"
+    "subscribersCount": "{count, plural, one {# subscriber} other {# subscribers}}",
+    "shortsCount": "{count, plural, one {# short} other {# shorts}}"
   },
   "actorsFilters": {
     "title": "Actors",

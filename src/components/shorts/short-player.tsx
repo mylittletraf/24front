@@ -1,6 +1,6 @@
 "use client";
 
-import { Play } from "lucide-react";
+import { Maximize, Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { track } from "@/lib/analytics/track";
@@ -24,6 +24,8 @@ export function ShortPlayer({
   active,
   muted,
   loop = false,
+  chrome = false,
+  onToggleMute,
   onError,
   onEnded,
 }: {
@@ -32,12 +34,17 @@ export function ShortPlayer({
   muted: boolean;
   /** Loop the clip instead of advancing (off by default → auto-advance via onEnded). */
   loop?: boolean;
+  /** Show desktop on-video controls (top-left play/mute, top-right fullscreen). */
+  chrome?: boolean;
+  /** Mute toggle for the on-video control (desktop chrome). */
+  onToggleMute?: () => void;
   /** Fatal HLS error → feed auto-skips to the next slide. */
   onError?: () => void;
   /** Fired when the clip ends and `loop` is false (feed advances to the next short). */
   onEnded?: () => void;
 }) {
   const { getToken } = useAuth();
+  const rootRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const [paused, setPaused] = useState(false);
@@ -159,8 +166,16 @@ export function ShortPlayer({
     setScrubbing(false);
   }
 
+  function toggleFullscreen(e: React.MouseEvent) {
+    e.stopPropagation();
+    const el = rootRef.current;
+    if (!el) return;
+    if (document.fullscreenElement) void document.exitFullscreen();
+    else void el.requestFullscreen?.();
+  }
+
   return (
-    <div className="absolute inset-0" onClick={togglePlay}>
+    <div ref={rootRef} className="absolute inset-0 bg-black" onClick={togglePlay}>
       <video
         ref={videoRef}
         loop={loop}
@@ -189,6 +204,44 @@ export function ShortPlayer({
             <Play size={32} fill="currentColor" />
           </span>
         </div>
+      ) : null}
+
+      {/* Desktop on-video controls: play/pause + mute (top-left), fullscreen (top-right). */}
+      {chrome ? (
+        <>
+          <div className="absolute top-2 left-2 z-20 flex gap-1.5">
+            <button
+              type="button"
+              aria-label="Play/pause"
+              onClick={(e) => {
+                e.stopPropagation();
+                togglePlay();
+              }}
+              className="grid h-9 w-9 place-items-center rounded-full bg-black/45 text-white hover:bg-black/65"
+            >
+              {paused ? <Play size={18} fill="currentColor" /> : <Pause size={18} />}
+            </button>
+            <button
+              type="button"
+              aria-label="Mute"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleMute?.();
+              }}
+              className="grid h-9 w-9 place-items-center rounded-full bg-black/45 text-white hover:bg-black/65"
+            >
+              {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+            </button>
+          </div>
+          <button
+            type="button"
+            aria-label="Fullscreen"
+            onClick={toggleFullscreen}
+            className="absolute top-2 right-2 z-20 grid h-9 w-9 place-items-center rounded-full bg-black/45 text-white hover:bg-black/65"
+          >
+            <Maximize size={18} />
+          </button>
+        </>
       ) : null}
 
       {/* Draggable scrubber — grows + shows a knob and a time tooltip while seeking (YT/TikTok). */}

@@ -204,6 +204,13 @@ export async function EntityVideoPage({
         params={apiParams}
         initialPage={initialPage}
         emptyTitle={t("empty")}
+        interleaveShorts={kind !== "studios"}
+        shortsScope={{
+          categories: typeof apiParams.categories === "string" ? apiParams.categories : undefined,
+          include_tags:
+            typeof apiParams.include_tags === "string" ? apiParams.include_tags : undefined,
+          actors: typeof apiParams.actors === "string" ? apiParams.actors : undefined,
+        }}
       />
 
       {/* Crawlable prev/next links (cursor chain) so bots can walk the whole catalog. */}

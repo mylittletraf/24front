@@ -42,6 +42,7 @@ export function InfiniteVideoFeed({
   manual = false,
   loadMorePageSize,
   interleaveShorts = false,
+  shortsScope,
 }: {
   queryKey: readonly unknown[];
   endpoint?: string;
@@ -53,8 +54,10 @@ export function InfiniteVideoFeed({
   manual?: boolean;
   /** page_size for button-triggered loads (the initial page may have loaded more). */
   loadMorePageSize?: number;
-  /** Interleave Shorts (desktop shelves after rows 2 & 4, mobile 2×4 tiles after 8). Home only. */
+  /** Interleave Shorts (desktop shelves after rows 2 & 4, mobile 2×4 tiles after 8). */
   interleaveShorts?: boolean;
+  /** Scope the interleaved Shorts (e.g. by category/tag) — same CSV-slug filters as the catalog. */
+  shortsScope?: { categories?: string; include_tags?: string; actors?: string };
 }) {
   const t = useTranslations();
 
@@ -90,14 +93,19 @@ export function InfiniteVideoFeed({
     if (isMobile) {
       return i === 7 ? (
         <div className="col-span-full">
-          <ShortsTileGrid />
+          <ShortsTileGrid scope={shortsScope} />
         </div>
       ) : null;
     }
     if (i === 7 || i === 15) {
       return (
         <div className="col-span-full">
-          <ShortsShelf title={t("shorts.shelfTitle")} skip={i === 7 ? 0 : 12} take={12} />
+          <ShortsShelf
+            title={t("shorts.shelfTitle")}
+            scope={shortsScope}
+            skip={i === 7 ? 0 : 12}
+            take={12}
+          />
         </div>
       );
     }

@@ -204,7 +204,8 @@
     "birthPlace": "Место рождения",
     "career": "Годы активности",
     "videosCount": "{count} видео",
-    "subscribersCount": "{count, plural, one {# подписчик} few {# подписчика} many {# подписчиков} other {# подписчиков}}"
+    "subscribersCount": "{count, plural, one {# подписчик} few {# подписчика} many {# подписчиков} other {# подписчиков}}",
+    "shortsCount": "{count} shorts"
   },
   "actorsFilters": {
     "title": "Актёры",

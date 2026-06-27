@@ -204,7 +204,8 @@
     "birthPlace": "出生地",
     "career": "活跃年份",
     "videosCount": "{count} 个视频",
-    "subscribersCount": "{count} 位订阅者"
+    "subscribersCount": "{count} 位订阅者",
+    "shortsCount": "{count} 个短视频"
   },
   "actorsFilters": {
     "title": "Actors",
