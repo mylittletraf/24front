@@ -77,7 +77,7 @@ export async function ActorHero({ actor, subscribe }: { actor: Actor; subscribe?
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             {subscribe}
-            <div className="text-muted flex flex-col gap-0.5 text-sm">
+            <div className="text-muted flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
               {/* `videos_count` includes verticals, so plain videos = total − shorts. */}
               <span className="flex items-center gap-1.5">
                 <Film size={15} />
