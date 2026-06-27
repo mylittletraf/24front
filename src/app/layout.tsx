@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Unbounded } from "next/font/google";
-import { cookies, headers } from "next/headers";
+import { headers } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { AdLayer } from "@/components/ads/ad-layer";
@@ -8,9 +8,7 @@ import { Analytics } from "@/components/analytics";
 import { Footer } from "@/components/layout/footer";
 import { HideOnShorts } from "@/components/layout/hide-on-shorts";
 import { SiteHeader } from "@/components/layout/site-header";
-import { AgeGate } from "@/components/legal/age-gate";
 import { CookieConsent } from "@/components/legal/cookie-consent";
-import { AGE_VERIFIED_COOKIE } from "@/lib/legal";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/api/config";
 import { Providers } from "./providers";
 import "./globals.css";
@@ -46,11 +44,11 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const locale = await getLocale();
   const messages = await getMessages();
-  // The Yandex Video embed (/embed/[slug]) renders only the player — no site chrome,
-  // ad overlays or analytics — so it stays clean inside a third-party iframe.
-  const isEmbed = (await headers()).get("x-pathname")?.startsWith("/embed") ?? false;
-  // Read server-side so the gate's blurred backdrop is correct on first paint (no flash).
-  const ageVerified = (await cookies()).get(AGE_VERIFIED_COOKIE)?.value === "1";
+  const pathname = (await headers()).get("x-pathname") ?? "";
+  // Render chrome-less (no header/footer, no ad overlays, no consent): the Yandex Video embed
+  // (/embed/[slug], clean inside a third-party iframe) and the /age interstitial (which must not
+  // load ads or expose any of the site before the visitor confirms their age).
+  const bare = pathname.startsWith("/embed") || pathname === "/age";
 
   return (
     <html
@@ -61,7 +59,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       <body className="bg-background text-foreground flex min-h-full flex-col">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers>
-            {isEmbed ? (
+            {bare ? (
               children
             ) : (
               <>
@@ -71,7 +69,6 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
                   <Footer />
                 </HideOnShorts>
                 <AdLayer />
-                <AgeGate initialVerified={ageVerified} />
                 <CookieConsent />
               </>
             )}
