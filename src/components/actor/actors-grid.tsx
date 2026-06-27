@@ -57,7 +57,7 @@ export function ActorsGrid({
   return (
     <>
       {actors.length > 0 || isFetchingNextPage ? (
-        <div className="desktop:grid-cols-6 grid grid-cols-3 gap-x-3 gap-y-5 sm:grid-cols-4 sm:gap-x-4">
+        <div className="desktop:grid-cols-6 grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-4 sm:gap-x-4">
           {actors.map((actor) => (
             <ActorCard key={actor.uuid} actor={actor} />
           ))}
