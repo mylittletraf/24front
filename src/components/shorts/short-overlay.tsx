@@ -268,7 +268,8 @@ export function ShortOverlay({
     />
   );
 
-  // Desktop: plain vertical rail (Like / Bookmark / Comments / Share + mute) beside the player.
+  // Desktop: plain vertical rail beside the player (Like / Bookmark / Comments / Share).
+  // Mute lives in the on-video top-left chrome, so it's intentionally not repeated here.
   if (variant === "side") {
     return (
       <>
@@ -277,12 +278,6 @@ export function ShortOverlay({
           {favBtn}
           {commentsBtn}
           {shareBtn}
-          <RailButton
-            icon={muted ? <VolumeX size={22} /> : <Volume2 size={22} />}
-            label={muted ? t("unmute") : t("mute")}
-            onClick={onToggleMute}
-            tone={tone}
-          />
         </div>
         {commentsPanel}
       </>
