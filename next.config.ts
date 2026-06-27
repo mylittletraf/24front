@@ -7,6 +7,11 @@ const nextConfig: NextConfig = {
   // Self-contained server bundle (.next/standalone) for a slim production image:
   // the Docker runner copies it + .next/static + public and runs `node server.js`.
   output: "standalone",
+  // Allow loading dev resources (HMR + JS chunks) when testing from another device on the LAN
+  // (e.g. a phone hitting http://<host-ip>:3000). Without this, Next 16 blocks cross-origin dev
+  // requests, the client bundle never loads, and the page renders but stays non-interactive.
+  // Dev-only; ignored in production builds. Add your machine's LAN IPs/hostnames here.
+  allowedDevOrigins: ["192.168.1.126"],
   // Keep trailing slashes on /api/proxy/* (DRF endpoints need them) instead of
   // 308-redirecting them away.
   skipTrailingSlashRedirect: true,

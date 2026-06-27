@@ -1,5 +1,6 @@
 import net from "node:net";
 import type { NextRequest } from "next/server";
+import { toMediaUrl } from "@/lib/media";
 
 // Stream media (images, HLS playlists/segments) from whatever storage host the API masked into the
 // path (`/media/<scheme>/<host>/<path>` — see src/lib/media.ts). This lets any number of external
@@ -102,6 +103,19 @@ async function proxy(req: NextRequest, segments: string[], method: "GET" | "HEAD
     if (ext && EXT_CONTENT_TYPE[ext]) out.set("content-type", EXT_CONTENT_TYPE[ext]);
   }
   if (!out.has("cache-control")) out.set("cache-control", "public, max-age=3600");
+
+  // DEV-ONLY: rewrite absolute URLs inside HLS playlists so nested variant/segment URLs also go
+  // through this proxy (the backend emits absolute loopback URLs a LAN phone can't reach). In prod
+  // HLS never passes through /media (it's served direct), so this branch is dead — and gated off
+  // anyway, leaving the production response byte-for-byte identical.
+  const isPlaylist =
+    (out.get("content-type") ?? "").includes("mpegurl") ||
+    rest[rest.length - 1]?.toLowerCase().endsWith(".m3u8");
+  if (process.env.NODE_ENV !== "production" && method === "GET" && isPlaylist) {
+    const body = (await res.text()).replace(/https?:\/\/[^\s"']+/g, (m) => toMediaUrl(m));
+    out.delete("content-length"); // length changed by rewriting
+    return new Response(body, { status: res.status, headers: out });
+  }
 
   return new Response(method === "HEAD" ? null : res.body, { status: res.status, headers: out });
 }

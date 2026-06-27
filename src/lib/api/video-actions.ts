@@ -1,6 +1,25 @@
 import { z } from "zod";
 import type { Locale } from "@/lib/i18n/locales";
+import { toMediaUrl } from "@/lib/media";
 import { apiFetch, apiFetchStatus } from "./fetcher";
+
+/**
+ * DEV-ONLY: route a playback URL on a loopback host through the same-origin `/media` proxy so it's
+ * reachable from another device on the LAN (e.g. a phone), where `localhost`/`127.0.0.1` point at the
+ * phone itself. No-op in production — there the backend returns public/signed URLs that every device
+ * reaches directly, and HLS must stay off the proxy (see getPlayback). The proxy rewrites the m3u8
+ * playlists so the nested variant/segment URLs go through `/media` too.
+ */
+function devLocalProxy<T extends string | null | undefined>(url: T): T {
+  if (process.env.NODE_ENV === "production" || !url || !/^https?:\/\//i.test(url)) return url;
+  try {
+    const host = new URL(url).hostname.toLowerCase();
+    if (host === "localhost" || host === "127.0.0.1" || host === "::1") return toMediaUrl(url);
+  } catch {
+    /* unparseable — leave as-is */
+  }
+  return url;
+}
 
 export type Reaction = "like" | "dislike";
 export type AdPlacement =
@@ -96,7 +115,13 @@ export async function getPlayback(
   });
   if (status !== 200) return null;
   const parsed = PlaybackSchema.safeParse(data);
-  return parsed.success ? parsed.data : null;
+  if (!parsed.success) return null;
+  // Dev-only: make loopback HLS/poster reachable from a phone on the LAN. Prod is untouched.
+  return {
+    ...parsed.data,
+    hls: devLocalProxy(parsed.data.hls),
+    poster: devLocalProxy(parsed.data.poster),
+  };
 }
 
 export const ReportTopicSchema = z.object({ slug: z.string(), name: z.string() });
