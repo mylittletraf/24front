@@ -65,6 +65,19 @@ export async function ActorHero({ actor, subscribe }: { actor: Actor; subscribe?
               </div>
             }
           />
+          {/* Stacked video / shorts counters over the cover (videos = total − verticals). */}
+          <div className="absolute bottom-2 left-2 flex flex-col gap-1">
+            <span className="flex items-center gap-1.5 rounded-md bg-black/60 px-2 py-0.5 text-xs font-medium text-white backdrop-blur">
+              <Film size={13} />
+              {t("videosCount", { count: Math.max(0, actor.videos_count - shortsCount) })}
+            </span>
+            {shortsCount > 0 ? (
+              <span className="flex items-center gap-1.5 rounded-md bg-black/60 px-2 py-0.5 text-xs font-medium text-white backdrop-blur">
+                <Zap size={13} />
+                {t("shortsCount", { count: shortsCount })}
+              </span>
+            ) : null}
+          </div>
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col gap-3">
@@ -77,22 +90,11 @@ export async function ActorHero({ actor, subscribe }: { actor: Actor; subscribe?
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             {subscribe}
-            <div className="text-muted flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-              {/* `videos_count` includes verticals, so plain videos = total − shorts. */}
-              <span className="flex items-center gap-1.5">
-                <Film size={15} />
-                {t("videosCount", { count: Math.max(0, actor.videos_count - shortsCount) })}
+            {typeof actor.subscribers_count === "number" ? (
+              <span className="text-muted text-sm">
+                {t("subscribersCount", { count: actor.subscribers_count })}
               </span>
-              {shortsCount > 0 ? (
-                <span className="flex items-center gap-1.5">
-                  <Zap size={15} />
-                  {t("shortsCount", { count: shortsCount })}
-                </span>
-              ) : null}
-              {typeof actor.subscribers_count === "number" ? (
-                <span>{t("subscribersCount", { count: actor.subscribers_count })}</span>
-              ) : null}
-            </div>
+            ) : null}
           </div>
 
           {rows.length > 0 ? (
