@@ -87,48 +87,30 @@ function RailButton({
 }
 
 /**
- * Action controls for one short: like / dislike / favorite / comments / share, reusing the catalog
- * reaction + favorite machinery (optimistic + batch state). `variant="overlay"` (mobile) overlays a
- * right rail + a bottom title/mute block; `variant="side"` (desktop) renders a plain vertical rail
- * (incl. mute) to place beside the player — the desktop layout shows the title separately.
+ * Like (+ optional dislike) buttons. Kept in its own component so it can be re-keyed by
+ * `initialReaction`: the parent reads the batch reaction state asynchronously, and re-mounting
+ * keeps `useReaction`'s baseline in sync (otherwise the count can show e.g. −1).
  */
-export function ShortOverlay({
+function ShortReactionButtons({
   uuid,
-  slug,
-  title,
   likesCount,
   dislikesCount,
-  commentsCount,
-  muted,
-  onToggleMute,
-  variant = "overlay",
+  initialReaction,
+  showDislike,
+  tone,
 }: {
   uuid: string;
-  slug: string;
-  title: string;
   likesCount: number;
   dislikesCount: number;
-  commentsCount: number;
-  muted: boolean;
-  onToggleMute: () => void;
-  variant?: "overlay" | "side";
+  initialReaction: Reaction;
+  showDislike: boolean;
+  tone: "dark" | "surface";
 }) {
   const t = useTranslations("shorts");
   const { isAuthenticated, getToken } = useAuth();
   const { open: openAuth } = useAuthUI();
-  const {
-    register,
-    isFavorite,
-    getReaction,
-    toggleFavorite,
-    setReaction: cacheReaction,
-  } = useVideoState();
-
-  useEffect(() => register([uuid]), [uuid, register]);
-
+  const { setReaction: cacheReaction } = useVideoState();
   const [guestLiked, setGuestLiked] = useState(() => guestLikedRecently(uuid));
-  const [commentsOpen, setCommentsOpen] = useState(false);
-  const initialReaction = getReaction(uuid);
 
   const {
     reaction: myReaction,
@@ -157,7 +139,6 @@ export function ShortOverlay({
     }
   }, [myReaction, uuid, cacheReaction]);
 
-  const favorited = isAuthenticated && isFavorite(uuid);
   const likes = reactionLikes + (guestLiked ? 1 : 0);
 
   function handleLike() {
@@ -184,6 +165,74 @@ export function ShortOverlay({
     track("video_reaction", { type: "dislike", video_uuid: uuid, shorts: true });
     dislike();
   }
+
+  return (
+    <>
+      <RailButton
+        icon={
+          <ThumbsUp
+            size={22}
+            fill={myReaction === "like" || guestLiked ? "currentColor" : "none"}
+          />
+        }
+        label={t("like")}
+        count={Math.max(0, likes)}
+        active={myReaction === "like" || guestLiked}
+        onClick={handleLike}
+        tone={tone}
+      />
+      {showDislike ? (
+        <RailButton
+          icon={<ThumbsDown size={22} fill={myReaction === "dislike" ? "currentColor" : "none"} />}
+          label={t("dislike")}
+          count={Math.max(0, dislikes)}
+          active={myReaction === "dislike"}
+          onClick={handleDislike}
+          tone={tone}
+        />
+      ) : null}
+    </>
+  );
+}
+
+/**
+ * Action controls for one short: like / dislike / favorite / comments / share, reusing the catalog
+ * reaction + favorite machinery (optimistic + batch state). `variant="overlay"` (mobile) overlays a
+ * right rail + a bottom title/mute block; `variant="side"` (desktop) renders a plain vertical rail
+ * (no dislike — mute lives in the on-video chrome) to place beside the player.
+ */
+export function ShortOverlay({
+  uuid,
+  slug,
+  title,
+  likesCount,
+  dislikesCount,
+  commentsCount,
+  muted,
+  onToggleMute,
+  variant = "overlay",
+}: {
+  uuid: string;
+  slug: string;
+  title: string;
+  likesCount: number;
+  dislikesCount: number;
+  commentsCount: number;
+  muted: boolean;
+  onToggleMute: () => void;
+  variant?: "overlay" | "side";
+}) {
+  const t = useTranslations("shorts");
+  const { isAuthenticated } = useAuth();
+  const { open: openAuth } = useAuthUI();
+  const { register, isFavorite, getReaction, toggleFavorite } = useVideoState();
+
+  useEffect(() => register([uuid]), [uuid, register]);
+
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const initialReaction = getReaction(uuid);
+  const favorited = isAuthenticated && isFavorite(uuid);
+  const tone = variant === "side" ? "surface" : "dark";
 
   function handleFavorite() {
     if (!isAuthenticated) {
@@ -213,27 +262,15 @@ export function ShortOverlay({
     }
   }
 
-  const tone = variant === "side" ? "surface" : "dark";
-
-  const likeBtn = (
-    <RailButton
-      icon={
-        <ThumbsUp size={22} fill={myReaction === "like" || guestLiked ? "currentColor" : "none"} />
-      }
-      label={t("like")}
-      count={likes}
-      active={myReaction === "like" || guestLiked}
-      onClick={handleLike}
-      tone={tone}
-    />
-  );
-  const dislikeBtn = (
-    <RailButton
-      icon={<ThumbsDown size={22} fill={myReaction === "dislike" ? "currentColor" : "none"} />}
-      label={t("dislike")}
-      count={dislikes}
-      active={myReaction === "dislike"}
-      onClick={handleDislike}
+  // Re-mounts when the batch reaction state resolves → keeps the like count baseline correct.
+  const reactions = (
+    <ShortReactionButtons
+      key={initialReaction ?? "none"}
+      uuid={uuid}
+      likesCount={likesCount}
+      dislikesCount={dislikesCount}
+      initialReaction={initialReaction}
+      showDislike={variant !== "side"}
       tone={tone}
     />
   );
@@ -258,7 +295,6 @@ export function ShortOverlay({
   const shareBtn = (
     <RailButton icon={<Share2 size={22} />} label={t("share")} onClick={handleShare} tone={tone} />
   );
-
   const commentsPanel = (
     <ShortComments
       uuid={uuid}
@@ -269,12 +305,11 @@ export function ShortOverlay({
   );
 
   // Desktop: plain vertical rail beside the player (Like / Bookmark / Comments / Share).
-  // Mute lives in the on-video top-left chrome, so it's intentionally not repeated here.
   if (variant === "side") {
     return (
       <>
         <div className="flex flex-col items-center gap-4">
-          {likeBtn}
+          {reactions}
           {favBtn}
           {commentsBtn}
           {shareBtn}
@@ -288,8 +323,7 @@ export function ShortOverlay({
   return (
     <>
       <div className="absolute right-2 bottom-24 z-10 flex flex-col items-center gap-4">
-        {likeBtn}
-        {dislikeBtn}
+        {reactions}
         {favBtn}
         {commentsBtn}
         {shareBtn}

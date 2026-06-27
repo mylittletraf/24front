@@ -2,6 +2,7 @@ import { Zap } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { ShortsShelf } from "@/components/shorts/shorts-shelf";
 import { Container } from "@/components/layout/container";
 import { ActiveFilters, RefineBlock } from "@/components/catalog/refine-block";
 import { ListingPagination } from "@/components/catalog/listing-pagination";
@@ -198,19 +199,26 @@ export async function EntityVideoPage({
       <RefineBlock related={related} filters={refineFilters} basePath={basePath} />
       <ActiveFilters filters={refineFilters} basePath={basePath} labels={labels} />
 
+      {/* Shorts for this category/tag (scoped). A dedicated shelf (not interleaved) so it shows
+          regardless of how many horizontal videos the entity has. Self-hides when there are none. */}
+      {kind !== "studios" ? (
+        <ShortsShelf
+          title={tNav("shorts")}
+          scope={{
+            categories: typeof apiParams.categories === "string" ? apiParams.categories : undefined,
+            include_tags:
+              typeof apiParams.include_tags === "string" ? apiParams.include_tags : undefined,
+            actors: typeof apiParams.actors === "string" ? apiParams.actors : undefined,
+          }}
+        />
+      ) : null}
+
       <InfiniteVideoFeed
         queryKey={["videos", kind, slug, lang, filtersToSearchString(refineFilters), cursor ?? ""]}
         endpoint="/videos/"
         params={apiParams}
         initialPage={initialPage}
         emptyTitle={t("empty")}
-        interleaveShorts={kind !== "studios"}
-        shortsScope={{
-          categories: typeof apiParams.categories === "string" ? apiParams.categories : undefined,
-          include_tags:
-            typeof apiParams.include_tags === "string" ? apiParams.include_tags : undefined,
-          actors: typeof apiParams.actors === "string" ? apiParams.actors : undefined,
-        }}
       />
 
       {/* Crawlable prev/next links (cursor chain) so bots can walk the whole catalog. */}

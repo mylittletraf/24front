@@ -47,7 +47,11 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const messages = await getMessages();
   // The Yandex Video embed (/embed/[slug]) renders only the player — no site chrome,
   // ad overlays or analytics — so it stays clean inside a third-party iframe.
-  const isEmbed = (await headers()).get("x-pathname")?.startsWith("/embed") ?? false;
+  const pathname = (await headers()).get("x-pathname") ?? "";
+  const isEmbed = pathname.startsWith("/embed");
+  // Shorts owns the full viewport (its own scroll) — drop the footer so the page itself
+  // doesn't gain a second vertical scrollbar below the feed.
+  const isShorts = pathname.startsWith("/shorts");
   // Read server-side so the gate's blurred backdrop is correct on first paint (no flash).
   const ageVerified = (await cookies()).get(AGE_VERIFIED_COOKIE)?.value === "1";
 
@@ -66,7 +70,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
               <>
                 <SiteHeader />
                 <div className="flex flex-1 flex-col">{children}</div>
-                <Footer />
+                {!isShorts ? <Footer /> : null}
                 <AdLayer />
                 <AgeGate initialVerified={ageVerified} />
                 <CookieConsent />
