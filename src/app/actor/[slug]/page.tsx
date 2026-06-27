@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { ActorHero } from "@/components/actor/actor-hero";
 import { RelatedActors } from "@/components/actor/related-actors";
 import { SaveFilterButton } from "@/components/catalog/save-filter-button";
+import { ShortsShelf } from "@/components/shorts/shorts-shelf";
 import { Container } from "@/components/layout/container";
 import { Breadcrumbs, type Crumb } from "@/components/seo/breadcrumbs";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -48,6 +49,7 @@ export default async function ActorPage({
   const lang = sp.lang ? resolveLocale(sp.lang) : ((await getLocale()) as Locale);
   const t = await getTranslations("actor");
   const tb = await getTranslations("breadcrumbs");
+  const ts = await getTranslations("shorts");
 
   let actor;
   try {
@@ -112,6 +114,10 @@ export default async function ActorPage({
           />
         }
       />
+
+      {/* Vertical Shorts featuring this actor — self-hides when there are none. */}
+      <ShortsShelf scope={{ actors: slug }} title={ts("shortsWith", { name: actor.name })} />
+
       <section className="flex flex-col gap-3">
         <h2 className="heading-rail text-lg font-semibold">
           {t("videosWith", { name: actor.name })}

@@ -33,12 +33,16 @@ export default async function EmbedPage({ params, searchParams }: PageParams) {
 
   return (
     <div className="grid min-h-dvh w-full place-items-center bg-black">
-      <VideoPlayer
-        uuid={detail.uuid}
-        poster={detail.poster}
-        vastPlacements={{ pre: "ya_vast_preroll", post: "ya_vast_postroll" }}
-        embed
-      />
+      {/* Constrain vertical (9:16) so the player fits the viewport height. */}
+      <div className={detail.is_vertical ? "w-full max-w-[min(420px,56.25vh)]" : "w-full"}>
+        <VideoPlayer
+          uuid={detail.uuid}
+          poster={detail.poster}
+          vastPlacements={{ pre: "ya_vast_preroll", post: "ya_vast_postroll" }}
+          embed
+          aspectRatio={detail.is_vertical ? "9:16" : "16:9"}
+        />
+      </div>
     </div>
   );
 }

@@ -75,6 +75,7 @@ export default async function HomePage({
         emptyTitle={t("empty")}
         manual
         loadMorePageSize={20}
+        interleaveShorts={!active}
       />
 
       {/* Crawlable prev/next links (cursor chain) so bots can walk the whole catalog. */}

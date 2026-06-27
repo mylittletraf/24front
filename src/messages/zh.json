@@ -277,6 +277,11 @@
     "copyFailed": "无法复制链接",
     "emptyTitle": "暂无短视频",
     "emptyCta": "浏览视频",
-    "endOfFeed": "您已看完全部内容"
+    "endOfFeed": "您已看完全部内容",
+    "shelfTitle": "短视频",
+    "shortsWith": "{name}的短视频",
+    "seeAll": "查看全部",
+    "scrollPrev": "上一个",
+    "scrollNext": "下一个"
   }
 }

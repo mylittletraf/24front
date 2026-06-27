@@ -30,19 +30,21 @@ function guestLikedRecently(uuid: string): boolean {
   return raw ? Date.now() - Number(raw) < GUEST_LIKE_TTL : false;
 }
 
-/** A round overlay action button with a count underneath (TikTok-style right rail). */
+/** A round action button with a count underneath. `tone` adapts it to over-video vs on-page. */
 function RailButton({
   icon,
   label,
   count,
   active,
   onClick,
+  tone = "dark",
 }: {
   icon: ReactNode;
   label: string;
   count?: number;
   active?: boolean;
   onClick?: () => void;
+  tone?: "dark" | "surface";
 }) {
   return (
     <button
@@ -52,27 +54,42 @@ function RailButton({
         e.stopPropagation();
         onClick?.();
       }}
-      className="flex flex-col items-center gap-1 text-white"
+      className="flex flex-col items-center gap-1"
     >
       <span
         className={cn(
-          "grid h-11 w-11 place-items-center rounded-full bg-black/35 backdrop-blur transition-colors",
-          active ? "text-accent" : "text-white hover:bg-black/55",
+          "grid h-11 w-11 place-items-center rounded-full transition-colors",
+          tone === "dark"
+            ? "bg-black/35 backdrop-blur"
+            : "border-border bg-surface hover:bg-surface-2 border",
+          active
+            ? "text-accent"
+            : tone === "dark"
+              ? "text-white hover:bg-black/55"
+              : "text-foreground",
         )}
       >
         {icon}
       </span>
       {count !== undefined ? (
-        <span className="text-xs font-semibold drop-shadow">{formatCount(count)}</span>
+        <span
+          className={cn(
+            "text-xs font-semibold",
+            tone === "dark" ? "text-white drop-shadow" : "text-muted",
+          )}
+        >
+          {formatCount(count)}
+        </span>
       ) : null}
     </button>
   );
 }
 
 /**
- * The action overlay for one short: right rail (like / dislike / favorite / comments / share) and a
- * bottom block (title + mute toggle). Reuses the catalog reaction + favorite machinery
- * (optimistic + batch state). The comments sheet is a follow-up — the count is shown read-only.
+ * Action controls for one short: like / dislike / favorite / comments / share, reusing the catalog
+ * reaction + favorite machinery (optimistic + batch state). `variant="overlay"` (mobile) overlays a
+ * right rail + a bottom title/mute block; `variant="side"` (desktop) renders a plain vertical rail
+ * (incl. mute) to place beside the player — the desktop layout shows the title separately.
  */
 export function ShortOverlay({
   uuid,
@@ -83,6 +100,7 @@ export function ShortOverlay({
   commentsCount,
   muted,
   onToggleMute,
+  variant = "overlay",
 }: {
   uuid: string;
   slug: string;
@@ -92,6 +110,7 @@ export function ShortOverlay({
   commentsCount: number;
   muted: boolean;
   onToggleMute: () => void;
+  variant?: "overlay" | "side";
 }) {
   const t = useTranslations("shorts");
   const { isAuthenticated, getToken } = useAuth();
@@ -192,44 +211,73 @@ export function ShortOverlay({
     }
   }
 
+  const tone = variant === "side" ? "surface" : "dark";
+  const actions = (
+    <>
+      <RailButton
+        icon={
+          <ThumbsUp
+            size={22}
+            fill={myReaction === "like" || guestLiked ? "currentColor" : "none"}
+          />
+        }
+        label={t("like")}
+        count={likes}
+        active={myReaction === "like" || guestLiked}
+        onClick={handleLike}
+        tone={tone}
+      />
+      <RailButton
+        icon={<ThumbsDown size={22} fill={myReaction === "dislike" ? "currentColor" : "none"} />}
+        label={t("dislike")}
+        count={dislikes}
+        active={myReaction === "dislike"}
+        onClick={handleDislike}
+        tone={tone}
+      />
+      <RailButton
+        icon={<Bookmark size={22} fill={favorited ? "currentColor" : "none"} />}
+        label={t("favorite")}
+        active={favorited}
+        onClick={handleFavorite}
+        tone={tone}
+      />
+      <RailButton
+        icon={<MessageCircle size={22} />}
+        label={t("comments")}
+        count={commentsCount}
+        tone={tone}
+      />
+      <RailButton
+        icon={<Share2 size={22} />}
+        label={t("share")}
+        onClick={handleShare}
+        tone={tone}
+      />
+    </>
+  );
+
+  // Desktop: plain vertical rail (incl. mute) placed beside the player.
+  if (variant === "side") {
+    return (
+      <div className="flex flex-col items-center gap-4">
+        {actions}
+        <RailButton
+          icon={muted ? <VolumeX size={22} /> : <Volume2 size={22} />}
+          label={muted ? t("unmute") : t("mute")}
+          onClick={onToggleMute}
+          tone={tone}
+        />
+      </div>
+    );
+  }
+
+  // Mobile: overlaid right rail + bottom title/mute block.
   return (
     <>
-      {/* Right action rail. */}
       <div className="absolute right-2 bottom-24 z-10 flex flex-col items-center gap-4">
-        <RailButton
-          icon={
-            <ThumbsUp
-              size={22}
-              fill={myReaction === "like" || guestLiked ? "currentColor" : "none"}
-            />
-          }
-          label={t("like")}
-          count={likes}
-          active={myReaction === "like" || guestLiked}
-          onClick={handleLike}
-        />
-        <RailButton
-          icon={<ThumbsDown size={22} fill={myReaction === "dislike" ? "currentColor" : "none"} />}
-          label={t("dislike")}
-          count={dislikes}
-          active={myReaction === "dislike"}
-          onClick={handleDislike}
-        />
-        <RailButton
-          icon={<Bookmark size={22} fill={favorited ? "currentColor" : "none"} />}
-          label={t("favorite")}
-          active={favorited}
-          onClick={handleFavorite}
-        />
-        <RailButton
-          icon={<MessageCircle size={22} />}
-          label={t("comments")}
-          count={commentsCount}
-        />
-        <RailButton icon={<Share2 size={22} />} label={t("share")} onClick={handleShare} />
+        {actions}
       </div>
-
-      {/* Bottom block: title + mute toggle. */}
       <div className="absolute right-0 bottom-0 left-0 z-10 flex items-end justify-between gap-3 bg-gradient-to-t from-black/70 to-transparent p-4 pb-6">
         <h2 className="line-clamp-2 max-w-[80%] text-sm font-semibold text-white drop-shadow">
           {title}

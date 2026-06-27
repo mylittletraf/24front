@@ -106,6 +106,7 @@ export function VideoPlayer({
   resumeSeconds = 0,
   vastPlacements = DEFAULT_VAST,
   embed = false,
+  aspectRatio = "16:9",
 }: {
   uuid: string;
   poster: string | null;
@@ -114,6 +115,8 @@ export function VideoPlayer({
   vastPlacements?: VastPlacements;
   /** True when rendered in the Yandex Video embed — tags the play events accordingly. */
   embed?: boolean;
+  /** Player box ratio — pass "9:16" for vertical (shorts) embeds. */
+  aspectRatio?: string;
 }) {
   const t = useTranslations("video");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -171,7 +174,7 @@ export function VideoPlayer({
         preload: "auto",
         responsive: true,
         fluid: true,
-        aspectRatio: "16:9",
+        aspectRatio,
         poster: poster ?? undefined,
       });
       playerRef.current = player;
@@ -272,7 +275,17 @@ export function VideoPlayer({
     };
     // Depend on the placement values (not the object identity) so an inline prop doesn't recreate the player.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hls, poster, uuid, resumeSeconds, getToken, embed, vastPlacements.pre, vastPlacements.post]);
+  }, [
+    hls,
+    poster,
+    uuid,
+    resumeSeconds,
+    getToken,
+    embed,
+    aspectRatio,
+    vastPlacements.pre,
+    vastPlacements.post,
+  ]);
 
   if (status === "error") {
     return (

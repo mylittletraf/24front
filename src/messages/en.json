@@ -277,6 +277,11 @@
     "copyFailed": "Couldn't copy the link",
     "emptyTitle": "No shorts yet",
     "emptyCta": "Browse videos",
-    "endOfFeed": "You're all caught up"
+    "endOfFeed": "You're all caught up",
+    "shelfTitle": "Shorts",
+    "shortsWith": "Shorts with {name}",
+    "seeAll": "See all",
+    "scrollPrev": "Previous",
+    "scrollNext": "Next"
   }
 }

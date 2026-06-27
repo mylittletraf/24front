@@ -277,6 +277,11 @@
     "copyFailed": "No se pudo copiar el enlace",
     "emptyTitle": "Aún no hay shorts",
     "emptyCta": "Ver vídeos",
-    "endOfFeed": "Estás al día"
+    "endOfFeed": "Estás al día",
+    "shelfTitle": "Shorts",
+    "shortsWith": "Shorts con {name}",
+    "seeAll": "Ver todo",
+    "scrollPrev": "Anterior",
+    "scrollNext": "Siguiente"
   }
 }

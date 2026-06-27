@@ -4,6 +4,8 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Fragment, useEffect } from "react";
 import { AdSlotRender } from "@/components/ads/ad-slot-render";
+import { ShortsShelf } from "@/components/shorts/shorts-shelf";
+import { ShortsTileGrid } from "@/components/shorts/shorts-tile-grid";
 import type { QueryValue } from "@/lib/api/fetcher";
 import { getVideoList, getVideoPageByUrl } from "@/lib/api/videos";
 import type { CursorPage, VideoCard as VideoCardData } from "@/lib/api/types";
@@ -39,6 +41,7 @@ export function InfiniteVideoFeed({
   emptyTitle,
   manual = false,
   loadMorePageSize,
+  interleaveShorts = false,
 }: {
   queryKey: readonly unknown[];
   endpoint?: string;
@@ -50,6 +53,8 @@ export function InfiniteVideoFeed({
   manual?: boolean;
   /** page_size for button-triggered loads (the initial page may have loaded more). */
   loadMorePageSize?: number;
+  /** Interleave Shorts (desktop shelves after rows 2 & 4, mobile 2×4 tiles after 8). Home only. */
+  interleaveShorts?: boolean;
 }) {
   const t = useTranslations();
 
@@ -75,8 +80,29 @@ export function InfiniteVideoFeed({
 
   // Native ad block every 15 cards — mobile only.
   const nativeSlot = useAdSlot("native_in_video_feed");
+  const mounted = useMounted();
   const isMobile = useMediaQuery("(max-width: 1023px)");
-  const showNative = useMounted() && isMobile && !!nativeSlot;
+  const showNative = mounted && isMobile && !!nativeSlot;
+
+  // Shorts interleave (home only): desktop shelves after rows 2 & 4, mobile a 2×4 tile block after 8.
+  function shortsAt(i: number) {
+    if (!interleaveShorts || !mounted) return null;
+    if (isMobile) {
+      return i === 7 ? (
+        <div className="col-span-full">
+          <ShortsTileGrid />
+        </div>
+      ) : null;
+    }
+    if (i === 7 || i === 15) {
+      return (
+        <div className="col-span-full">
+          <ShortsShelf title={t("shorts.shelfTitle")} skip={i === 7 ? 0 : 12} take={12} />
+        </div>
+      );
+    }
+    return null;
+  }
 
   if (videos.length === 0) {
     return <EmptyState title={emptyTitle ?? t("empty.title")} />;
@@ -91,6 +117,7 @@ export function InfiniteVideoFeed({
             {showNative && (i + 1) % NATIVE_EVERY === 0 ? (
               <AdSlotRender slot={nativeSlot!} className="col-span-full" />
             ) : null}
+            {shortsAt(i)}
           </Fragment>
         ))}
         {isFetchingNextPage

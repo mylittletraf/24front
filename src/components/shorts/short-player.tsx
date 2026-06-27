@@ -7,6 +7,8 @@ import { track } from "@/lib/analytics/track";
 import { getPlayback, postProgress, postView } from "@/lib/api/video-actions";
 import { useAuth } from "@/lib/auth/auth-context";
 import { attachHls } from "@/lib/hls/attach-hls";
+import { cn } from "@/lib/utils/cn";
+import { formatDuration } from "@/lib/utils/format";
 
 const PROGRESS_INTERVAL_MS = 15000;
 // Count a view once the slide has been actively watched for this long (stickiness threshold, §4.5).
@@ -19,21 +21,29 @@ const VIEW_THRESHOLD_MS = 2000;
  */
 export function ShortPlayer({
   uuid,
-  poster,
   active,
   muted,
+  loop = false,
   onError,
+  onEnded,
 }: {
   uuid: string;
-  poster: string | null;
   active: boolean;
   muted: boolean;
+  /** Loop the clip instead of advancing (off by default → auto-advance via onEnded). */
+  loop?: boolean;
   /** Fatal HLS error → feed auto-skips to the next slide. */
   onError?: () => void;
+  /** Fired when the clip ends and `loop` is false (feed advances to the next short). */
+  onEnded?: () => void;
 }) {
   const { getToken } = useAuth();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
   const [paused, setPaused] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [scrubbing, setScrubbing] = useState(false);
 
   // Signed playback URL (no-store on the network, cached in memory by uuid so a re-mount reuses it).
   const playbackQuery = useQuery({
@@ -122,31 +132,55 @@ export function ShortPlayer({
     }
   }
 
+  // Scrub: map a pointer x to a time and seek live (YouTube/TikTok-style draggable bar).
+  function scrubTo(clientX: number) {
+    const video = videoRef.current;
+    const bar = barRef.current;
+    if (!video || !video.duration || !bar) return;
+    const rect = bar.getBoundingClientRect();
+    const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    video.currentTime = ratio * video.duration;
+    setProgress(ratio);
+  }
+  function onScrubDown(e: React.PointerEvent<HTMLDivElement>) {
+    e.stopPropagation();
+    barRef.current?.setPointerCapture(e.pointerId);
+    setScrubbing(true);
+    scrubTo(e.clientX);
+  }
+  function onScrubMove(e: React.PointerEvent<HTMLDivElement>) {
+    if (!scrubbing) return;
+    e.stopPropagation();
+    scrubTo(e.clientX);
+  }
+  function onScrubUp(e: React.PointerEvent<HTMLDivElement>) {
+    if (!scrubbing) return;
+    e.stopPropagation();
+    setScrubbing(false);
+  }
+
   return (
     <div className="absolute inset-0" onClick={togglePlay}>
       <video
         ref={videoRef}
-        poster={poster ?? undefined}
-        loop
+        loop={loop}
         playsInline
         muted={muted}
         preload="auto"
         onPlay={() => setPaused(false)}
         onPause={() => setPaused(true)}
+        onEnded={() => {
+          if (!loop) onEnded?.();
+        }}
+        onLoadedMetadata={(e) => setDuration(e.currentTarget.duration || 0)}
+        onDurationChange={(e) => setDuration(e.currentTarget.duration || 0)}
+        onTimeUpdate={(e) => {
+          if (scrubbing) return; // don't fight the drag
+          const v = e.currentTarget;
+          setProgress(v.duration ? v.currentTime / v.duration : 0);
+        }}
         className="h-full w-full object-contain"
       />
-
-      {/* Poster placeholder until the signed source resolves (slow network). */}
-      {!hls && poster ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={poster}
-          alt=""
-          loading="lazy"
-          decoding="async"
-          className="absolute inset-0 h-full w-full object-contain"
-        />
-      ) : null}
 
       {/* Paused indicator on the active slide. */}
       {active && paused ? (
@@ -156,6 +190,47 @@ export function ShortPlayer({
           </span>
         </div>
       ) : null}
+
+      {/* Draggable scrubber — grows + shows a knob and a time tooltip while seeking (YT/TikTok). */}
+      <div
+        ref={barRef}
+        onPointerDown={onScrubDown}
+        onPointerMove={onScrubMove}
+        onPointerUp={onScrubUp}
+        onPointerCancel={onScrubUp}
+        onClick={(e) => e.stopPropagation()}
+        role="slider"
+        aria-label="Seek"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(progress * 100)}
+        tabIndex={-1}
+        className="group/scrub absolute right-0 bottom-0 left-0 z-20 flex h-5 touch-none items-end"
+      >
+        {scrubbing && duration > 0 ? (
+          <div
+            className="absolute -top-7 -translate-x-1/2 rounded bg-black/80 px-2 py-0.5 text-xs font-medium text-white tabular-nums"
+            style={{ left: `${progress * 100}%` }}
+          >
+            {formatDuration(progress * duration)} / {formatDuration(duration)}
+          </div>
+        ) : null}
+        <div
+          className={cn(
+            "w-full bg-white/25 transition-all duration-150",
+            scrubbing ? "h-1.5" : "h-1 group-hover/scrub:h-1.5",
+          )}
+        >
+          <div className="bg-accent relative h-full" style={{ width: `${progress * 100}%` }}>
+            <span
+              className={cn(
+                "bg-accent absolute top-1/2 right-0 h-3 w-3 translate-x-1/2 -translate-y-1/2 rounded-full shadow transition-transform duration-150",
+                scrubbing ? "scale-100" : "scale-0 group-hover/scrub:scale-100",
+              )}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

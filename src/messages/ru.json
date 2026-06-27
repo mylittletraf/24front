@@ -277,6 +277,11 @@
     "copyFailed": "Не удалось скопировать ссылку",
     "emptyTitle": "Пока нет шортсов",
     "emptyCta": "Смотреть видео",
-    "endOfFeed": "Вы посмотрели всё актуальное"
+    "endOfFeed": "Вы посмотрели всё актуальное",
+    "shelfTitle": "Shorts",
+    "shortsWith": "Shorts с {name}",
+    "seeAll": "Все",
+    "scrollPrev": "Назад",
+    "scrollNext": "Вперёд"
   }
 }

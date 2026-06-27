@@ -277,6 +277,11 @@
     "copyFailed": "Link konnte nicht kopiert werden",
     "emptyTitle": "Noch keine Shorts",
     "emptyCta": "Videos ansehen",
-    "endOfFeed": "Du bist auf dem neuesten Stand"
+    "endOfFeed": "Du bist auf dem neuesten Stand",
+    "shelfTitle": "Shorts",
+    "shortsWith": "Shorts mit {name}",
+    "seeAll": "Alle ansehen",
+    "scrollPrev": "Zurück",
+    "scrollNext": "Weiter"
   }
 }
