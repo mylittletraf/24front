@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Eye, Play, ThumbsUp } from "lucide-react";
+import { Eye, Pause, Play, ThumbsUp } from "lucide-react";
 import { useClickunder } from "@/components/ads/use-clickunder";
 import { SafeImage } from "@/components/ui/safe-image";
 import { useLocale } from "next-intl";
@@ -30,7 +30,8 @@ export function VideoCard({
 }) {
   const locale = useLocale() as Locale;
   const hasTrailer = Boolean(video.trailer);
-  const { ref, playing, hasHover, onMouseEnter, onMouseLeave } = useTrailer(hasTrailer);
+  const { ref, playing, hasHover, showControl, tapPlaying, toggle, onMouseEnter, onMouseLeave } =
+    useTrailer(hasTrailer);
   const rating = reactionRating(video.likes_count, video.dislikes_count);
   const fireClickunder = useClickunder();
 
@@ -73,8 +74,32 @@ export function VideoCard({
           />
         ) : null}
 
+        {/* Touch devices: deliberate tap-to-preview. Small icon, generous (44px) hit area at the
+            corner so it's easy to hit with a thumb without triggering the card link. */}
+        {showControl ? (
+          <button
+            type="button"
+            aria-label={tapPlaying ? "Stop preview" : "Play preview"}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              toggle();
+            }}
+            className="absolute top-0 left-0 z-10 grid h-11 w-11 place-items-center"
+          >
+            <span className="grid h-7 w-7 place-items-center rounded-full bg-black/70 text-white">
+              {tapPlaying ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
+            </span>
+          </button>
+        ) : null}
+
         {rating !== null ? (
-          <span className="absolute top-1.5 left-1.5 inline-flex items-center gap-1 rounded bg-black/80 px-1.5 py-0.5 text-xs text-white">
+          <span
+            className={cn(
+              "absolute top-1.5 inline-flex items-center gap-1 rounded bg-black/80 px-1.5 py-0.5 text-xs text-white",
+              showControl ? "left-12" : "left-1.5",
+            )}
+          >
             <ThumbsUp size={12} />
             {rating}%
           </span>

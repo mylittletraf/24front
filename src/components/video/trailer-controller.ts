@@ -1,44 +1,27 @@
-// Global controller that guarantees at most MAX_CONCURRENT trailers play at once
-// (UI_SPEC §3.2). Cards "request" a slot while in view; the controller grants the
-// first MAX_CONCURRENT requests and re-grants freed slots to the next waiting card.
+// Ensures only one trailer preview plays at a time: starting one stops whichever was playing.
+// Cards register a listener and call play()/stop(); play() notifies every other card to stop.
 
-const MAX_CONCURRENT = 2;
+type Listener = () => void;
 
-const wanting: symbol[] = [];
-const playing = new Set<symbol>();
-const listeners = new Map<symbol, () => void>();
-
-function recompute(): void {
-  const shouldPlay = new Set(wanting.slice(0, MAX_CONCURRENT));
-  const affected: symbol[] = [];
-  for (const id of playing) if (!shouldPlay.has(id)) affected.push(id);
-  for (const id of shouldPlay) if (!playing.has(id)) affected.push(id);
-
-  playing.clear();
-  shouldPlay.forEach((id) => playing.add(id));
-
-  affected.forEach((id) => listeners.get(id)?.());
-}
+let active: symbol | null = null;
+const listeners = new Map<symbol, Listener>();
 
 export const trailerController = {
-  request(id: symbol): void {
-    if (!wanting.includes(id)) {
-      wanting.push(id);
-      recompute();
-    }
+  /** Make `id` the sole playing trailer and tell every other card to stop. */
+  play(id: symbol): void {
+    if (active === id) return;
+    active = id;
+    for (const [key, notifyStop] of listeners) if (key !== id) notifyStop();
   },
-  release(id: symbol): void {
-    const index = wanting.indexOf(id);
-    if (index !== -1) {
-      wanting.splice(index, 1);
-      recompute();
-    }
+  stop(id: symbol): void {
+    if (active === id) active = null;
   },
-  isPlaying(id: symbol): boolean {
-    return playing.has(id);
+  isActive(id: symbol): boolean {
+    return active === id;
   },
-  subscribe(id: symbol, callback: () => void): () => void {
-    listeners.set(id, callback);
+  /** `onStop` fires when another trailer takes over, so this card can pause itself. */
+  subscribe(id: symbol, onStop: Listener): () => void {
+    listeners.set(id, onStop);
     return () => {
       listeners.delete(id);
     };
