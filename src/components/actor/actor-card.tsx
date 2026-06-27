@@ -1,3 +1,4 @@
+import { Film, Zap } from "lucide-react";
 import Link from "next/link";
 import { SafeImage } from "@/components/ui/safe-image";
 import type { Actor } from "@/lib/api/types";
@@ -10,6 +11,7 @@ const GENDER_SYMBOL: Record<string, string> = { woman: "♀", man: "♂" };
 
 export function ActorCard({ actor, className }: { actor: Actor; className?: string }) {
   const gender = GENDER_SYMBOL[actor.gender];
+  const shorts = actor.shorts_count ?? 0;
   return (
     <Link href={`/actor/${actor.slug}`} className={cn("group flex flex-col gap-2", className)}>
       <div className="card-glow bg-surface-2 relative aspect-[3/4] w-full overflow-hidden rounded-xl">
@@ -31,9 +33,19 @@ export function ActorCard({ actor, className }: { actor: Actor; className?: stri
             {gender}
           </span>
         ) : null}
-        <span className="absolute right-1.5 bottom-1.5 rounded bg-black/80 px-1.5 py-0.5 text-xs text-white">
-          {formatCount(actor.videos_count)}
-        </span>
+        {/* Stacked counters: horizontal videos (total − shorts) over shorts. */}
+        <div className="absolute right-1.5 bottom-1.5 flex flex-col items-end gap-1">
+          <span className="flex items-center gap-1 rounded bg-black/80 px-1.5 py-0.5 text-xs text-white">
+            <Film size={11} />
+            {formatCount(Math.max(0, actor.videos_count - shorts))}
+          </span>
+          {shorts > 0 ? (
+            <span className="flex items-center gap-1 rounded bg-black/80 px-1.5 py-0.5 text-xs text-white">
+              <Zap size={11} />
+              {formatCount(shorts)}
+            </span>
+          ) : null}
+        </div>
       </div>
       <h3 className="truncate text-sm font-medium" title={actor.name}>
         {actor.name}
