@@ -5,13 +5,11 @@ import { apiFetch, toProxyUrl } from "./fetcher";
 import { ActorSchema, parseList, TagSchema, VideoCardSchema, type PageNumberPage } from "./types";
 
 export const SuggestionSchema = z.object({
-  type: z.enum(["tag", "category", "actor"]),
+  type: z.enum(["tag", "category", "studio", "actor"]),
   label: z.string(),
   slug: z.string(),
 });
 export type Suggestion = z.infer<typeof SuggestionSchema>;
-
-const SuggestionsSchema = z.array(SuggestionSchema);
 
 export async function getSuggestions(
   q: string,
@@ -23,8 +21,13 @@ export async function getSuggestions(
     params: { q, lang },
     signal,
   });
-  const parsed = SuggestionsSchema.safeParse(data);
-  return parsed.success ? parsed.data : [];
+  // Parse per-item (drop unknown/bad rows) so one new backend `type` can't blank the whole dropdown.
+  return Array.isArray(data)
+    ? data.flatMap((item) => {
+        const parsed = SuggestionSchema.safeParse(item);
+        return parsed.success ? [parsed.data] : [];
+      })
+    : [];
 }
 
 /** Route a suggestion to its destination page. */
@@ -34,6 +37,8 @@ export function suggestionHref(s: Suggestion): string {
       return `/actor/${s.slug}`;
     case "category":
       return `/category/${s.slug}`;
+    case "studio":
+      return `/studio/${s.slug}`;
     default:
       return `/tag/${s.slug}`;
   }
@@ -43,12 +48,13 @@ export const SearchAllSchema = z.object({
   videos: z.array(VideoCardSchema).default([]),
   tags: z.array(TagSchema).default([]),
   categories: z.array(TagSchema).default([]),
+  studios: z.array(TagSchema).default([]),
   actors: z.array(ActorSchema).default([]),
 });
 export type SearchAll = z.infer<typeof SearchAllSchema>;
 
 export async function getSearchAll(q: string, lang?: Locale): Promise<SearchAll> {
-  const empty = { videos: [], tags: [], categories: [], actors: [] };
+  const empty = { videos: [], tags: [], categories: [], studios: [], actors: [] };
   if (!q.trim()) return empty;
   const data = await apiFetch<unknown>("/search/", { params: { q, lang }, cache: "no-store" });
   const obj = (data && typeof data === "object" ? data : {}) as Record<string, unknown>;
@@ -56,6 +62,7 @@ export async function getSearchAll(q: string, lang?: Locale): Promise<SearchAll>
     videos: parseList(VideoCardSchema, obj.videos).results,
     tags: parseList(TagSchema, obj.tags).results,
     categories: parseList(TagSchema, obj.categories).results,
+    studios: parseList(TagSchema, obj.studios).results,
     actors: parseList(ActorSchema, obj.actors).results,
   };
 }
@@ -64,6 +71,7 @@ export const SEARCH_ITEM_SCHEMAS = {
   videos: VideoCardSchema,
   tags: TagSchema,
   categories: TagSchema,
+  studios: TagSchema,
   actors: ActorSchema,
 } as const;
 

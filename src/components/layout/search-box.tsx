@@ -1,6 +1,6 @@
 "use client";
 
-import { Folder, Search, Tag as TagIcon, User, X } from "lucide-react";
+import { Clapperboard, Folder, Search, Tag as TagIcon, User, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils/cn";
 const ICONS = {
   tag: TagIcon,
   category: Folder,
+  studio: Clapperboard,
   actor: User,
 } as const;
 

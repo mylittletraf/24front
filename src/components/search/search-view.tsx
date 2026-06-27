@@ -2,11 +2,13 @@
 
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
+import Link from "next/link";
 import { useState } from "react";
 import { ActorCard } from "@/components/actor/actor-card";
 import { EmptyState } from "@/components/common/empty-state";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
+import { SafeImage } from "@/components/ui/safe-image";
 import { VideoCard } from "@/components/video/video-card";
 import { VideoGrid } from "@/components/video/video-grid";
 import { getSearchAll, getSearchType, getSearchTypeByUrl, type SearchType } from "@/lib/api/search";
@@ -15,7 +17,7 @@ import type { Locale } from "@/lib/i18n/locales";
 import { cn } from "@/lib/utils/cn";
 
 type Tab = "all" | SearchType;
-const TABS: Tab[] = ["all", "videos", "tags", "categories", "actors"];
+const TABS: Tab[] = ["all", "videos", "tags", "categories", "studios", "actors"];
 
 function TagChips({ items, kind }: { items: Tag[]; kind: "tag" | "category" }) {
   if (items.length === 0) return null;
@@ -25,6 +27,38 @@ function TagChips({ items, kind }: { items: Tag[]; kind: "tag" | "category" }) {
         <Chip key={tag.uuid} href={`/${kind}/${tag.slug}`}>
           {kind === "tag" ? `#${tag.name}` : tag.name}
         </Chip>
+      ))}
+    </div>
+  );
+}
+
+function StudiosRow({ items }: { items: Tag[] }) {
+  if (items.length === 0) return null;
+  return (
+    <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 xl:grid-cols-6">
+      {items.map((studio) => (
+        <Link
+          key={studio.uuid}
+          href={`/studio/${studio.slug}`}
+          className="group flex flex-col gap-2"
+        >
+          <div className="border-border bg-surface group-hover:bg-surface-2 relative aspect-square w-full overflow-hidden rounded-xl border p-3 transition-colors">
+            <SafeImage
+              src={studio.preview_image}
+              alt={studio.name}
+              fill
+              sizes="(max-width: 640px) 33vw, 16vw"
+              loading="lazy"
+              className="object-contain"
+              fallback={
+                <div className="text-muted grid h-full w-full place-items-center text-2xl font-semibold">
+                  {studio.name.charAt(0).toUpperCase()}
+                </div>
+              }
+            />
+          </div>
+          <p className="truncate text-sm font-medium">{studio.name}</p>
+        </Link>
       ))}
     </div>
   );
@@ -65,6 +99,7 @@ function AllResults({ q }: { q: string }) {
     data.videos.length === 0 &&
     data.tags.length === 0 &&
     data.categories.length === 0 &&
+    data.studios.length === 0 &&
     data.actors.length === 0;
   if (isEmpty) return <EmptyState title={t("noResultsFor", { query: q })} />;
 
@@ -80,6 +115,12 @@ function AllResults({ q }: { q: string }) {
         <section className="flex flex-col gap-2">
           <h2 className="text-base font-semibold">{t("tabs.tags")}</h2>
           <TagChips items={data.tags} kind="tag" />
+        </section>
+      ) : null}
+      {data.studios.length > 0 ? (
+        <section className="flex flex-col gap-2">
+          <h2 className="text-base font-semibold">{t("tabs.studios")}</h2>
+          <StudiosRow items={data.studios} />
         </section>
       ) : null}
       {data.actors.length > 0 ? (
@@ -118,6 +159,7 @@ function TypeResults({ type, q }: { type: SearchType; q: string }) {
       {type === "actors" ? <ActorsRow items={items as Actor[]} /> : null}
       {type === "tags" ? <TagChips items={items as Tag[]} kind="tag" /> : null}
       {type === "categories" ? <TagChips items={items as Tag[]} kind="category" /> : null}
+      {type === "studios" ? <StudiosRow items={items as Tag[]} /> : null}
       {hasNextPage ? (
         <div className="flex justify-center">
           <Button variant="secondary" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
