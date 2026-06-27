@@ -29,7 +29,7 @@ export function ShortComments({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         side={desktop ? "right" : "bottom"}
-        className={cn(desktop ? "w-[420px] max-w-[420px]" : "h-[60vh] max-h-[60vh]")}
+        className={cn(desktop ? "w-[420px] max-w-[420px]" : "max-h-[70vh]")}
       >
         <DialogTitle className="sr-only">{t("comments")}</DialogTitle>
         <CommentsSection videoUuid={uuid} commentsCount={commentsCount} />

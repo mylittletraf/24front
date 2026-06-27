@@ -220,7 +220,7 @@ export function ShortsFeed({
       <div
         ref={containerRef}
         className={cn(
-          "snap-y snap-mandatory [scrollbar-width:none] overflow-y-scroll overscroll-y-contain [&::-webkit-scrollbar]:hidden",
+          "snap-y snap-mandatory [scrollbar-width:none] overflow-y-scroll overscroll-y-contain scroll-smooth [&::-webkit-scrollbar]:hidden",
           DESKTOP_H,
         )}
       >
@@ -232,30 +232,28 @@ export function ShortsFeed({
               key={video.uuid}
               ref={setSlideRef(i)}
               data-index={i}
-              className={cn("flex snap-start justify-center gap-3 px-4 pt-2", DESKTOP_H)}
+              className={cn(
+                "flex snap-start items-center justify-center gap-4 px-4 py-3",
+                DESKTOP_H,
+              )}
             >
-              {/* Player column — top-aligned so it starts just under the header (YouTube-style). */}
-              <div className="flex h-full flex-col items-center gap-2 pb-3">
-                <div className="relative aspect-[9/16] min-h-0 flex-1 overflow-hidden rounded-2xl bg-black">
-                  {play ? (
-                    <ShortPlayer
-                      uuid={video.uuid}
-                      active={i === active}
-                      muted={muted}
-                      chrome
-                      onToggleMute={toggleMute}
-                      onError={onSlideError(i)}
-                      onEnded={onSlideEnded(i)}
-                    />
-                  ) : null}
-                </div>
-                <p className="line-clamp-1 max-w-[360px] text-center text-sm font-medium">
-                  {video.title}
-                </p>
+              {/* 9:16 player, height-bound (definite height → width follows). */}
+              <div className="relative aspect-[9/16] h-full overflow-hidden rounded-2xl bg-black">
+                {play ? (
+                  <ShortPlayer
+                    uuid={video.uuid}
+                    active={i === active}
+                    muted={muted}
+                    chrome
+                    onToggleMute={toggleMute}
+                    onError={onSlideError(i)}
+                    onEnded={onSlideEnded(i)}
+                  />
+                ) : null}
               </div>
               {/* Action rail — bottom-aligned beside the video. */}
               {within ? (
-                <div className="flex h-full items-end pb-3">
+                <div className="flex h-full flex-col justify-end pb-1">
                   <ShortOverlay
                     variant="side"
                     uuid={video.uuid}
@@ -307,7 +305,7 @@ export function ShortsFeed({
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-50 snap-y snap-mandatory [scrollbar-width:none] overflow-y-scroll overscroll-y-contain bg-black [&::-webkit-scrollbar]:hidden"
+      className="fixed inset-0 z-50 snap-y snap-mandatory [scrollbar-width:none] overflow-y-scroll overscroll-y-contain scroll-smooth bg-black [&::-webkit-scrollbar]:hidden"
     >
       <Link
         href="/"

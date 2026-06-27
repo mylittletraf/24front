@@ -62,13 +62,20 @@ export function ShortPlayer({
   });
   const hls = playbackQuery.data?.hls ?? null;
 
-  // Attach / detach HLS when the source resolves.
+  // Keep the latest onError without re-running the attach effect — otherwise a parent re-render
+  // (e.g. toggling mute, which passes a fresh onError) would detach + re-attach HLS and restart.
+  const onErrorRef = useRef(onError);
+  useEffect(() => {
+    onErrorRef.current = onError;
+  });
+
+  // Attach / detach HLS when the source resolves (only when the URL changes).
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !hls) return;
-    const detach = attachHls(video, hls, { onError });
+    const detach = attachHls(video, hls, { onError: () => onErrorRef.current?.() });
     return detach;
-  }, [hls, onError]);
+  }, [hls]);
 
   // Reflect the feed-level mute preference.
   useEffect(() => {
