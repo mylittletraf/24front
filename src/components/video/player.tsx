@@ -169,6 +169,13 @@ export function VideoPlayer({
       videoEl.classList.add("video-js", "vjs-big-play-centered");
       containerRef.current.appendChild(videoEl);
 
+      // Force VHS (JS-based HLS) where Media Source Extensions exist, so videojs-contrib-quality-levels
+      // is populated and the resolution menu works on mobile too (Android, desktop). iOS Safari has no
+      // MSE for video and plays HLS natively with no JS quality levels — leave it native there, since
+      // overriding would break playback. `"MediaSource" in window` is false on iPhone, true on Android.
+      const supportsMse = typeof window !== "undefined" && "MediaSource" in window;
+      const isTouch =
+        typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
       const player = videojs(videoEl, {
         controls: true,
         preload: "auto",
@@ -176,6 +183,11 @@ export function VideoPlayer({
         fluid: true,
         aspectRatio,
         poster: poster ?? undefined,
+        html5: supportsMse
+          ? { vhs: { overrideNative: true }, nativeAudioTracks: false, nativeVideoTracks: false }
+          : undefined,
+        // Drop the subtitles/captions button on touch devices (mobile).
+        controlBar: isTouch ? { subsCapsButton: false } : undefined,
       });
       playerRef.current = player;
 
