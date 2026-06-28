@@ -110,14 +110,16 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
   // /tags/attributes so alt text + structured data match the page's content language.
   const screenshotSeo: ScreenshotSeoContext = {
     title: detail.seo_h1 || detail.title,
-    description: detail.seo_description || detail.description,
+    description: detail.seo_description || detail.description || seo?.meta.description || null,
     actorNames: detail.actors.map((a) => a.name),
+    studioNames: detail.studios.map((s) => s.name),
+    categoryNames: detail.categories.map((c) => c.name),
     keywords: [
       ...detail.tags.map((tag) => tag.name),
-      ...detail.categories.map((c) => c.name),
       ...attrGroups.flatMap((g) => g.items!.map((it) => it.name)),
     ],
     frameWord: t("frame"),
+    datePublished: detail.published_at,
     pageUrl: `${SITE_URL}/video/${detail.slug}`,
   };
 
