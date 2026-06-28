@@ -42,7 +42,7 @@ function StudiosRow({ items }: { items: Tag[] }) {
           href={`/studio/${studio.slug}`}
           className="group flex flex-col gap-2"
         >
-          <div className="border-border bg-studio-plate group-hover:bg-studio-plate-hover relative aspect-square w-full overflow-hidden rounded-xl border p-3 transition-colors">
+          <div className="studio-plate relative aspect-square w-full overflow-hidden rounded-xl p-3">
             <SafeImage
               src={studio.preview_image}
               alt={studio.name}
