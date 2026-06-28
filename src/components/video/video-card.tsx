@@ -93,23 +93,28 @@ export function VideoCard({
           </button>
         ) : null}
 
+        {/* Desktop: rating sits top-left over the poster. On mobile it moves down next to the
+            views badge so it doesn't crowd the tap-to-preview play control (see below). */}
         {rating !== null ? (
-          <span
-            className={cn(
-              "absolute top-1.5 inline-flex items-center gap-1 rounded bg-black/80 px-1.5 py-0.5 text-xs text-white",
-              showControl ? "left-12" : "left-1.5",
-            )}
-          >
+          <span className="desktop:inline-flex absolute top-1.5 left-1.5 hidden items-center gap-1 rounded bg-black/80 px-1.5 py-0.5 text-xs text-white">
             <ThumbsUp size={12} />
             {rating}%
           </span>
         ) : null}
         <BookmarkButton uuid={video.uuid} className="absolute top-1.5 right-1.5" />
 
-        <span className="absolute bottom-1.5 left-1.5 inline-flex items-center gap-1 rounded bg-black/80 px-1.5 py-0.5 text-xs text-white">
-          <Eye size={12} />
-          {formatCount(video.views_count)}
-        </span>
+        <div className="absolute bottom-1.5 left-1.5 flex items-center gap-1.5">
+          <span className="inline-flex items-center gap-1 rounded bg-black/80 px-1.5 py-0.5 text-xs text-white">
+            <Eye size={12} />
+            {formatCount(video.views_count)}
+          </span>
+          {rating !== null ? (
+            <span className="desktop:hidden inline-flex items-center gap-1 rounded bg-black/80 px-1.5 py-0.5 text-xs text-white">
+              <ThumbsUp size={12} />
+              {rating}%
+            </span>
+          ) : null}
+        </div>
         <span className="absolute right-1.5 bottom-1.5 rounded bg-black/80 px-1.5 py-0.5 text-xs text-white">
           {formatDuration(video.duration)}
         </span>
