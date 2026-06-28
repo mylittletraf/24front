@@ -23,18 +23,21 @@ export interface ScreenshotSeoContext {
   pageUrl: string;
 }
 
-/** Keep alt/caption within the ~125-char window search engines actually use. */
-function clamp(text: string, max = 125): string {
+/** Keep alt/caption within a sane length for search engines (~160 chars). */
+function clamp(text: string, max = 160): string {
   return text.length <= max ? text : `${text.slice(0, max - 1).trimEnd()}…`;
 }
 
 /**
- * Per-frame label (1-based): the localized SEO phrase plus the frame number. The number keeps
- * each gallery image's alt/caption unique — image search ignores duplicate alt across a gallery.
+ * Per-frame label (1-based): the localized SEO phrase, the frame number, and the video title at
+ * the end ("… — <title>"). The frame number keeps images unique within one gallery; the title
+ * keeps them unique across the many videos that share the same studio/actress phrase. The title
+ * is skipped when the phrase already is the title (the no-studio/no-actress fallback).
  * Used for the <img> alt, its title, the figcaption, and the ImageObject name/caption.
  */
 export function screenshotLabel(ctx: ScreenshotSeoContext, n: number): string {
-  return clamp(`${ctx.phrase} ${n}`);
+  const tail = ctx.title && !ctx.phrase.includes(ctx.title) ? ` — ${ctx.title}` : "";
+  return clamp(`${ctx.phrase} ${n}${tail}`);
 }
 
 /**
