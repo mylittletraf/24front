@@ -205,6 +205,7 @@
     "aliases": "Также известная как",
     "videosWith": "Видео с {name}",
     "cm": "см",
+    "inches": "дюймы",
     "kg": "кг",
     "relatedActors": "Похожие актёры",
     "birthPlace": "Место рождения",
@@ -221,8 +222,6 @@
     "yes": "Да",
     "personalGroup": "Личные",
     "bodyGroup": "Тело",
-    "toCm": "показать в см",
-    "toInch": "показать в дюймах",
     "videosCount": "{count} видео",
     "subscribersCount": "{count, plural, one {# подписчик} few {# подписчика} many {# подписчиков} other {# подписчиков}}",
     "shortsCount": "{count} shorts"

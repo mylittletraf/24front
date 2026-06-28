@@ -205,6 +205,7 @@
     "aliases": "Also known as",
     "videosWith": "Videos with {name}",
     "cm": "cm",
+    "inches": "inches",
     "kg": "kg",
     "relatedActors": "Actores relacionados",
     "birthPlace": "Lugar de nacimiento",
@@ -221,8 +222,6 @@
     "yes": "Yes",
     "personalGroup": "Personal",
     "bodyGroup": "Body",
-    "toCm": "show in cm",
-    "toInch": "show in inches",
     "videosCount": "{count, plural, one {# vídeo} other {# vídeos}}",
     "subscribersCount": "{count, plural, one {# suscriptor} other {# suscriptores}}",
     "shortsCount": "{count} shorts"

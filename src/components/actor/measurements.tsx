@@ -26,14 +26,14 @@ export function Measurements({ value }: { value: string }) {
 
   return (
     <span className="inline-flex items-center gap-2">
-      {/* Unit on the value makes clear which unit is shown now; the button is the convert action. */}
-      <span>{cm ? `${cmValue} ${t("cm")}` : `${value}″`}</span>
+      <span>{cm ? cmValue : value}</span>
+      {/* The unit chip is the toggle: shows the current unit, click switches inches ↔ cm. */}
       <button
         type="button"
         onClick={() => setCm((v) => !v)}
         className="text-accent text-xs underline-offset-2 hover:underline"
       >
-        {cm ? t("toInch") : t("toCm")}
+        {cm ? t("cm") : t("inches")}
       </button>
     </span>
   );
