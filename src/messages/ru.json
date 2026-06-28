@@ -221,8 +221,8 @@
     "yes": "Да",
     "personalGroup": "Личные",
     "bodyGroup": "Тело",
-    "toCm": "в см",
-    "toInch": "в дюймах",
+    "toCm": "показать в см",
+    "toInch": "показать в дюймах",
     "videosCount": "{count} видео",
     "subscribersCount": "{count, plural, one {# подписчик} few {# подписчика} many {# подписчиков} other {# подписчиков}}",
     "shortsCount": "{count} shorts"

@@ -26,11 +26,12 @@ export function Measurements({ value }: { value: string }) {
 
   return (
     <span className="inline-flex items-center gap-2">
-      {cm ? cmValue : value}
+      {/* Unit on the value makes clear which unit is shown now; the button is the convert action. */}
+      <span>{cm ? `${cmValue} ${t("cm")}` : `${value}″`}</span>
       <button
         type="button"
         onClick={() => setCm((v) => !v)}
-        className="text-muted hover:text-foreground text-xs underline-offset-2 hover:underline"
+        className="text-accent text-xs underline-offset-2 hover:underline"
       >
         {cm ? t("toInch") : t("toCm")}
       </button>

@@ -221,8 +221,8 @@
     "yes": "Yes",
     "personalGroup": "Personal",
     "bodyGroup": "Body",
-    "toCm": "in cm",
-    "toInch": "in inches",
+    "toCm": "show in cm",
+    "toInch": "show in inches",
     "videosCount": "{count, plural, one {# Video} other {# Videos}}",
     "subscribersCount": "{count, plural, one {# Abonnent} other {# Abonnenten}}",
     "shortsCount": "{count} Shorts"

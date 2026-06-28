@@ -221,8 +221,8 @@
     "yes": "Yes",
     "personalGroup": "Personal",
     "bodyGroup": "Body",
-    "toCm": "in cm",
-    "toInch": "in inches",
+    "toCm": "show in cm",
+    "toInch": "show in inches",
     "videosCount": "{count} 个视频",
     "subscribersCount": "{count} 位订阅者",
     "shortsCount": "{count} 个短视频"
