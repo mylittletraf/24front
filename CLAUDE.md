@@ -102,10 +102,10 @@ and VAST placements are documented in `docs/ADS_GUIDE.md`.
 - Run `npm run prettier:write` before committing — prettier failures block `check-all`.
 
 ## Reference docs (`docs/`)
-`FRONTEND_SPEC.md` (API contract), `UI_SPEC.md`, `SEO_VIDEO.md` + `SEO_BACK_IMPROVE_TASK.md`,
-`ADS_GUIDE.md`, `ANALYTICS.md`, `API_OPTIMIZATION.md`, `AUTH_THROTTLE_TASK.md`,
-`filter-subscriptions-frontend.md`, `BACKEND_BUGS.md` (known backend gaps / frontend workarounds),
-`BRANDING.md`.
+`FRONTEND_SPEC.md` (API contract), `UI_SPEC.md`, `SHORTS_FRONTEND_SPEC.md`, `SEO_VIDEO.md`,
+`ADS_GUIDE.md`, `ANALYTICS.md`, `API_OPTIMIZATION.md` + `API_OPTIMIZATION_TASK.md` (backend handoff),
+`MEDIA_PROTECTION_BACKEND_TASK.md` (signed-URL plan), `filter-subscriptions-frontend.md`,
+`BACKEND_BUGS.md` (known backend gaps / frontend workarounds), `BRANDING.md`.
 
 ## Environment (`.env.local`, see `.env.example`)
 `API_INTERNAL_URL` (server→backend), `NEXT_PUBLIC_API_URL` (browser→backend), `NEXT_PUBLIC_SITE_URL`,
