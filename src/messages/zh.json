@@ -133,6 +133,9 @@
     "noComments": "No comments yet",
     "screenshotsTitle": "截图",
     "frame": "画面",
+    "shotStudioActor": "{studio} {actor} 色情照片",
+    "shotActor": "{actor} 色情照片",
+    "shotStudio": "{studio} 色情照片",
     "faqTitle": "常见问题",
     "studiosTitle": "制片厂",
     "relatedTab": "相关"

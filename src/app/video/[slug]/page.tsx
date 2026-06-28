@@ -106,19 +106,25 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
   // De-duplicated screenshot URLs (the API repeats the poster as the first frame).
   const screens = Array.from(new Set(detail.screens));
 
-  // SEO context for the screenshots — built from the current-language title/description/actors
-  // /tags/attributes so alt text + structured data match the page's content language.
+  // Screenshot SEO phrase: "<studio> порно фото с <actress>" (localized), shaped to match that
+  // search query. Falls back gracefully when the studio or actress is missing.
+  const shotStudio = detail.studios[0]?.name;
+  const shotActor = detail.actors.map((a) => a.name).join(", ");
+  const shotPhrase =
+    shotStudio && shotActor
+      ? t("shotStudioActor", { studio: shotStudio, actor: shotActor })
+      : shotActor
+        ? t("shotActor", { actor: shotActor })
+        : shotStudio
+          ? t("shotStudio", { studio: shotStudio })
+          : detail.seo_h1 || detail.title;
+
+  // SEO context for the screenshots — phrase + description resolved to the page's content
+  // language so alt text, captions and structured data match what the user is reading.
   const screenshotSeo: ScreenshotSeoContext = {
     title: detail.seo_h1 || detail.title,
+    phrase: shotPhrase,
     description: detail.seo_description || detail.description || seo?.meta.description || null,
-    actorNames: detail.actors.map((a) => a.name),
-    studioNames: detail.studios.map((s) => s.name),
-    categoryNames: detail.categories.map((c) => c.name),
-    keywords: [
-      ...detail.tags.map((tag) => tag.name),
-      ...attrGroups.flatMap((g) => g.items!.map((it) => it.name)),
-    ],
-    frameWord: t("frame"),
     datePublished: detail.published_at,
     pageUrl: `${SITE_URL}/video/${detail.slug}`,
   };
