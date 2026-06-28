@@ -77,10 +77,12 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
     throw error;
   }
 
-  const [related, , popular] = await Promise.all([
+  const [related, , popular, seo] = await Promise.all([
     getRelatedVideos(slug, lang),
     getNextVideo(slug, lang),
     getVideoFeed("popular", { lang, page_size: 12 }),
+    // Same request as generateMetadata → deduped/cached; reused here for the description fallback.
+    getSeo("video", slug, lang),
   ]);
 
   // Aggregated actor attributes → chips that filter the catalog by /videos/?actor_<group>=.
@@ -203,17 +205,21 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
     </TrackTaxonomy>
   ) : null;
 
+  // Visible description: the video's own text, else the backend's auto-generated SEO description
+  // (built from title/actors/categories/studio/tags) so the page isn't left without body prose.
+  const descriptionText = detail.description || seo?.meta.description || null;
+
   // Tabs: "Описание" (description text + info block) + screenshots + FAQ. All panels are
   // server-rendered and stay mounted, so their content is crawlable even when not active.
   const tabs: TabItem[] = [];
-  if (detail.description || metaBlock) {
+  if (descriptionText || metaBlock) {
     tabs.push({
       key: "description",
       label: t("descriptionTitle"),
       panel: (
         <section className="flex flex-col gap-3">
           <h2 className="sr-only">{t("descriptionTitle")}</h2>
-          {detail.description ? <Description text={detail.description} /> : null}
+          {descriptionText ? <Description text={descriptionText} /> : null}
           {metaBlock}
         </section>
       ),
