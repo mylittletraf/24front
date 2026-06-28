@@ -20,6 +20,7 @@ export interface VideoFilters {
   actor_boobs_type?: string;
   actor_hair_color?: string;
   actor_eye_color?: string;
+  actor_ethnicity?: string;
 }
 
 /** Actor-attribute filter keys (group -> ?actor_<group> param). */
@@ -30,6 +31,7 @@ export const ACTOR_ATTR_KEYS = [
   "actor_boobs_type",
   "actor_hair_color",
   "actor_eye_color",
+  "actor_ethnicity",
 ] as const;
 
 export const emptyFilters: VideoFilters = {
@@ -93,6 +95,7 @@ export function parseFilters(sp: RawParams): VideoFilters {
     actor_boobs_type: str(sp.actor_boobs_type),
     actor_hair_color: str(sp.actor_hair_color),
     actor_eye_color: str(sp.actor_eye_color),
+    actor_ethnicity: str(sp.actor_ethnicity),
   };
 }
 
@@ -116,6 +119,7 @@ export function filtersToApiParams(f: VideoFilters): Record<string, QueryValue> 
     actor_boobs_type: f.actor_boobs_type,
     actor_hair_color: f.actor_hair_color,
     actor_eye_color: f.actor_eye_color,
+    actor_ethnicity: f.actor_ethnicity,
   };
 }
 

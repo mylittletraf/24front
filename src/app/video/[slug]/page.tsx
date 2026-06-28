@@ -89,6 +89,7 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
   const aa = detail.actor_attributes ?? {};
   const attrGroups = [
     { items: aa.country, param: "actor_country", label: tAttr("country") },
+    { items: aa.ethnicity, param: "actor_ethnicity", label: tAttr("ethnicity") },
     { items: aa.body_type, param: "actor_body_type", label: tAttr("bodyType") },
     { items: aa.bra_size, param: "actor_bra_size", label: tAttr("braSize") },
     { items: aa.boobs_type, param: "actor_boobs_type", label: tAttr("boobsType") },
@@ -190,15 +191,17 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
           </MetaRow>
         ) : null}
 
-        {attrGroups.map((g) => (
-          <MetaRow key={g.param} label={g.label}>
-            {g.items!.map((it) => (
-              <Chip key={it.uuid} href={`/?${g.param}=${it.slug}`}>
-                {it.name}
-              </Chip>
-            ))}
+        {attrGroups.length > 0 ? (
+          <MetaRow label={t("actorDataTitle")}>
+            {attrGroups.flatMap((g) =>
+              g.items!.map((it) => (
+                <Chip key={`${g.param}-${it.uuid}`} href={`/?${g.param}=${it.slug}`}>
+                  {it.name}
+                </Chip>
+              )),
+            )}
           </MetaRow>
-        ))}
+        ) : null}
 
         {detail.tags.length > 0 ? (
           <MetaRow label={t("tagsTitle")}>

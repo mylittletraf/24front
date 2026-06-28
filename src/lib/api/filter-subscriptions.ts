@@ -23,6 +23,7 @@ export const FilterSubscriptionSchema = z.object({
   actor_boobs_type: z.string().default(""),
   actor_hair_color: z.string().default(""),
   actor_eye_color: z.string().default(""),
+  actor_ethnicity: z.string().default(""),
   created_at: z.string().optional(),
   updated_at: z.string().optional(),
 });
@@ -64,6 +65,7 @@ export interface SubscriptionInput {
   actor_boobs_type?: string;
   actor_hair_color?: string;
   actor_eye_color?: string;
+  actor_ethnicity?: string;
 }
 
 /** Entity a Subscribe button can follow (single-base subscription). */
@@ -189,6 +191,7 @@ export function subscriptionToFilters(sub: FilterSubscription): VideoFilters {
     actor_boobs_type: sub.actor_boobs_type || undefined,
     actor_hair_color: sub.actor_hair_color || undefined,
     actor_eye_color: sub.actor_eye_color || undefined,
+    actor_ethnicity: sub.actor_ethnicity || undefined,
   };
 }
 

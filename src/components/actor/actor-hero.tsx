@@ -6,6 +6,9 @@ import { Description } from "@/components/video/description";
 import type { Actor } from "@/lib/api/types";
 import type { Locale } from "@/lib/i18n/locales";
 import { ageFromBirthDate, formatDate } from "@/lib/utils/format";
+import { Measurements } from "./measurements";
+
+type AttrRow = { label: string; value: ReactNode };
 
 export async function ActorHero({ actor, subscribe }: { actor: Actor; subscribe?: ReactNode }) {
   const t = await getTranslations("actor");
@@ -15,26 +18,21 @@ export async function ActorHero({ actor, subscribe }: { actor: Actor; subscribe?
   const birthYear = actor.birth_date ? new Date(actor.birth_date).getFullYear() : null;
   const currentAge = ageFromBirthDate(actor.birth_date); // exact, month/day-aware
 
-  const rows: { label: string; value: string }[] = [];
-  if (actor.country) rows.push({ label: t("country"), value: actor.country.name });
-  if (actor.body_type) rows.push({ label: t("bodyType"), value: actor.body_type.name });
-  if (actor.bra_size) rows.push({ label: t("braSize"), value: actor.bra_size.name });
-  if (actor.boobs_type) rows.push({ label: t("boobsType"), value: actor.boobs_type.name });
-  if (actor.height) rows.push({ label: t("height"), value: `${actor.height} ${t("cm")}` });
-  if (actor.weight) rows.push({ label: t("weight"), value: `${actor.weight} ${t("kg")}` });
-  if (actor.hair_color) rows.push({ label: t("hairColor"), value: actor.hair_color.name });
-  if (actor.eye_color) rows.push({ label: t("eyeColor"), value: actor.eye_color.name });
+  // Personal: identity / biography facts (anything not about the body).
+  const personal: AttrRow[] = [];
+  if (actor.country) personal.push({ label: t("country"), value: actor.country.name });
+  if (actor.ethnicity) personal.push({ label: t("ethnicity"), value: actor.ethnicity.name });
   if (actor.birth_date)
-    rows.push({
+    personal.push({
       label: t("birthDate"),
       value:
         currentAge != null
           ? `${formatDate(actor.birth_date, locale)} (${t("yearsOld", { count: currentAge })})`
           : formatDate(actor.birth_date, locale),
     });
-  if (actor.birth_place) rows.push({ label: t("birthPlace"), value: actor.birth_place });
+  if (actor.birth_place) personal.push({ label: t("birthPlace"), value: actor.birth_place });
   if (actor.career_start_year) {
-    rows.push({
+    personal.push({
       label: t("career"),
       value: actor.career_end_year
         ? `${actor.career_start_year}–${actor.career_end_year}`
@@ -43,7 +41,7 @@ export async function ActorHero({ actor, subscribe }: { actor: Actor; subscribe?
     // Age on set — needs both birth year and career start
     if (birthYear) {
       const fromAge = actor.career_start_year - birthYear;
-      rows.push({
+      personal.push({
         label: t("ageOnSet"),
         value: actor.career_end_year
           ? t("ageOnSetRange", { from: fromAge, to: actor.career_end_year - birthYear })
@@ -51,6 +49,25 @@ export async function ActorHero({ actor, subscribe }: { actor: Actor; subscribe?
       });
     }
   }
+
+  // Body: physical attributes.
+  const body: AttrRow[] = [];
+  if (actor.body_type) body.push({ label: t("bodyType"), value: actor.body_type.name });
+  if (actor.height) body.push({ label: t("height"), value: `${actor.height} ${t("cm")}` });
+  if (actor.weight) body.push({ label: t("weight"), value: `${actor.weight} ${t("kg")}` });
+  if (actor.hair_color) body.push({ label: t("hairColor"), value: actor.hair_color.name });
+  if (actor.eye_color) body.push({ label: t("eyeColor"), value: actor.eye_color.name });
+  if (actor.bra_size) body.push({ label: t("braSize"), value: actor.bra_size.name });
+  if (actor.boobs_type) body.push({ label: t("boobsType"), value: actor.boobs_type.name });
+  if (actor.measurements)
+    body.push({ label: t("measurements"), value: <Measurements value={actor.measurements} /> });
+  if (actor.piercings) body.push({ label: t("piercings"), value: actor.piercings });
+  if (actor.has_tattoos) body.push({ label: t("tattoos"), value: t("yes") });
+
+  const groups: { title: string; rows: AttrRow[] }[] = [
+    { title: t("personalGroup"), rows: personal },
+    { title: t("bodyGroup"), rows: body },
+  ].filter((g) => g.rows.length > 0);
 
   return (
     <section className="bg-surface relative overflow-hidden rounded-2xl">
@@ -117,15 +134,24 @@ export async function ActorHero({ actor, subscribe }: { actor: Actor; subscribe?
             ) : null}
           </div>
 
-          {rows.length > 0 ? (
-            <dl className="grid max-w-md grid-cols-1 gap-y-1 text-sm">
-              {rows.map((row) => (
-                <div key={row.label} className="border-border flex gap-3 border-b py-1">
-                  <dt className="text-muted w-32 shrink-0">{row.label}</dt>
-                  <dd className="font-medium">{row.value}</dd>
-                </div>
+          {groups.length > 0 ? (
+            <div className="flex max-w-2xl flex-col gap-4">
+              {groups.map((group) => (
+                <section key={group.title} className="flex flex-col gap-1">
+                  <h2 className="text-muted text-xs font-semibold tracking-wide uppercase">
+                    {group.title}
+                  </h2>
+                  <dl className="grid grid-cols-1 gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
+                    {group.rows.map((row) => (
+                      <div key={row.label} className="border-border flex gap-3 border-b py-1">
+                        <dt className="text-muted w-32 shrink-0">{row.label}</dt>
+                        <dd className="font-medium">{row.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </section>
               ))}
-            </dl>
+            </div>
           ) : null}
 
           {actor.bio ? (

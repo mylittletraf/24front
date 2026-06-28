@@ -21,6 +21,7 @@ export interface ActorListParams {
   boobs_type?: string;
   hair_color?: string;
   eye_color?: string;
+  ethnicity?: string;
   height_min?: number;
   height_max?: number;
   weight_min?: number;
@@ -73,6 +74,7 @@ export interface ActorAttributeGroups {
   boobs_type: NamedRef[];
   hair_color: NamedRef[];
   eye_color: NamedRef[];
+  ethnicity: NamedRef[];
 }
 
 /** Attribute value options for the actor filters (/actors/attributes/). */
@@ -84,6 +86,7 @@ export async function getActorAttributes(lang?: Locale): Promise<ActorAttributeG
     boobs_type: [],
     hair_color: [],
     eye_color: [],
+    ethnicity: [],
   };
   try {
     const data = await apiFetch<unknown>("/actors/attributes/", {
@@ -98,6 +101,7 @@ export async function getActorAttributes(lang?: Locale): Promise<ActorAttributeG
       boobs_type: parseList(NamedRefSchema, obj.boobs_type).results,
       hair_color: parseList(NamedRefSchema, obj.hair_color).results,
       eye_color: parseList(NamedRefSchema, obj.eye_color).results,
+      ethnicity: parseList(NamedRefSchema, obj.ethnicity).results,
     };
   } catch {
     return empty;

@@ -189,5 +189,9 @@ export const ActorSchema = z.object({
   boobs_type: AttributeRefSchema.optional(),
   hair_color: AttributeRefSchema.optional(),
   eye_color: AttributeRefSchema.optional(),
+  ethnicity: AttributeRefSchema.optional(),
+  measurements: z.string().nullable().optional(),
+  piercings: z.string().nullable().optional(),
+  has_tattoos: z.boolean().optional(),
 });
 export type Actor = z.infer<typeof ActorSchema>;

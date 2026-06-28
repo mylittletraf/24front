@@ -27,6 +27,7 @@ export interface ActorAttributes {
   boobsTypes: AttributeOption[];
   hairColors: AttributeOption[];
   eyeColors: AttributeOption[];
+  ethnicities: AttributeOption[];
 }
 
 type Current = Record<string, string | undefined>;
@@ -278,6 +279,7 @@ function FilterControls({
 
   const defs: AttrDef[] = [
     { key: "country", type: "select", label: t("country"), options: attributes.countries },
+    { key: "ethnicity", type: "select", label: t("ethnicity"), options: attributes.ethnicities },
     { key: "body_type", type: "select", label: t("bodyType"), options: attributes.bodyTypes },
     { key: "hair_color", type: "select", label: t("hairColor"), options: attributes.hairColors },
     { key: "eye_color", type: "select", label: t("eyeColor"), options: attributes.eyeColors },

@@ -24,6 +24,7 @@ const ActorAttributesSchema = z
     boobs_type: AttrList,
     hair_color: AttrList,
     eye_color: AttrList,
+    ethnicity: AttrList,
   })
   .partial()
   .optional();

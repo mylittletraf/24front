@@ -60,6 +60,7 @@ export default async function ActorsPage({ searchParams }: { searchParams: Promi
     boobs_type: str(sp.boobs_type),
     hair_color: str(sp.hair_color),
     eye_color: str(sp.eye_color),
+    ethnicity: str(sp.ethnicity),
     height_min: num(sp.height_min),
     height_max: num(sp.height_max),
     weight_min: num(sp.weight_min),
@@ -77,6 +78,7 @@ export default async function ActorsPage({ searchParams }: { searchParams: Promi
     boobsTypes: attrs.boobs_type,
     hairColors: attrs.hair_color,
     eyeColors: attrs.eye_color,
+    ethnicities: attrs.ethnicity,
   };
 
   const current = {
@@ -87,6 +89,7 @@ export default async function ActorsPage({ searchParams }: { searchParams: Promi
     boobs_type: str(sp.boobs_type),
     hair_color: str(sp.hair_color),
     eye_color: str(sp.eye_color),
+    ethnicity: str(sp.ethnicity),
     height_min: str(sp.height_min),
     height_max: str(sp.height_max),
     weight_min: str(sp.weight_min),
