@@ -107,7 +107,7 @@ export function MobileDrawer() {
                 key={`${href}-${i}`}
                 href={href}
                 onClick={() => setOpen(false)}
-                className="hover:bg-surface flex items-center gap-3 rounded-md px-2 py-2.5 text-sm"
+                className="hover:bg-surface flex items-center justify-center gap-3 rounded-md px-2 py-2.5 text-sm"
               >
                 <Icon size={18} className="text-muted" />
                 {label}
@@ -119,7 +119,7 @@ export function MobileDrawer() {
                 setOpen(false);
                 void logout();
               }}
-              className="hover:bg-surface flex items-center gap-3 rounded-md px-2 py-2.5 text-left text-sm"
+              className="hover:bg-surface flex w-full items-center justify-center gap-3 rounded-md px-2 py-2.5 text-sm"
             >
               <LogOut size={18} className="text-muted" />
               {t("auth.logout")}
