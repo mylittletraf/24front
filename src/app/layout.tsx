@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Unbounded } from "next/font/google";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { AdLayer } from "@/components/ads/ad-layer";
@@ -10,6 +10,7 @@ import { HideOnShorts } from "@/components/layout/hide-on-shorts";
 import { SiteHeader } from "@/components/layout/site-header";
 import { CookieConsent } from "@/components/legal/cookie-consent";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/api/config";
+import { SHOW_SHORTS_COOKIE, shortsShownFromCookie } from "@/lib/shorts-pref";
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -49,6 +50,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   // (/embed/[slug], clean inside a third-party iframe) and the /age interstitial (which must not
   // load ads or expose any of the site before the visitor confirms their age).
   const bare = pathname.startsWith("/embed") || pathname === "/age";
+  const showShorts = shortsShownFromCookie((await cookies()).get(SHOW_SHORTS_COOKIE)?.value);
 
   return (
     <html
@@ -58,7 +60,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     >
       <body className="bg-background text-foreground flex min-h-full flex-col">
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <Providers>
+          <Providers showShorts={showShorts}>
             {bare ? (
               children
             ) : (

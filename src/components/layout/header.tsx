@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { useFeedUnread } from "@/components/feed/feed-unread-context";
+import { ShortsToggle } from "@/components/shorts/shorts-toggle";
 import { Button } from "@/components/ui/button";
 import { track } from "@/lib/analytics/track";
 import { SITE_NAME } from "@/lib/api/config";
@@ -138,6 +139,7 @@ export function Header({ categoryPanel }: { categoryPanel?: ReactNode }) {
           >
             <Bookmark size={20} />
           </Link>
+          <ShortsToggle />
           <ThemeToggle />
           <ProfileMenu />
         </div>

@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ShortsShelf } from "@/components/shorts/shorts-shelf";
+import { ShortsGate } from "@/components/shorts/shorts-pref";
 import { Container } from "@/components/layout/container";
 import { ActiveFilters, RefineBlock } from "@/components/catalog/refine-block";
 import { ListingPagination } from "@/components/catalog/listing-pagination";
@@ -181,13 +182,15 @@ export async function EntityVideoPage({
       <div className="flex flex-wrap items-center justify-end gap-2">
         {/* Enter the vertical Shorts feed scoped to this category/tag (studios have no shorts entry). */}
         {kind !== "studios" ? (
-          <Link
-            href={`/shorts?${conf.filterKey}=${slug}`}
-            className="border-border text-foreground hover:bg-surface inline-flex h-9 items-center gap-2 rounded-full border px-4 text-sm font-medium"
-          >
-            <Zap size={16} />
-            {tNav("shorts")}
-          </Link>
+          <ShortsGate>
+            <Link
+              href={`/shorts?${conf.filterKey}=${slug}`}
+              className="border-border text-foreground hover:bg-surface inline-flex h-9 items-center gap-2 rounded-full border px-4 text-sm font-medium"
+            >
+              <Zap size={16} />
+              {tNav("shorts")}
+            </Link>
+          </ShortsGate>
         ) : null}
         <SaveFilterButton
           filters={combined}
@@ -206,15 +209,18 @@ export async function EntityVideoPage({
       {/* Shorts for this category/tag (scoped). A dedicated shelf (not interleaved) so it shows
           regardless of how many horizontal videos the entity has. Self-hides when there are none. */}
       {kind !== "studios" ? (
-        <ShortsShelf
-          title={tNav("shorts")}
-          scope={{
-            categories: typeof apiParams.categories === "string" ? apiParams.categories : undefined,
-            include_tags:
-              typeof apiParams.include_tags === "string" ? apiParams.include_tags : undefined,
-            actors: typeof apiParams.actors === "string" ? apiParams.actors : undefined,
-          }}
-        />
+        <ShortsGate>
+          <ShortsShelf
+            title={tNav("shorts")}
+            scope={{
+              categories:
+                typeof apiParams.categories === "string" ? apiParams.categories : undefined,
+              include_tags:
+                typeof apiParams.include_tags === "string" ? apiParams.include_tags : undefined,
+              actors: typeof apiParams.actors === "string" ? apiParams.actors : undefined,
+            }}
+          />
+        </ShortsGate>
       ) : null}
 
       <InfiniteVideoFeed

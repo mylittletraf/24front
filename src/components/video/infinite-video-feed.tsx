@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Fragment, useEffect } from "react";
 import { AdSlotRender } from "@/components/ads/ad-slot-render";
 import { ShortsShelf } from "@/components/shorts/shorts-shelf";
+import { useShortsPref } from "@/components/shorts/shorts-pref";
 import { ShortsTileGrid } from "@/components/shorts/shorts-tile-grid";
 import type { QueryValue } from "@/lib/api/fetcher";
 import { getVideoList, getVideoPageByUrl } from "@/lib/api/videos";
@@ -90,12 +91,13 @@ export function InfiniteVideoFeed({
   const isXl = useMediaQuery("(min-width: 1280px)");
   const desktopCols = isWide ? 5 : isXl ? 4 : 3;
   const showNative = mounted && isMobile && !!nativeSlot;
+  const { show: showShorts } = useShortsPref();
 
   // Shorts interleave (home only): desktop shelves after rows 2 & 4, mobile a 2×4 tile block after 8.
   // The shelf is `col-span-full`, so the row before it must be complete (a multiple of the column
   // count) — otherwise it breaks mid-row and the grid looks ragged. Hence the row-based indices.
   function shortsAt(i: number) {
-    if (!interleaveShorts || !mounted) return null;
+    if (!interleaveShorts || !showShorts || !mounted) return null;
     if (isMobile) {
       return i === 7 ? (
         <div className="col-span-full">

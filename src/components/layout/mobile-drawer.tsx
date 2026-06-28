@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 import { useAuthUI } from "@/components/auth/auth-ui";
+import { ShortsToggle } from "@/components/shorts/shorts-toggle";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
@@ -95,6 +96,7 @@ export function MobileDrawer() {
               {label}
             </Link>
           ))}
+          <ShortsToggle variant="row" />
         </nav>
 
         {isAuthenticated ? (
