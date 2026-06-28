@@ -20,6 +20,12 @@
   --on-accent: #fff7f1;
   --border: #e4ddd2;
   --skeleton: #e7e0d6;
+
+  /* Neutral plate for transparent studio logos. Intentionally theme-independent (no .dark
+     override): a warm mid-gray keeps both black- and white-lettered logos legible (~4.5:1
+     contrast to either) on any theme. */
+  --studio-plate: #78716c;
+  --studio-plate-hover: #847d77;
 }
 
 .dark {
@@ -54,6 +60,8 @@
   --color-on-accent: var(--on-accent);
   --color-border: var(--border);
   --color-skeleton: var(--skeleton);
+  --color-studio-plate: var(--studio-plate);
+  --color-studio-plate-hover: var(--studio-plate-hover);
 
   --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-display: var(--font-unbounded), var(--font-inter), sans-serif;

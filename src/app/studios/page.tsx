@@ -44,7 +44,7 @@ export default async function StudiosPage({
                 href={`/studio/${studio.slug}`}
                 className="group flex flex-col gap-2"
               >
-                <div className="border-border bg-surface group-hover:bg-surface-2 relative aspect-square w-full overflow-hidden rounded-xl border p-3 transition-colors">
+                <div className="border-border bg-studio-plate group-hover:bg-studio-plate-hover relative aspect-square w-full overflow-hidden rounded-xl border p-3 transition-colors">
                   <SafeImage
                     src={studio.preview_image}
                     alt={studio.name}
@@ -55,7 +55,7 @@ export default async function StudiosPage({
                     loading={i < 8 ? undefined : "lazy"}
                     className="object-contain"
                     fallback={
-                      <div className="text-muted grid h-full w-full place-items-center text-3xl font-semibold">
+                      <div className="grid h-full w-full place-items-center text-3xl font-semibold text-white/85">
                         {studio.name.charAt(0).toUpperCase()}
                       </div>
                     }
