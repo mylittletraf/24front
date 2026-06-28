@@ -5,6 +5,7 @@ import { SafeImage } from "@/components/ui/safe-image";
 import { Description } from "@/components/video/description";
 import type { Actor } from "@/lib/api/types";
 import type { Locale } from "@/lib/i18n/locales";
+import { CountryFlag } from "@/components/ui/country-flag";
 import { countryDisplay } from "@/lib/utils/country";
 import { ageFromBirthDate, formatDate } from "@/lib/utils/format";
 import { Measurements } from "./measurements";
@@ -31,7 +32,14 @@ export async function ActorHero({ actor, subscribe }: { actor: Actor; subscribe?
     const cd = countryDisplay(actor.country, locale);
     personal.push({
       label: t("country"),
-      value: cd ? `${cd.flag} ${cd.name}` : actor.country.name,
+      value: cd ? (
+        <span className="inline-flex items-center gap-1.5">
+          <CountryFlag code={cd.code} className="h-3.5 w-5" />
+          {cd.name}
+        </span>
+      ) : (
+        actor.country.name
+      ),
     });
   }
   if (actor.ethnicity) personal.push({ label: t("ethnicity"), value: actor.ethnicity.name });

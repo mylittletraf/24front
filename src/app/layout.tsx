@@ -12,6 +12,7 @@ import { CookieConsent } from "@/components/legal/cookie-consent";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/api/config";
 import { SHOW_SHORTS_COOKIE, shortsShownFromCookie } from "@/lib/shorts-pref";
 import { Providers } from "./providers";
+import "flag-icons/css/flag-icons.min.css";
 import "./globals.css";
 
 const inter = Inter({
