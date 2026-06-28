@@ -33,6 +33,7 @@ import {
 import { resolveLocale, type Locale } from "@/lib/i18n/locales";
 import { screenshotImageNodes, type ScreenshotSeoContext } from "@/lib/seo/screenshots";
 import { faqPageJsonLd, graph, videoObjectJsonLd } from "@/lib/seo/structured-data";
+import { countryLabel } from "@/lib/utils/country";
 import { formatCount, formatRelativeDate } from "@/lib/utils/format";
 
 export const revalidate = 60;
@@ -196,7 +197,7 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
             {attrGroups.flatMap((g) =>
               g.items!.map((it) => (
                 <Chip key={`${g.param}-${it.uuid}`} href={`/?${g.param}=${it.slug}`}>
-                  {it.name}
+                  {g.param === "actor_country" ? countryLabel(it.name, lang) : it.name}
                 </Chip>
               )),
             )}

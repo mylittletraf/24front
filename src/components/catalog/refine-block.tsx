@@ -1,8 +1,9 @@
 "use client";
 
 import { Check, Minus, Plus } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { RelatedFilters } from "@/lib/api/related";
+import { countryLabel } from "@/lib/utils/country";
 import { ACTOR_ATTR_KEYS, type VideoFilters } from "@/lib/filters";
 import { Chip } from "@/components/ui/chip";
 import { useFilterNav } from "./use-filter-nav";
@@ -77,6 +78,7 @@ export function ActiveFilters({
   labels?: Record<string, string>;
 }) {
   const t = useTranslations("common");
+  const locale = useLocale();
   const { removeFrom, setRange, reset } = useFilterNav(basePath, filters);
   const name = (slug: string) => labels[slug] ?? slug;
 
@@ -97,10 +99,13 @@ export function ActiveFilters({
   ];
 
   // Scalar actor-attribute filters (single value each).
-  const attrChips = ACTOR_ATTR_KEYS.filter((k) => filters[k]).map((k) => ({
-    key: k,
-    value: name(filters[k] as string),
-  }));
+  const attrChips = ACTOR_ATTR_KEYS.filter((k) => filters[k]).map((k) => {
+    const slug = filters[k] as string;
+    return {
+      key: k,
+      value: k === "actor_country" ? countryLabel(slug, locale) : name(slug),
+    };
+  });
 
   if (chips.length === 0 && attrChips.length === 0) return null;
 

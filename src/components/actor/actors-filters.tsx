@@ -2,7 +2,8 @@
 
 import * as Slider from "@radix-ui/react-slider";
 import { ChevronDown, Plus, SlidersHorizontal, X } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { countryLabel } from "@/lib/utils/country";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -269,8 +270,15 @@ function FilterControls({
 }) {
   const t = useTranslations("actorsFilters");
   const tCommon = useTranslations("common");
+  const locale = useLocale();
   const { update, reset } = useActorsNav(current);
   const [added, setAdded] = useState<string[]>([]);
+
+  // Country attribute values are stored as ISO codes (RU/US/…); show full localized names.
+  const countryOptions = attributes.countries.map((o) => ({
+    ...o,
+    name: countryLabel(o.name, locale),
+  }));
 
   const gender = current.gender ?? "woman";
   const isWoman = gender === "woman";
@@ -282,7 +290,7 @@ function FilterControls({
   };
 
   const defs: AttrDef[] = [
-    { key: "country", type: "select", label: t("country"), options: attributes.countries },
+    { key: "country", type: "select", label: t("country"), options: countryOptions },
     { key: "ethnicity", type: "select", label: t("ethnicity"), options: attributes.ethnicities },
     { key: "body_type", type: "select", label: t("bodyType"), options: attributes.bodyTypes },
     { key: "hair_color", type: "select", label: t("hairColor"), options: attributes.hairColors },

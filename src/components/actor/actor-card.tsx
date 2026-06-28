@@ -34,7 +34,7 @@ export function ActorCard({ actor, className }: { actor: Actor; className?: stri
         {flagCode ? (
           <CountryFlag
             code={flagCode}
-            className="absolute top-1.5 left-1.5 h-5 w-7 rounded-[3px] shadow ring-1 ring-black/25"
+            className="absolute top-1.5 left-1.5 rounded-[2px] text-3xl"
           />
         ) : null}
         {gender ? (

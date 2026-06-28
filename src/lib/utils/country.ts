@@ -40,6 +40,12 @@ export function countryDisplay(
   return null;
 }
 
+/** Localized full country name when `value` is an ISO alpha-2 code; otherwise the value unchanged
+ *  (so plain names pass through). Use wherever a country attribute value is shown as text. */
+export function countryLabel(value: string, locale: string): string {
+  return countryNameFromCode(value, locale) ?? value;
+}
+
 /** ISO alpha-2 code (lowercase) from a country ref, trying `name` then `slug`. "" when none. */
 export function countryCode(ref: CountryRef): string {
   const code = asCode(ref?.name) ?? asCode(ref?.slug);
