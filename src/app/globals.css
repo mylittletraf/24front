@@ -90,23 +90,6 @@ body {
   animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
 
-/* ---- Studio logo plate ----
-   Transparent studio logos ship with either black or white lettering, so the plate must read
-   the same on any theme. A warm mid-gray (theme-independent) keeps both polarities legible
-   (~4.5:1). A soft vertical gradient, an inset bevel (top highlight + bottom shade) and a faint
-   lift shadow keep the flat gray from looking dull. Apply to a logo wrapper inside a `group`. */
-.studio-plate {
-  background-image: linear-gradient(160deg, #857e77 0%, #6f6862 100%);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.14),
-    inset 0 -16px 28px -16px rgb(0 0 0 / 0.25),
-    0 1px 2px rgb(0 0 0 / 0.12);
-  transition: filter 0.2s ease;
-}
-.group:hover .studio-plate {
-  filter: brightness(1.08);
-}
-
 /* ---- Signature: warm "ember" cues ---- */
 
 /* Cards lift with a warm glow on hover. Motion gated by reduced-motion preference; the glow

@@ -42,7 +42,7 @@ function StudiosRow({ items }: { items: Tag[] }) {
           href={`/studio/${studio.slug}`}
           className="group flex flex-col gap-2"
         >
-          <div className="studio-plate relative aspect-square w-full overflow-hidden rounded-xl p-3">
+          <div className="border-border bg-surface group-hover:bg-surface-2 relative aspect-square w-full overflow-hidden rounded-xl border p-3 transition-colors">
             <SafeImage
               src={studio.preview_image}
               alt={studio.name}
@@ -51,7 +51,7 @@ function StudiosRow({ items }: { items: Tag[] }) {
               loading="lazy"
               className="object-contain"
               fallback={
-                <div className="grid h-full w-full place-items-center text-2xl font-semibold text-white/85">
+                <div className="text-muted grid h-full w-full place-items-center text-2xl font-semibold">
                   {studio.name.charAt(0).toUpperCase()}
                 </div>
               }
