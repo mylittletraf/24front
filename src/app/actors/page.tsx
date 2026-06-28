@@ -65,6 +65,12 @@ export default async function ActorsPage({ searchParams }: { searchParams: Promi
     height_max: num(sp.height_max),
     weight_min: num(sp.weight_min),
     weight_max: num(sp.weight_max),
+    bust_min: num(sp.bust_min),
+    bust_max: num(sp.bust_max),
+    waist_min: num(sp.waist_min),
+    waist_max: num(sp.waist_max),
+    hips_min: num(sp.hips_min),
+    hips_max: num(sp.hips_max),
     sort: (str(sp.sort) as ActorSort) || "popular",
     page_size: 30,
   };
@@ -94,6 +100,12 @@ export default async function ActorsPage({ searchParams }: { searchParams: Promi
     height_max: str(sp.height_max),
     weight_min: str(sp.weight_min),
     weight_max: str(sp.weight_max),
+    bust_min: str(sp.bust_min),
+    bust_max: str(sp.bust_max),
+    waist_min: str(sp.waist_min),
+    waist_max: str(sp.waist_max),
+    hips_min: str(sp.hips_min),
+    hips_max: str(sp.hips_max),
     sort: str(sp.sort),
   };
 

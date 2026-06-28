@@ -242,6 +242,9 @@
     "height": "Рост",
     "weight": "Вес",
     "ethnicity": "Этнос",
+    "bust": "Бюст",
+    "waist": "Талия",
+    "hips": "Бёдра",
     "sortPopular": "Популярные",
     "sortName": "По алфавиту",
     "sortNewest": "Новые"

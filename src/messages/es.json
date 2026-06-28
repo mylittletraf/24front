@@ -242,6 +242,9 @@
     "height": "Height",
     "weight": "Weight",
     "ethnicity": "Ethnicity",
+    "bust": "Bust",
+    "waist": "Waist",
+    "hips": "Hips",
     "sortPopular": "Popular",
     "sortName": "A–Z",
     "sortNewest": "Newest"

@@ -34,6 +34,10 @@ type Current = Record<string, string | undefined>;
 
 const HEIGHT = { min: 140, max: 200 };
 const WEIGHT = { min: 40, max: 120 };
+// bust / waist / hips are stored in inches.
+const BUST = { min: 28, max: 48 };
+const WAIST = { min: 20, max: 40 };
+const HIPS = { min: 30, max: 50 };
 
 type AttrDef =
   | { key: string; type: "select"; label: string; options: AttributeOption[] }
@@ -312,6 +316,37 @@ function FilterControls({
       minKey: "weight_min",
       maxKey: "weight_max",
     },
+    ...(isWoman
+      ? ([
+          {
+            key: "bust",
+            type: "range",
+            label: t("bust"),
+            unit: "″",
+            bounds: BUST,
+            minKey: "bust_min",
+            maxKey: "bust_max",
+          },
+          {
+            key: "waist",
+            type: "range",
+            label: t("waist"),
+            unit: "″",
+            bounds: WAIST,
+            minKey: "waist_min",
+            maxKey: "waist_max",
+          },
+          {
+            key: "hips",
+            type: "range",
+            label: t("hips"),
+            unit: "″",
+            bounds: HIPS,
+            minKey: "hips_min",
+            maxKey: "hips_max",
+          },
+        ] as AttrDef[])
+      : []),
   ];
 
   const hasValue = (def: AttrDef) =>

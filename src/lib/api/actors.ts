@@ -26,6 +26,12 @@ export interface ActorListParams {
   height_max?: number;
   weight_min?: number;
   weight_max?: number;
+  bust_min?: number;
+  bust_max?: number;
+  waist_min?: number;
+  waist_max?: number;
+  hips_min?: number;
+  hips_max?: number;
   sort?: ActorSort;
   page?: number;
   page_size?: number;
