@@ -191,6 +191,9 @@ export const ActorSchema = z.object({
   eye_color: AttributeRefSchema.optional(),
   ethnicity: AttributeRefSchema.optional(),
   measurements: z.string().nullable().optional(),
+  bust: z.number().nullable().optional(),
+  waist: z.number().nullable().optional(),
+  hips: z.number().nullable().optional(),
   piercings: z.string().nullable().optional(),
   has_tattoos: z.boolean().optional(),
 });

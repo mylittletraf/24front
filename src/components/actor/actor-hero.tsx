@@ -72,8 +72,13 @@ export async function ActorHero({ actor, subscribe }: { actor: Actor; subscribe?
   if (actor.eye_color) body.push({ label: t("eyeColor"), value: actor.eye_color.name });
   if (actor.bra_size) body.push({ label: t("braSize"), value: actor.bra_size.name });
   if (actor.boobs_type) body.push({ label: t("boobsType"), value: actor.boobs_type.name });
-  if (actor.measurements)
-    body.push({ label: t("measurements"), value: <Measurements value={actor.measurements} /> });
+  // Prefer the structured bust/waist/hips (inches) when present; else the free-text string.
+  const bwh = [actor.bust, actor.waist, actor.hips];
+  const measurements = bwh.every((n) => typeof n === "number")
+    ? bwh.join("-")
+    : (actor.measurements ?? "");
+  if (measurements)
+    body.push({ label: t("measurements"), value: <Measurements value={measurements} /> });
   if (actor.piercings) body.push({ label: t("piercings"), value: actor.piercings });
   if (actor.has_tattoos) body.push({ label: t("tattoos"), value: t("yes") });
 
