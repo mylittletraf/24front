@@ -289,7 +289,7 @@ function FilterControls({
     { key: "eye_color", type: "select", label: t("eyeColor"), options: attributes.eyeColors },
     ...(isWoman
       ? ([
-          { key: "bra_size", type: "select", label: t("braSize"), options: attributes.braSizes },
+          // bra_size intentionally omitted — it duplicates the bust measurement filter.
           {
             key: "boobs_type",
             type: "select",
