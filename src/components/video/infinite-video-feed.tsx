@@ -85,9 +85,15 @@ export function InfiniteVideoFeed({
   const nativeSlot = useAdSlot("native_in_video_feed");
   const mounted = useMounted();
   const isMobile = useMediaQuery("(max-width: 1023px)");
+  // Desktop column count tracks VideoGrid (md=3 / xl=4 / wide=5) so shelves land on a full row.
+  const isWide = useMediaQuery("(min-width: 1440px)");
+  const isXl = useMediaQuery("(min-width: 1280px)");
+  const desktopCols = isWide ? 5 : isXl ? 4 : 3;
   const showNative = mounted && isMobile && !!nativeSlot;
 
   // Shorts interleave (home only): desktop shelves after rows 2 & 4, mobile a 2×4 tile block after 8.
+  // The shelf is `col-span-full`, so the row before it must be complete (a multiple of the column
+  // count) — otherwise it breaks mid-row and the grid looks ragged. Hence the row-based indices.
   function shortsAt(i: number) {
     if (!interleaveShorts || !mounted) return null;
     if (isMobile) {
@@ -97,13 +103,15 @@ export function InfiniteVideoFeed({
         </div>
       ) : null;
     }
-    if (i === 7 || i === 15) {
+    const afterRow2 = 2 * desktopCols - 1;
+    const afterRow4 = 4 * desktopCols - 1;
+    if (i === afterRow2 || i === afterRow4) {
       return (
         <div className="col-span-full">
           <ShortsShelf
             title={t("shorts.shelfTitle")}
             scope={shortsScope}
-            skip={i === 7 ? 0 : 12}
+            skip={i === afterRow2 ? 0 : 12}
             take={12}
           />
         </div>
