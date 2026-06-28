@@ -138,7 +138,7 @@ export async function ActorHero({ actor, subscribe }: { actor: Actor; subscribe?
             <div className="flex max-w-2xl flex-col gap-4">
               {groups.map((group) => (
                 <section key={group.title} className="flex flex-col gap-1">
-                  <h2 className="text-muted text-xs font-semibold tracking-wide uppercase">
+                  <h2 className="text-foreground border-border mb-1 border-b pb-1 text-lg font-bold">
                     {group.title}
                   </h2>
                   <dl className="grid grid-cols-1 gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
