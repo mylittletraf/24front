@@ -5,12 +5,15 @@ import { SafeImage } from "@/components/ui/safe-image";
 import { Description } from "@/components/video/description";
 import type { Actor } from "@/lib/api/types";
 import type { Locale } from "@/lib/i18n/locales";
-import { formatDate } from "@/lib/utils/format";
+import { ageFromBirthDate, formatDate } from "@/lib/utils/format";
 
 export async function ActorHero({ actor, subscribe }: { actor: Actor; subscribe?: ReactNode }) {
   const t = await getTranslations("actor");
   const locale = (await getLocale()) as Locale;
   const shortsCount = actor.shorts_count ?? 0;
+
+  const birthYear = actor.birth_date ? new Date(actor.birth_date).getFullYear() : null;
+  const currentAge = ageFromBirthDate(actor.birth_date); // exact, month/day-aware
 
   const rows: { label: string; value: string }[] = [];
   if (actor.country) rows.push({ label: t("country"), value: actor.country.name });
@@ -22,15 +25,32 @@ export async function ActorHero({ actor, subscribe }: { actor: Actor; subscribe?
   if (actor.hair_color) rows.push({ label: t("hairColor"), value: actor.hair_color.name });
   if (actor.eye_color) rows.push({ label: t("eyeColor"), value: actor.eye_color.name });
   if (actor.birth_date)
-    rows.push({ label: t("birthDate"), value: formatDate(actor.birth_date, locale) });
+    rows.push({
+      label: t("birthDate"),
+      value:
+        currentAge != null
+          ? `${formatDate(actor.birth_date, locale)} (${t("yearsOld", { count: currentAge })})`
+          : formatDate(actor.birth_date, locale),
+    });
   if (actor.birth_place) rows.push({ label: t("birthPlace"), value: actor.birth_place });
-  if (actor.career_start_year)
+  if (actor.career_start_year) {
     rows.push({
       label: t("career"),
       value: actor.career_end_year
         ? `${actor.career_start_year}–${actor.career_end_year}`
-        : `${actor.career_start_year}`,
+        : `${actor.career_start_year} – ${t("careerPresent")}`,
     });
+    // Age on set — needs both birth year and career start
+    if (birthYear) {
+      const fromAge = actor.career_start_year - birthYear;
+      rows.push({
+        label: t("ageOnSet"),
+        value: actor.career_end_year
+          ? t("ageOnSetRange", { from: fromAge, to: actor.career_end_year - birthYear })
+          : t("ageOnSetFrom", { from: fromAge }),
+      });
+    }
+  }
 
   return (
     <section className="bg-surface relative overflow-hidden rounded-2xl">

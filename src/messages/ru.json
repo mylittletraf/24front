@@ -205,6 +205,11 @@
     "relatedActors": "Похожие актёры",
     "birthPlace": "Место рождения",
     "career": "Годы активности",
+    "careerPresent": "по настоящее время",
+    "yearsOld": "{count, plural, one {# год} few {# года} many {# лет} other {# лет}}",
+    "ageOnSet": "Возраст на съёмках",
+    "ageOnSetRange": "с {from} до {to, plural, one {# года} other {# лет}}",
+    "ageOnSetFrom": "с {from, plural, one {# года} other {# лет}}",
     "videosCount": "{count} видео",
     "subscribersCount": "{count, plural, one {# подписчик} few {# подписчика} many {# подписчиков} other {# подписчиков}}",
     "shortsCount": "{count} shorts"

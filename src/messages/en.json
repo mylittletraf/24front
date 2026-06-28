@@ -205,6 +205,11 @@
     "relatedActors": "Related actors",
     "birthPlace": "Birthplace",
     "career": "Active years",
+    "careerPresent": "present",
+    "yearsOld": "{count, plural, one {# year} other {# years}}",
+    "ageOnSet": "Age on set",
+    "ageOnSetRange": "{from}–{to} years old",
+    "ageOnSetFrom": "from {from} years old",
     "videosCount": "{count, plural, one {# video} other {# videos}}",
     "subscribersCount": "{count, plural, one {# subscriber} other {# subscribers}}",
     "shortsCount": "{count, plural, one {# short} other {# shorts}}"

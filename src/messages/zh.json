@@ -205,6 +205,11 @@
     "relatedActors": "相关演员",
     "birthPlace": "出生地",
     "career": "活跃年份",
+    "careerPresent": "至今",
+    "yearsOld": "{count} 岁",
+    "ageOnSet": "拍摄时年龄",
+    "ageOnSetRange": "{from}–{to} 岁",
+    "ageOnSetFrom": "{from} 岁起",
     "videosCount": "{count} 个视频",
     "subscribersCount": "{count} 位订阅者",
     "shortsCount": "{count} 个短视频"

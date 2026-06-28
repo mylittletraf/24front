@@ -59,3 +59,17 @@ export function formatDate(iso: string | null | undefined, locale: Locale = "en"
   if (!iso) return "";
   return new Date(iso).toLocaleDateString(locale);
 }
+
+/** ISO birth date → exact age in whole years (accounts for whether the birthday passed this year). */
+export function ageFromBirthDate(
+  iso: string | null | undefined,
+  now: Date = new Date(),
+): number | null {
+  if (!iso) return null;
+  const b = new Date(iso);
+  if (Number.isNaN(b.getTime())) return null;
+  let age = now.getFullYear() - b.getFullYear();
+  const m = now.getMonth() - b.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < b.getDate())) age--;
+  return age;
+}
