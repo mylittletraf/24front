@@ -5,10 +5,16 @@ import { SafeImage } from "@/components/ui/safe-image";
 import { Description } from "@/components/video/description";
 import type { Actor } from "@/lib/api/types";
 import type { Locale } from "@/lib/i18n/locales";
+import { countryDisplay } from "@/lib/utils/country";
 import { ageFromBirthDate, formatDate } from "@/lib/utils/format";
 import { Measurements } from "./measurements";
 
 type AttrRow = { label: string; value: ReactNode };
+
+/** Capitalize the first letter of every word (aliases are often stored lowercase). */
+function titleCase(s: string): string {
+  return s.replace(/(^|[\s-])(\p{L})/gu, (_, sep, ch) => sep + ch.toUpperCase());
+}
 
 export async function ActorHero({ actor, subscribe }: { actor: Actor; subscribe?: ReactNode }) {
   const t = await getTranslations("actor");
@@ -20,7 +26,14 @@ export async function ActorHero({ actor, subscribe }: { actor: Actor; subscribe?
 
   // Personal: identity / biography facts (anything not about the body).
   const personal: AttrRow[] = [];
-  if (actor.country) personal.push({ label: t("country"), value: actor.country.name });
+  if (actor.country) {
+    // If the country is stored as an ISO code (RU/US/…), show flag + localized name.
+    const cd = countryDisplay(actor.country, locale);
+    personal.push({
+      label: t("country"),
+      value: cd ? `${cd.flag} ${cd.name}` : actor.country.name,
+    });
+  }
   if (actor.ethnicity) personal.push({ label: t("ethnicity"), value: actor.ethnicity.name });
   if (actor.birth_date)
     personal.push({
@@ -121,7 +134,7 @@ export async function ActorHero({ actor, subscribe }: { actor: Actor; subscribe?
           <h1 className="text-2xl font-bold">{actor.name}</h1>
           {actor.aliases && actor.aliases.length > 0 ? (
             <p className="text-muted text-sm">
-              {t("aliases")}: {actor.aliases.join(", ")}
+              {t("aliases")}: {actor.aliases.map(titleCase).join(", ")}
             </p>
           ) : null}
 

@@ -2,6 +2,7 @@ import { Film, Zap } from "lucide-react";
 import Link from "next/link";
 import { SafeImage } from "@/components/ui/safe-image";
 import type { Actor } from "@/lib/api/types";
+import { countryFlag } from "@/lib/utils/country";
 import { formatCount } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 
@@ -11,6 +12,7 @@ const GENDER_SYMBOL: Record<string, string> = { woman: "♀", man: "♂" };
 
 export function ActorCard({ actor, className }: { actor: Actor; className?: string }) {
   const gender = GENDER_SYMBOL[actor.gender];
+  const flag = countryFlag(actor.country);
   const shorts = actor.shorts_count ?? 0;
   return (
     <Link href={`/actor/${actor.slug}`} className={cn("group flex flex-col gap-2", className)}>
@@ -28,8 +30,16 @@ export function ActorCard({ actor, className }: { actor: Actor; className?: stri
             </div>
           }
         />
+        {flag ? (
+          <span
+            aria-hidden
+            className="absolute top-1.5 left-1.5 grid h-6 min-w-6 place-items-center rounded-full bg-black/80 px-1 text-sm"
+          >
+            {flag}
+          </span>
+        ) : null}
         {gender ? (
-          <span className="absolute top-1.5 left-1.5 grid h-6 w-6 place-items-center rounded-full bg-black/80 text-sm text-white">
+          <span className="absolute top-1.5 right-1.5 grid h-6 w-6 place-items-center rounded-full bg-black/80 text-sm text-white">
             {gender}
           </span>
         ) : null}
