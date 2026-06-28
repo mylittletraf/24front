@@ -7,44 +7,14 @@ import { cn } from "@/lib/utils/cn";
 import { useShortsPref } from "./shorts-pref";
 
 /**
- * Toggles whether Shorts shelves/tiles appear on listing pages. `icon` for the desktop header action
- * row; `row` for the mobile hamburger drawer (a labelled switch). State comes from the cookie-seeded
- * provider, so it renders consistently on SSR (no flash) and persists across visits.
+ * Toggles whether Shorts shelves/tiles appear on listing pages. Icon button for the desktop header
+ * action row and the mobile hamburger drawer alike. State comes from the cookie-seeded provider, so
+ * it renders consistently on SSR (no flash) and persists across visits.
  */
-export function ShortsToggle({ variant = "icon" }: { variant?: "icon" | "row" }) {
+export function ShortsToggle() {
   const { show, toggle } = useShortsPref();
   const t = useTranslations("nav");
   const label = t("showShorts");
-
-  if (variant === "row") {
-    return (
-      <button
-        type="button"
-        role="switch"
-        aria-checked={show}
-        onClick={toggle}
-        className="hover:bg-surface flex w-full items-center justify-between gap-3 rounded-md px-2 py-3"
-      >
-        <span className="flex items-center gap-3 text-lg font-semibold">
-          <Zap size={20} className="text-muted" />
-          {label}
-        </span>
-        <span
-          className={cn(
-            "relative h-6 w-11 shrink-0 rounded-full transition-colors",
-            show ? "bg-accent" : "bg-surface-2 border-border border",
-          )}
-        >
-          <span
-            className={cn(
-              "absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform",
-              show && "translate-x-5",
-            )}
-          />
-        </span>
-      </button>
-    );
-  }
 
   return (
     <Button

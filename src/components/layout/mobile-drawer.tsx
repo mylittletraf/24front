@@ -54,6 +54,7 @@ export function MobileDrawer() {
                 {displayName.charAt(0).toUpperCase()}
               </span>
               <span className="flex-1 truncate text-sm font-medium">{displayName}</span>
+              <ShortsToggle />
               <ThemeToggle />
             </div>
           ) : (
@@ -80,6 +81,7 @@ export function MobileDrawer() {
               >
                 {t("auth.register")}
               </Button>
+              <ShortsToggle />
               <ThemeToggle />
             </div>
           )}
@@ -96,7 +98,6 @@ export function MobileDrawer() {
               {label}
             </Link>
           ))}
-          <ShortsToggle variant="row" />
         </nav>
 
         {isAuthenticated ? (
