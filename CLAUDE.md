@@ -106,6 +106,7 @@ and VAST placements are documented in `docs/ADS_GUIDE.md`.
 `ADS_GUIDE.md`, `ANALYTICS.md`, `API_OPTIMIZATION.md` + `API_OPTIMIZATION_TASK.md` (backend handoff),
 `MEDIA_PROTECTION_BACKEND_TASK.md` (signed-URL plan),
 `SITEMAP_IMAGES_BACKEND_TASK.md` (image sitemap for screenshots, backend handoff),
+`CATALOG_FILTER_AND_BACKEND_TASK.md` (include_tags/categories should AND, not OR — backend handoff),
 `filter-subscriptions-frontend.md`,
 `BACKEND_BUGS.md` (known backend gaps / frontend workarounds), `BRANDING.md`.
 
