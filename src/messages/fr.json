@@ -179,6 +179,9 @@
   },
   "catalog": {
     "title": "Videos",
+    "categoriesLabel": "Categories",
+    "tagsLabel": "Tags",
+    "tagHint": "Click to include, click again to exclude",
     "filters": "Filters",
     "durationFrom": "Duration from (s)",
     "durationTo": "to (s)",

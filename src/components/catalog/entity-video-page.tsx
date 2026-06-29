@@ -5,7 +5,8 @@ import { notFound, redirect } from "next/navigation";
 import { ShortsShelf } from "@/components/shorts/shorts-shelf";
 import { ShortsGate } from "@/components/shorts/shorts-pref";
 import { Container } from "@/components/layout/container";
-import { ActiveFilters, RefineBlock } from "@/components/catalog/refine-block";
+import { CatalogFilters, type FilterBase } from "@/components/catalog/catalog-filters";
+import { ActiveFilters } from "@/components/catalog/refine-block";
 import { ListingPagination } from "@/components/catalog/listing-pagination";
 import { SaveFilterButton } from "@/components/catalog/save-filter-button";
 import { SortSelect } from "@/components/catalog/sort-select";
@@ -95,6 +96,8 @@ export async function EntityVideoPage({
 
   // Refine selections live in this page's own query string and accumulate in place.
   const refineFilters = parseFilters(searchParams);
+  // The entity itself is pre-selected and locked in the filter panel (it lives in the path).
+  const filterBase: FilterBase = { kind, slug, name: detail.name };
 
   // The entity itself is the fixed base filter; refine selections are added on top.
   const combined: VideoFilters = { ...refineFilters };
@@ -199,11 +202,16 @@ export async function EntityVideoPage({
           entity={{ type: conf.stateType, slug }}
           entityName={detail.name}
         />
+        <CatalogFilters
+          filters={refineFilters}
+          basePath={basePath}
+          related={related}
+          labels={labels}
+          base={filterBase}
+        />
         <SortSelect filters={refineFilters} basePath={basePath} />
       </div>
 
-      {/* Refine in place — chips stay on this page and accumulate (basePath = this entity). */}
-      <RefineBlock related={related} filters={refineFilters} basePath={basePath} />
       <ActiveFilters filters={refineFilters} basePath={basePath} labels={labels} />
 
       {/* Shorts for this category/tag (scoped). A dedicated shelf (not interleaved) so it shows

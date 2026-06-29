@@ -1,71 +1,11 @@
 "use client";
 
-import { Check, Minus, Plus } from "lucide-react";
+import { Minus } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import type { RelatedFilters } from "@/lib/api/related";
 import { countryLabel } from "@/lib/utils/country";
 import { ACTOR_ATTR_KEYS, type VideoFilters } from "@/lib/filters";
 import { Chip } from "@/components/ui/chip";
 import { useFilterNav } from "./use-filter-nav";
-
-export function RefineBlock({
-  related,
-  filters,
-  basePath,
-}: {
-  related: RelatedFilters;
-  filters: VideoFilters;
-  basePath: string;
-}) {
-  const t = useTranslations("refine");
-  const { toggleTag, toggleList } = useFilterNav(basePath, filters);
-
-  const { tags, categories, actors } = related.related;
-  if (tags.length === 0 && categories.length === 0 && actors.length === 0) return null;
-
-  return (
-    <section className="flex flex-col gap-2">
-      <h2 className="text-base font-semibold">{t("title")}</h2>
-      <div className="flex flex-wrap gap-2">
-        {categories.map((c) => (
-          <Chip
-            key={c.uuid}
-            className="shrink-0"
-            state={filters.categories.includes(c.slug) ? "active" : "default"}
-            onClick={() => toggleList("categories", c.slug)}
-          >
-            {filters.categories.includes(c.slug) ? <Check size={14} /> : <Plus size={14} />}
-            {c.name}
-          </Chip>
-        ))}
-        {tags.map((tag) => {
-          const included = filters.include_tags.includes(tag.slug);
-          return (
-            <Chip
-              key={tag.uuid}
-              className="shrink-0"
-              state={included ? "active" : "default"}
-              onClick={() => toggleTag(tag.slug)}
-            >
-              {included ? <Check size={14} /> : <Plus size={14} />}#{tag.name}
-            </Chip>
-          );
-        })}
-        {actors.map((a) => (
-          <Chip
-            key={a.uuid}
-            className="shrink-0"
-            state={filters.actors.includes(a.slug) ? "active" : "default"}
-            onClick={() => toggleList("actors", a.slug)}
-          >
-            {filters.actors.includes(a.slug) ? <Check size={14} /> : <Plus size={14} />}
-            {a.name}
-          </Chip>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 export function ActiveFilters({
   filters,

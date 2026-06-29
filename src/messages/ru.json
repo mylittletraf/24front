@@ -179,6 +179,9 @@
   },
   "catalog": {
     "title": "Видео",
+    "categoriesLabel": "Категории",
+    "tagsLabel": "Теги",
+    "tagHint": "Клик — включить тег, ещё раз — исключить",
     "filters": "Фильтры",
     "durationFrom": "Длительность от (сек)",
     "durationTo": "до (сек)",

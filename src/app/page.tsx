@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
-import { ActiveFilters, RefineBlock } from "@/components/catalog/refine-block";
+import { CatalogFilters } from "@/components/catalog/catalog-filters";
+import { ActiveFilters } from "@/components/catalog/refine-block";
 import { ListingPagination } from "@/components/catalog/listing-pagination";
 import { SaveFilterButton } from "@/components/catalog/save-filter-button";
 import { SortSelect } from "@/components/catalog/sort-select";
@@ -44,12 +45,13 @@ export default async function HomePage({
     ...(cursor ? { cursor } : {}),
   };
 
-  // Refine is shown only on a *filtered* list (not the bare home).
+  // The filter panel (and its facet counts) is shown always, so related-filters is fetched
+  // unconditionally; `active` still gates the save-filter button and shorts interleaving.
   const active = hasActiveFilters(filters);
   const [initialPage, related, labels] = await Promise.all([
     getVideos(apiParams, { revalidate: 60 }),
-    active ? getCatalogRelatedFilters({ lang: locale, ...filterParams }) : Promise.resolve(null),
-    active ? getFilterLabels(filters, locale) : Promise.resolve({}),
+    getCatalogRelatedFilters({ lang: locale, ...filterParams }),
+    getFilterLabels(filters, locale),
   ]);
   const queryKey = ["videos", "catalog", locale, filtersToSearchString(filters), cursor ?? ""];
 
@@ -58,6 +60,7 @@ export default async function HomePage({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-display text-xl font-bold tracking-tight">{t("title")}</h1>
         <div className="flex items-center gap-2">
+          <CatalogFilters filters={filters} basePath="/" related={related} labels={labels} />
           <SortSelect filters={filters} basePath="/" />
         </div>
       </div>
@@ -66,7 +69,6 @@ export default async function HomePage({
         <ActiveFilters filters={filters} basePath="/" labels={labels} />
         {active ? <SaveFilterButton filters={filters} labels={labels} /> : null}
       </div>
-      {related ? <RefineBlock related={related} filters={filters} basePath="/" /> : null}
 
       <InfiniteVideoFeed
         queryKey={queryKey}
