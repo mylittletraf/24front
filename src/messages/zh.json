@@ -161,7 +161,10 @@
     "subscribers": "{count} 位订阅者",
     "pagination": "分页导航",
     "newerVideos": "更新",
-    "olderVideos": "更早"
+    "olderVideos": "更早",
+    "nextPage": "下一页",
+    "previousPage": "上一页",
+    "goToPage": "第 {n} 页"
   },
   "refine": {
     "title": "Refine"

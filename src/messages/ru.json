@@ -161,7 +161,10 @@
     "subscribers": "{count} подписчиков",
     "pagination": "Навигация по страницам",
     "newerVideos": "Новее",
-    "olderVideos": "Старше"
+    "olderVideos": "Старше",
+    "nextPage": "Следующая страница",
+    "previousPage": "Предыдущая страница",
+    "goToPage": "Страница {n}"
   },
   "refine": {
     "title": "Уточнить выборку"

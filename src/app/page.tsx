@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
+import { notFound } from "next/navigation";
 import { CatalogFilters } from "@/components/catalog/catalog-filters";
 import { ActiveFilters } from "@/components/catalog/refine-block";
-import { ListingPagination } from "@/components/catalog/listing-pagination";
+import { PaginationNav } from "@/components/catalog/pagination-nav";
 import { SaveFilterButton } from "@/components/catalog/save-filter-button";
 import { SortSelect } from "@/components/catalog/sort-select";
 import { Container } from "@/components/layout/container";
 import { InfiniteVideoFeed } from "@/components/video/infinite-video-feed";
 import { SITE_URL } from "@/lib/api/config";
-import { cursorFromSearchParams } from "@/lib/api/pagination";
+import { ApiError } from "@/lib/api/errors";
+import { pageFromSearchParams, pagedMetadata } from "@/lib/api/pagination";
 import type { QueryValue } from "@/lib/api/fetcher";
 import { getFilterLabels } from "@/lib/api/filter-labels";
 import { getCatalogRelatedFilters } from "@/lib/api/related";
-import { getVideos } from "@/lib/api/videos";
+import { getVideosPaged } from "@/lib/api/videos";
 import {
   filtersToApiParams,
   filtersToSearchString,
@@ -23,8 +25,18 @@ import type { Locale } from "@/lib/i18n/locales";
 
 export const revalidate = 60;
 
-// Filtered catalog views (?actor_country=…, ?sort=…) all canonicalize to the clean home URL.
-export const metadata: Metadata = { alternates: { canonical: SITE_URL } };
+const PAGE_SIZE = 24;
+
+// Filtered catalog views (?actor_country=…, ?sort=…) all canonicalize to the clean home URL;
+// numbered pages ≥2 become noindex,follow with a self canonical.
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}): Promise<Metadata> {
+  const sp = await searchParams;
+  return pagedMetadata({ alternates: { canonical: SITE_URL } }, SITE_URL, sp);
+}
 
 export default async function HomePage({
   searchParams,
@@ -37,23 +49,27 @@ export default async function HomePage({
 
   const filters = parseFilters(sp);
   const filterParams = filtersToApiParams(filters);
-  const cursor = cursorFromSearchParams(sp);
+  const page = pageFromSearchParams(sp);
   const apiParams: Record<string, QueryValue> = {
     lang: locale,
-    page_size: 50,
+    page,
+    page_size: PAGE_SIZE,
     ...filterParams,
-    ...(cursor ? { cursor } : {}),
   };
 
   // The filter panel (and its facet counts) is shown always, so related-filters is fetched
   // unconditionally; `active` still gates the save-filter button and shorts interleaving.
   const active = hasActiveFilters(filters);
   const [initialPage, related, labels] = await Promise.all([
-    getVideos(apiParams, { revalidate: 60 }),
+    getVideosPaged(apiParams, { revalidate: 60 }),
     getCatalogRelatedFilters({ lang: locale, ...filterParams }),
     getFilterLabels(filters, locale),
-  ]);
-  const queryKey = ["videos", "catalog", locale, filtersToSearchString(filters), cursor ?? ""];
+  ]).catch((error: unknown) => {
+    // Out-of-range page → backend 404 (DRF NotFound). Page 1 always renders (even when empty).
+    if (error instanceof ApiError && error.status === 404 && page > 1) notFound();
+    throw error;
+  });
+  const queryKey = ["videos", "catalog", locale, filtersToSearchString(filters), page];
 
   return (
     <Container className="desktop:py-6 flex flex-col gap-4 py-4">
@@ -75,17 +91,16 @@ export default async function HomePage({
         params={apiParams}
         initialPage={initialPage}
         emptyTitle={t("empty")}
-        manual
-        loadMorePageSize={20}
-        interleaveShorts={!active}
+        paged
+        interleaveShorts={!active && page === 1}
       />
 
-      {/* Crawlable prev/next links (cursor chain) so bots can walk the whole catalog. */}
-      <ListingPagination
+      <PaginationNav
         basePath="/"
         searchParams={sp}
-        prev={initialPage.previous}
-        next={initialPage.next}
+        page={page}
+        count={initialPage.count}
+        pageSize={PAGE_SIZE}
       />
     </Container>
   );

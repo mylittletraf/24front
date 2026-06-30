@@ -41,6 +41,7 @@ export function InfiniteVideoFeed({
   priorityCount = 4,
   emptyTitle,
   manual = false,
+  paged = false,
   loadMorePageSize,
   interleaveShorts = false,
   shortsScope,
@@ -53,6 +54,8 @@ export function InfiniteVideoFeed({
   emptyTitle?: string;
   /** Replace auto infinite-scroll with an explicit "Load more" button. */
   manual?: boolean;
+  /** Classic numbered pagination: render only this page (no infinite scroll / no "Load more"). */
+  paged?: boolean;
   /** page_size for button-triggered loads (the initial page may have loaded more). */
   loadMorePageSize?: number;
   /** Interleave Shorts (desktop shelves after rows 2 & 4, mobile 2×4 tiles after 8). */
@@ -69,7 +72,8 @@ export function InfiniteVideoFeed({
         ? getVideoPageByUrl(withPageSize(pageParam, loadMorePageSize))
         : getVideoList(endpoint, params),
     initialPageParam: null as string | null,
-    getNextPageParam: (last) => last.next,
+    // In paged mode the numbered pager drives navigation, so never expose a next page here.
+    getNextPageParam: (last) => (paged ? undefined : last.next),
     initialData: { pages: [initialPage], pageParams: [null] },
   });
 
@@ -143,7 +147,7 @@ export function InfiniteVideoFeed({
           : null}
       </VideoGrid>
 
-      {!manual ? <div ref={ref} className="h-px w-full" /> : null}
+      {!manual && !paged ? <div ref={ref} className="h-px w-full" /> : null}
 
       {(manual || isError) && hasNextPage ? (
         <div className="flex justify-center py-6">

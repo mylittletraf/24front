@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { getLocale } from "next-intl/server";
 import { EntityVideoPage } from "@/components/catalog/entity-video-page";
+import { SITE_URL } from "@/lib/api/config";
+import { pagedMetadata } from "@/lib/api/pagination";
 import { getSeo, seoToMetadata } from "@/lib/api/seo";
 import { resolveLocale, type Locale } from "@/lib/i18n/locales";
 
@@ -11,12 +13,14 @@ export async function generateMetadata({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ lang?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }): Promise<Metadata> {
   const { slug } = await params;
   const sp = await searchParams;
-  const lang = sp.lang ? resolveLocale(sp.lang) : ((await getLocale()) as Locale);
-  return seoToMetadata(await getSeo("category", slug, lang));
+  const langParam = typeof sp.lang === "string" ? sp.lang : undefined;
+  const lang = langParam ? resolveLocale(langParam) : ((await getLocale()) as Locale);
+  const seo = await getSeo("category", slug, lang);
+  return pagedMetadata(seoToMetadata(seo), seo?.canonical ?? SITE_URL, sp);
 }
 
 export default async function CategoryPage({

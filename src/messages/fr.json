@@ -161,7 +161,10 @@
     "subscribers": "{count} abonnés",
     "pagination": "Pagination",
     "newerVideos": "Plus récents",
-    "olderVideos": "Plus anciens"
+    "olderVideos": "Plus anciens",
+    "nextPage": "Page suivante",
+    "previousPage": "Page précédente",
+    "goToPage": "Page {n}"
   },
   "refine": {
     "title": "Refine"

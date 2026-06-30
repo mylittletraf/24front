@@ -7,7 +7,7 @@ import { ShortsGate } from "@/components/shorts/shorts-pref";
 import { Container } from "@/components/layout/container";
 import { CatalogFilters, type FilterBase } from "@/components/catalog/catalog-filters";
 import { ActiveFilters } from "@/components/catalog/refine-block";
-import { ListingPagination } from "@/components/catalog/listing-pagination";
+import { PaginationNav } from "@/components/catalog/pagination-nav";
 import { SaveFilterButton } from "@/components/catalog/save-filter-button";
 import { SortSelect } from "@/components/catalog/sort-select";
 import { Breadcrumbs, type Crumb } from "@/components/seo/breadcrumbs";
@@ -21,8 +21,8 @@ import { getFilterLabels } from "@/lib/api/filter-labels";
 import { getCatalogRelatedFilters } from "@/lib/api/related";
 import { getTaxonomyDetail } from "@/lib/api/taxonomy";
 import { getRedirect } from "@/lib/api/video-detail";
-import { getVideos } from "@/lib/api/videos";
-import { cursorFromSearchParams } from "@/lib/api/pagination";
+import { getVideosPaged } from "@/lib/api/videos";
+import { pageFromSearchParams } from "@/lib/api/pagination";
 import type { QueryValue } from "@/lib/api/fetcher";
 import { collectionPageJsonLd, faqPageJsonLd, graph } from "@/lib/seo/structured-data";
 import {
@@ -32,6 +32,8 @@ import {
   type VideoFilters,
 } from "@/lib/filters";
 import type { Locale } from "@/lib/i18n/locales";
+
+const PAGE_SIZE = 24;
 
 function uniq(values: string[]): string[] {
   return [...new Set(values)];
@@ -103,20 +105,24 @@ export async function EntityVideoPage({
   const combined: VideoFilters = { ...refineFilters };
   combined[conf.filterKey] = uniq([slug, ...refineFilters[conf.filterKey]]);
 
-  // Cursor from this page's own URL (?cursor=…) — the crawlable deep-pagination param.
-  const cursor = cursorFromSearchParams(searchParams);
+  // Classic numbered pagination (?page=N) over the entity's filtered video list.
+  const page = pageFromSearchParams(searchParams);
   const apiParams: Record<string, QueryValue> = {
     lang,
-    page_size: 24,
+    page,
+    page_size: PAGE_SIZE,
     ...filtersToApiParams(combined),
-    ...(cursor ? { cursor } : {}),
   };
 
   const [initialPage, related, labels] = await Promise.all([
-    getVideos(apiParams, { revalidate: 60 }),
+    getVideosPaged(apiParams, { revalidate: 60 }),
     getCatalogRelatedFilters({ lang, ...filtersToApiParams(combined) }),
     getFilterLabels(refineFilters, lang),
-  ]);
+  ]).catch((error: unknown) => {
+    // Out-of-range page → backend 404 (DRF NotFound). Page 1 always renders (even when empty).
+    if (error instanceof ApiError && error.status === 404 && page > 1) notFound();
+    throw error;
+  });
 
   // Breadcrumbs: Home › <index> › name (categories/studios have an index page; tags don't).
   const crumbs: Crumb[] = [{ name: tb("home"), url: "/" }];
@@ -232,19 +238,20 @@ export async function EntityVideoPage({
       ) : null}
 
       <InfiniteVideoFeed
-        queryKey={["videos", kind, slug, lang, filtersToSearchString(refineFilters), cursor ?? ""]}
+        queryKey={["videos", kind, slug, lang, filtersToSearchString(refineFilters), page]}
         endpoint="/videos/"
         params={apiParams}
         initialPage={initialPage}
         emptyTitle={t("empty")}
+        paged
       />
 
-      {/* Crawlable prev/next links (cursor chain) so bots can walk the whole catalog. */}
-      <ListingPagination
+      <PaginationNav
         basePath={basePath}
         searchParams={searchParams}
-        prev={initialPage.previous}
-        next={initialPage.next}
+        page={page}
+        count={initialPage.count}
+        pageSize={PAGE_SIZE}
       />
     </Container>
   );

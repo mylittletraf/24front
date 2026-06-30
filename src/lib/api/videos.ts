@@ -1,7 +1,13 @@
 import type { Locale } from "@/lib/i18n/locales";
 import { apiFetch, toProxyUrl, type QueryValue } from "./fetcher";
 import { ApiError } from "./errors";
-import { parseList, VideoCardSchema, type CursorPage, type VideoCard } from "./types";
+import {
+  parseList,
+  VideoCardSchema,
+  type CursorPage,
+  type PageNumberPage,
+  type VideoCard,
+} from "./types";
 
 export type VideoSort =
   | "newest"
@@ -39,6 +45,31 @@ export function getVideos(
   opts: { revalidate?: number } = {},
 ): Promise<CursorPage<VideoCard>> {
   return getVideoList("/videos/", params, opts);
+}
+
+function parseVideoPage(data: unknown): PageNumberPage<VideoCard> {
+  const r = parseList(VideoCardSchema, data);
+  return {
+    count: r.count ?? r.results.length,
+    next: r.next,
+    previous: r.previous,
+    results: r.results,
+  };
+}
+
+/**
+ * Catalog / filtered listing in classic page-number mode. Sending `page` opts the backend into
+ * its `{ count, next, previous, results }` envelope (cursor stays the default without it).
+ */
+export async function getVideosPaged(
+  params: Record<string, QueryValue> = {},
+  opts: { revalidate?: number } = {},
+): Promise<PageNumberPage<VideoCard>> {
+  const data = await apiFetch<unknown>("/videos/", {
+    params,
+    revalidate: opts.revalidate ?? 60,
+  });
+  return parseVideoPage(data);
 }
 
 /** Named feed: /videos/trending|popular|new|recommended/. */
