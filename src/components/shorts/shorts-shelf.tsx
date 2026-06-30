@@ -4,9 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useRef } from "react";
 import { getShortsFeed, type ShortsFeedParams } from "@/lib/api/shorts";
 import { useAuth } from "@/lib/auth/auth-context";
-import { useDragScroll } from "@/lib/hooks/use-drag-scroll";
 import { ShortCard } from "./short-card";
 
 type Scope = Pick<ShortsFeedParams, "categories" | "include_tags" | "actors">;
@@ -26,7 +26,7 @@ function shortsHref(scope: Scope): string {
 export function ShortsShelf({ scope = {}, title }: { scope?: Scope; title: string }) {
   const t = useTranslations("shorts");
   const { getToken } = useAuth();
-  const { ref: trackRef, handlers: dragHandlers } = useDragScroll<HTMLDivElement>();
+  const trackRef = useRef<HTMLDivElement>(null);
   const scopeKey = JSON.stringify(scope);
 
   const { data } = useQuery({
@@ -51,11 +51,10 @@ export function ShortsShelf({ scope = {}, title }: { scope?: Scope; title: strin
           {t("seeAll")}
         </Link>
       </div>
-      <div className="relative">
+      <div className="group/shelf relative">
         <div
           ref={trackRef}
-          {...dragHandlers}
-          className="no-scrollbar desktop:cursor-grab desktop:active:cursor-grabbing flex snap-x gap-3 overflow-x-auto select-none"
+          className="no-scrollbar flex snap-x gap-3 overflow-x-auto scroll-smooth"
         >
           {items.map((s) => (
             <ShortCard
@@ -69,17 +68,21 @@ export function ShortsShelf({ scope = {}, title }: { scope?: Scope; title: strin
           type="button"
           aria-label={t("scrollPrev")}
           onClick={() => scrollBy(-1)}
-          className="bg-surface/90 text-foreground hover:bg-surface desktop:grid border-border absolute top-[34%] left-1 hidden h-9 w-9 -translate-y-1/2 place-items-center rounded-full border shadow"
+          className="from-surface/95 via-surface/80 text-foreground desktop:flex hover:via-surface absolute inset-y-0 left-0 z-10 hidden w-14 items-center justify-start rounded-l-xl bg-gradient-to-r to-transparent pl-1 opacity-0 transition group-hover/shelf:opacity-100"
         >
-          <ChevronLeft size={18} />
+          <span className="bg-surface/90 border-border grid h-10 w-10 place-items-center rounded-full border shadow">
+            <ChevronLeft size={22} />
+          </span>
         </button>
         <button
           type="button"
           aria-label={t("scrollNext")}
           onClick={() => scrollBy(1)}
-          className="bg-surface/90 text-foreground hover:bg-surface desktop:grid border-border absolute top-[34%] right-1 hidden h-9 w-9 -translate-y-1/2 place-items-center rounded-full border shadow"
+          className="from-surface/95 via-surface/80 text-foreground desktop:flex hover:via-surface absolute inset-y-0 right-0 z-10 hidden w-14 items-center justify-end rounded-r-xl bg-gradient-to-l to-transparent pr-1 opacity-0 transition group-hover/shelf:opacity-100"
         >
-          <ChevronRight size={18} />
+          <span className="bg-surface/90 border-border grid h-10 w-10 place-items-center rounded-full border shadow">
+            <ChevronRight size={22} />
+          </span>
         </button>
       </div>
     </section>
