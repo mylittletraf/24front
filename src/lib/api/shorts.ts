@@ -2,7 +2,13 @@ import { z } from "zod";
 import type { Locale } from "@/lib/i18n/locales";
 import { apiFetch, toProxyUrl, type QueryValue } from "./fetcher";
 import { ApiError } from "./errors";
-import { NullableMedia, parseList, VideoCardSchema, type CursorPage } from "./types";
+import {
+  NullableMedia,
+  parseList,
+  VideoCardSchema,
+  type CursorPage,
+  type PageNumberPage,
+} from "./types";
 
 /**
  * Shorts feed element — a video card plus the inline-player `sources`. Note the backend now
@@ -35,6 +41,36 @@ export interface ShortsFeedParams {
   include_tags?: string;
   actors?: string;
   cursor?: string;
+  /** 1-based page — sending it opts the backend into page-number mode (see getShortsPaged). */
+  page?: number;
+}
+
+function parsePagedShorts(data: unknown): PageNumberPage<VideoShort> {
+  const r = parseList(VideoShortSchema, data);
+  return {
+    count: r.count ?? r.results.length,
+    next: r.next,
+    previous: r.previous,
+    results: r.results,
+  };
+}
+
+/**
+ * Shorts listing in classic page-number mode (the /shorts catalog grid). Sending `page` opts the
+ * backend into its `{ count, next, previous, results }` envelope (cursor stays the default for the
+ * fullscreen swipe feed without it). Out-of-range pages 404 (DRF NotFound).
+ */
+export async function getShortsPaged(
+  params: ShortsFeedParams = {},
+  opts: { token?: string | null; signal?: AbortSignal } = {},
+): Promise<PageNumberPage<VideoShort>> {
+  const data = await apiFetch<unknown>("/videos/shorts/", {
+    params: params as Record<string, QueryValue>,
+    cache: "no-store",
+    token: opts.token ?? undefined,
+    signal: opts.signal,
+  });
+  return parsePagedShorts(data);
 }
 
 /**
