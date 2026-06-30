@@ -58,7 +58,7 @@ export function InfiniteVideoFeed({
   paged?: boolean;
   /** page_size for button-triggered loads (the initial page may have loaded more). */
   loadMorePageSize?: number;
-  /** Interleave Shorts (desktop shelves after rows 2 & 4, mobile 2×4 tiles after 8). */
+  /** Interleave Shorts (desktop shelf after row 2, mobile 2×4 tiles after 8). */
   interleaveShorts?: boolean;
   /** Scope the interleaved Shorts (e.g. by category/tag) — same CSV-slug filters as the catalog. */
   shortsScope?: { categories?: string; include_tags?: string; actors?: string };
@@ -97,9 +97,9 @@ export function InfiniteVideoFeed({
   const showNative = mounted && isMobile && !!nativeSlot;
   const { show: showShorts } = useShortsPref();
 
-  // Shorts interleave (home only): desktop shelves after rows 2 & 4, mobile a 2×4 tile block after 8.
-  // The shelf is `col-span-full`, so the row before it must be complete (a multiple of the column
-  // count) — otherwise it breaks mid-row and the grid looks ragged. Hence the row-based indices.
+  // Shorts interleave (home only): a single desktop shelf after row 2, mobile a 2×4 tile block
+  // after 8. The shelf is `col-span-full`, so the row before it must be complete (a multiple of the
+  // column count) — otherwise it breaks mid-row and the grid looks ragged. Hence the row-based index.
   function shortsAt(i: number) {
     if (!interleaveShorts || !showShorts || !mounted) return null;
     if (isMobile) {
@@ -110,16 +110,10 @@ export function InfiniteVideoFeed({
       ) : null;
     }
     const afterRow2 = 2 * desktopCols - 1;
-    const afterRow4 = 4 * desktopCols - 1;
-    if (i === afterRow2 || i === afterRow4) {
+    if (i === afterRow2) {
       return (
         <div className="col-span-full">
-          <ShortsShelf
-            title={t("shorts.shelfTitle")}
-            scope={shortsScope}
-            skip={i === afterRow2 ? 0 : 12}
-            take={12}
-          />
+          <ShortsShelf title={t("shorts.shelfTitle")} scope={shortsScope} />
         </div>
       );
     }

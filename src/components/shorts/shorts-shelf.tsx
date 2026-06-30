@@ -20,20 +20,10 @@ function shortsHref(scope: Scope): string {
 
 /**
  * Horizontal Shorts carousel (YouTube-style shelf). Fetches one page of the personalized shorts
- * feed and slices [skip, skip+take) — two home shelves share the cache (`scopeKey`) and show
- * different items from one fetch. Renders nothing when there are no verticals.
+ * feed and renders all of it in a single full-width, horizontally-scrollable rail. Renders nothing
+ * when there are no verticals.
  */
-export function ShortsShelf({
-  scope = {},
-  title,
-  skip = 0,
-  take = 12,
-}: {
-  scope?: Scope;
-  title: string;
-  skip?: number;
-  take?: number;
-}) {
+export function ShortsShelf({ scope = {}, title }: { scope?: Scope; title: string }) {
   const t = useTranslations("shorts");
   const { getToken } = useAuth();
   const trackRef = useRef<HTMLDivElement>(null);
@@ -41,11 +31,11 @@ export function ShortsShelf({
 
   const { data } = useQuery({
     queryKey: ["shorts-shelf", scopeKey],
-    queryFn: () => getShortsFeed({ page_size: 24, ...scope }, { token: getToken() }),
+    queryFn: () => getShortsFeed({ page_size: 48, ...scope }, { token: getToken() }),
     staleTime: 60_000,
   });
 
-  const items = (data?.results ?? []).slice(skip, skip + take);
+  const items = data?.results ?? [];
   if (!data || items.length === 0) return null;
 
   const scrollBy = (dir: number) => {
