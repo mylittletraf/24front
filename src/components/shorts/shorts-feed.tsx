@@ -4,6 +4,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   getShortsFeed,
@@ -48,6 +49,18 @@ export function ShortsFeed({
 }) {
   const t = useTranslations("shorts");
   const { getToken } = useAuth();
+  const router = useRouter();
+
+  // Close returns to wherever the short was opened from (home / category / actor / …). Falls back
+  // to the /shorts grid for direct entries (deep link, new tab) where there's no in-app history.
+  const canGoBackRef = useRef(false);
+  useEffect(() => {
+    canGoBackRef.current = window.history.length > 1;
+  }, []);
+  const goBack = useCallback(() => {
+    if (canGoBackRef.current) router.back();
+    else router.push("/shorts");
+  }, [router]);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -202,13 +215,14 @@ export function ShortsFeed({
       <div className={cn("grid place-items-center px-6 text-center", DESKTOP_H)}>{cta}</div>
     ) : (
       <div className="fixed inset-0 z-50 grid place-items-center bg-black px-6 text-center text-white">
-        <Link
-          href="/"
+        <button
+          type="button"
+          onClick={goBack}
           aria-label={t("close")}
           className="fixed top-3 left-3 grid h-10 w-10 place-items-center rounded-full bg-black/35 text-white backdrop-blur"
         >
           <X size={20} />
-        </Link>
+        </button>
         {cta}
       </div>
     );
@@ -307,13 +321,14 @@ export function ShortsFeed({
       ref={containerRef}
       className="fixed inset-0 z-50 snap-y snap-mandatory [scrollbar-width:none] overflow-y-scroll overscroll-y-contain scroll-smooth bg-black [&::-webkit-scrollbar]:hidden"
     >
-      <Link
-        href="/"
+      <button
+        type="button"
+        onClick={goBack}
         aria-label={t("close")}
         className="fixed top-3 left-3 z-20 grid h-10 w-10 place-items-center rounded-full bg-black/35 text-white backdrop-blur hover:bg-black/55"
       >
         <X size={20} />
-      </Link>
+      </button>
       {list.map((video, i) => {
         const within = Math.abs(i - active) <= CONTENT_RADIUS;
         const play = Math.abs(i - active) <= PLAY_RADIUS;
