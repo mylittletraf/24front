@@ -4,9 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useRef } from "react";
 import { getShortsFeed, type ShortsFeedParams } from "@/lib/api/shorts";
 import { useAuth } from "@/lib/auth/auth-context";
+import { useDragScroll } from "@/lib/hooks/use-drag-scroll";
 import { ShortCard } from "./short-card";
 
 type Scope = Pick<ShortsFeedParams, "categories" | "include_tags" | "actors">;
@@ -26,7 +26,7 @@ function shortsHref(scope: Scope): string {
 export function ShortsShelf({ scope = {}, title }: { scope?: Scope; title: string }) {
   const t = useTranslations("shorts");
   const { getToken } = useAuth();
-  const trackRef = useRef<HTMLDivElement>(null);
+  const { ref: trackRef, handlers: dragHandlers } = useDragScroll<HTMLDivElement>();
   const scopeKey = JSON.stringify(scope);
 
   const { data } = useQuery({
@@ -54,7 +54,8 @@ export function ShortsShelf({ scope = {}, title }: { scope?: Scope; title: strin
       <div className="relative">
         <div
           ref={trackRef}
-          className="no-scrollbar flex snap-x gap-3 overflow-x-auto scroll-smooth"
+          {...dragHandlers}
+          className="no-scrollbar desktop:cursor-grab desktop:active:cursor-grabbing flex snap-x gap-3 overflow-x-auto select-none"
         >
           {items.map((s) => (
             <ShortCard
