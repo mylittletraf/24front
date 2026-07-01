@@ -59,6 +59,46 @@ export interface ShortsFeedParams {
   cursor?: string;
   /** 1-based page — sending it opts the backend into page-number mode (see getShortsPaged). */
   page?: number;
+  /** For-You only: the currently open short — biases the ranked feed toward "similar to it". */
+  seed?: string;
+}
+
+/** For-You envelope — page-number over a cached rank snapshot (no count/cursor). */
+export type ForYouPage = {
+  results: VideoShort[];
+  page: number;
+  page_size: number;
+  has_more: boolean;
+};
+
+function parseForYou(data: unknown): ForYouPage {
+  const { results } = parseList(VideoShortSchema, data);
+  const obj = (data && typeof data === "object" ? data : {}) as Record<string, unknown>;
+  return {
+    results,
+    page: typeof obj.page === "number" ? obj.page : 1,
+    page_size: typeof obj.page_size === "number" ? obj.page_size : results.length,
+    has_more: obj.has_more === true,
+  };
+}
+
+/**
+ * Personalized "For-You" shorts feed (docs/RECOMMENDATIONS_FRONTEND_TASK.md §2): a ranked vertical
+ * feed built from the open short (`seed`), paged over a cached rank snapshot via `?page=N` (stable
+ * order, no engine re-run between pages). Response `{results, page, page_size, has_more}` — distinct
+ * from the base cursor `/videos/shorts/`. Uncached; JWT drives personalization.
+ */
+export async function getShortsForYou(
+  params: ShortsFeedParams = {},
+  opts: { token?: string | null; signal?: AbortSignal } = {},
+): Promise<ForYouPage> {
+  const data = await apiFetch<unknown>("/videos/shorts/for-you/", {
+    params: params as Record<string, QueryValue>,
+    cache: "no-store",
+    token: opts.token ?? undefined,
+    signal: opts.signal,
+  });
+  return parseForYou(data);
 }
 
 function parsePagedShorts(data: unknown): PageNumberPage<VideoShort> {

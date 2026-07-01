@@ -6,12 +6,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  getShortsFeed,
-  getShortsPageByUrl,
-  type ShortsFeedParams,
-  type VideoShort,
-} from "@/lib/api/shorts";
+import { getShortsForYou, type ShortsFeedParams, type VideoShort } from "@/lib/api/shorts";
 import { useAuth } from "@/lib/auth/auth-context";
 import { useMediaQuery, useMounted } from "@/lib/hooks/use-media-query";
 import { cn } from "@/lib/utils/cn";
@@ -84,18 +79,22 @@ export function ShortsFeed({
   }, []);
 
   const params: ShortsFeedParams = useMemo(
-    () => ({ lang: lang as ShortsFeedParams["lang"], page_size: 24, ...scope }),
-    [lang, scope],
+    () => ({
+      lang: lang as ShortsFeedParams["lang"],
+      page_size: 24,
+      seed: initialVideo?.uuid,
+      ...scope,
+    }),
+    [lang, scope, initialVideo?.uuid],
   );
 
+  // Personalized For-You feed, seeded by the open short, paged over a cached rank snapshot.
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
-    queryKey: ["shorts", params],
+    queryKey: ["shorts-for-you", params],
     queryFn: ({ pageParam }) =>
-      pageParam
-        ? getShortsPageByUrl(pageParam, getToken())
-        : getShortsFeed(params, { token: getToken() }),
-    initialPageParam: "" as string,
-    getNextPageParam: (last) => last.next ?? undefined,
+      getShortsForYou({ ...params, page: pageParam }, { token: getToken() }),
+    initialPageParam: 1,
+    getNextPageParam: (last) => (last.has_more ? last.page + 1 : undefined),
     staleTime: 0,
     gcTime: 0,
     refetchOnWindowFocus: false,
