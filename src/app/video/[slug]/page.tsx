@@ -16,6 +16,7 @@ import { ReportModal } from "@/components/video/report-modal";
 import { MobileFeedTabs } from "@/components/video/mobile-feed-tabs";
 import { Screenshots } from "@/components/video/screenshots";
 import { VideoActions } from "@/components/video/video-actions";
+import { RecommendedRail } from "@/components/video/recommended-rail";
 import { VideoSection } from "@/components/video/video-section";
 import { VideoSidebar } from "@/components/video/video-sidebar";
 import { VideoTabs, type TabItem } from "@/components/video/video-tabs";
@@ -301,6 +302,8 @@ export default async function VideoPage({ params, searchParams }: PageParams) {
           </div>
 
           {tabs.length > 0 ? <VideoTabs items={tabs} videoKey={detail.uuid} /> : null}
+
+          <RecommendedRail lang={lang} />
 
           <CommentsSection videoUuid={detail.uuid} commentsCount={detail.comments_count} />
 
