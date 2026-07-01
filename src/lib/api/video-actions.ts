@@ -62,15 +62,24 @@ export async function removeFavorite(videoUuid: string, token: string) {
   await apiFetch(`/videos/${videoUuid}/favorite/`, { method: "DELETE", token });
 }
 
+/** Watch-progress "event" the recommender learns from (see docs/RECOMMENDATIONS_FRONTEND_TASK.md §0). */
+export type ProgressEvent = "heartbeat" | "ended" | "skipped";
+
 export async function postProgress(
   videoUuid: string,
   watchProgress: number,
   lastPositionSeconds: number,
   token: string,
+  event?: ProgressEvent,
 ) {
   await apiFetch(`/videos/${videoUuid}/progress/`, {
     method: "POST",
-    body: { watch_progress: watchProgress, last_position_seconds: lastPositionSeconds },
+    body: {
+      watch_progress: watchProgress,
+      last_position_seconds: lastPositionSeconds,
+      // Omit when heartbeat (the backend default) — only tag the terminal ended/skipped signals.
+      ...(event && event !== "heartbeat" ? { event } : {}),
+    },
     token,
   }).catch(() => undefined);
 }

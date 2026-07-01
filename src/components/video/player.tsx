@@ -12,6 +12,7 @@ import {
   postProgress,
   postView,
   type AdPlacement,
+  type ProgressEvent,
 } from "@/lib/api/video-actions";
 import { useAuth } from "@/lib/auth/auth-context";
 import { setupQualityMenu } from "./quality-menu";
@@ -146,14 +147,14 @@ export function VideoPlayer({
     let progressTimer: ReturnType<typeof setInterval> | undefined;
     let onUnload: (() => void) | undefined;
 
-    const sendProgress = () => {
+    const sendProgress = (event?: ProgressEvent) => {
       const player = playerRef.current;
       const token = getToken();
       if (!player || !token) return;
       const current = player.currentTime() ?? 0;
       const duration = player.duration() ?? 0;
       if (!duration) return;
-      void postProgress(uuid, Math.min(current / duration, 1), Math.floor(current), token);
+      void postProgress(uuid, Math.min(current / duration, 1), Math.floor(current), token, event);
     };
 
     void (async () => {
@@ -271,6 +272,7 @@ export function VideoPlayer({
       });
       player.on("ended", () => {
         clearInterval(progressTimer);
+        sendProgress("ended"); // positive signal for the recommender
         track("video_complete", { video_uuid: uuid });
       });
 

@@ -4,7 +4,7 @@ import { Maximize, Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { track } from "@/lib/analytics/track";
-import { getPlayback, postProgress, postView } from "@/lib/api/video-actions";
+import { getPlayback, postProgress, postView, type ProgressEvent } from "@/lib/api/video-actions";
 import { useAuth } from "@/lib/auth/auth-context";
 import { attachHls } from "@/lib/hls/attach-hls";
 import { cn } from "@/lib/utils/cn";
@@ -47,6 +47,8 @@ export function ShortPlayer({
   const rootRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
+  // Whether this playthrough reached the end — decides the terminal progress event (ended vs skipped).
+  const hasEndedRef = useRef(false);
   const [paused, setPaused] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -102,6 +104,7 @@ export function ShortPlayer({
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !active) return;
+    hasEndedRef.current = false; // fresh playthrough for this activation
     let watchedMs = 0;
     let last = performance.now();
     let viewed = false;
@@ -118,19 +121,21 @@ export function ShortPlayer({
     };
     const stickyTimer = setInterval(tick, 500);
 
-    const sendProgress = () => {
+    const sendProgress = (event?: ProgressEvent) => {
       const token = getToken();
       const duration = video.duration || 0;
       if (!token || !duration) return;
       const current = video.currentTime || 0;
-      void postProgress(uuid, Math.min(current / duration, 1), Math.floor(current), token);
+      void postProgress(uuid, Math.min(current / duration, 1), Math.floor(current), token, event);
     };
-    const progressTimer = setInterval(sendProgress, PROGRESS_INTERVAL_MS);
+    const progressTimer = setInterval(sendProgress, PROGRESS_INTERVAL_MS); // heartbeats
 
     return () => {
       clearInterval(stickyTimer);
       clearInterval(progressTimer);
-      sendProgress();
+      // One terminal signal per departing short: ended if it finished, else skipped (swiped away).
+      // The backend gates the negative weight on low watch_progress, so we just report the fact.
+      sendProgress(hasEndedRef.current ? "ended" : "skipped");
     };
   }, [active, uuid, getToken]);
 
@@ -192,6 +197,7 @@ export function ShortPlayer({
         onPlay={() => setPaused(false)}
         onPause={() => setPaused(true)}
         onEnded={() => {
+          hasEndedRef.current = true;
           if (!loop) onEnded?.();
         }}
         onLoadedMetadata={(e) => setDuration(e.currentTarget.duration || 0)}
