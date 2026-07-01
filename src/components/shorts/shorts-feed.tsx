@@ -119,6 +119,9 @@ export function ShortsFeed({
       trailer: null,
       language: lang ?? "",
       is_vertical: true,
+      actors: [],
+      categories: [],
+      tags: [],
     };
     return [seed, ...fetched.filter((v) => v.uuid !== seed.uuid)];
   }, [data, initialVideo, lang]);
@@ -276,6 +279,8 @@ export function ShortsFeed({
                     likesCount={video.likes_count}
                     dislikesCount={video.dislikes_count}
                     commentsCount={video.comments_count}
+                    actors={video.actors}
+                    tags={video.tags}
                     muted={muted}
                     onToggleMute={toggleMute}
                   />
@@ -357,6 +362,8 @@ export function ShortsFeed({
                 likesCount={video.likes_count}
                 dislikesCount={video.dislikes_count}
                 commentsCount={video.comments_count}
+                actors={video.actors}
+                tags={video.tags}
                 muted={muted}
                 onToggleMute={toggleMute}
               />

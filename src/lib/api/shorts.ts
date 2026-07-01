@@ -3,6 +3,7 @@ import type { Locale } from "@/lib/i18n/locales";
 import { apiFetch, toProxyUrl, type QueryValue } from "./fetcher";
 import { ApiError } from "./errors";
 import {
+  NamedRefSchema,
   NullableMedia,
   parseList,
   VideoCardSchema,
@@ -10,10 +11,22 @@ import {
   type PageNumberPage,
 } from "./types";
 
+/** Lightweight actor ref carried on enriched shorts cards (not the heavy detail ActorSchema). */
+export const ShortActorRefSchema = z.object({
+  uuid: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  gender: z.string().optional(),
+});
+export type ShortActorRef = z.infer<typeof ShortActorRefSchema>;
+
 /**
  * Shorts feed element — a video card plus the inline-player `sources`. Note the backend now
  * returns `sources.hls = null` (the signed master playlist is short-lived, fetched per-video via
  * `/videos/{uuid}/playback/`); `sources` is kept lenient since we don't depend on its `hls`.
+ *
+ * Recommended/shorts cards are enriched with `actors`/`categories`/`tags` so the overlay renders
+ * without a detail request (docs/RECOMMENDATIONS_FRONTEND_TASK.md §4). Kept lenient (`.catch([])`).
  */
 export const VideoShortSchema = VideoCardSchema.extend({
   is_vertical: z.boolean().catch(true),
@@ -25,6 +38,9 @@ export const VideoShortSchema = VideoCardSchema.extend({
     })
     .partial()
     .optional(),
+  actors: z.array(ShortActorRefSchema).catch([]),
+  categories: z.array(NamedRefSchema).catch([]),
+  tags: z.array(NamedRefSchema).catch([]),
 });
 export type VideoShort = z.infer<typeof VideoShortSchema>;
 
