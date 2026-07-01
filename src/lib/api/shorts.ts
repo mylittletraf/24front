@@ -1,7 +1,6 @@
 import { z } from "zod";
 import type { Locale } from "@/lib/i18n/locales";
-import { apiFetch, toProxyUrl, type QueryValue } from "./fetcher";
-import { ApiError } from "./errors";
+import { apiFetch, type QueryValue } from "./fetcher";
 import {
   NamedRefSchema,
   NullableMedia,
@@ -144,20 +143,4 @@ export async function getShortsFeed(
     signal: opts.signal,
   });
   return parsePage(data);
-}
-
-/** Fetch a cursor page by its (proxy-masked) `next` URL, carrying the JWT for personalization. */
-export async function getShortsPageByUrl(
-  url: string,
-  token?: string | null,
-): Promise<CursorPage<VideoShort>> {
-  const res = await fetch(toProxyUrl(url), {
-    headers: {
-      Accept: "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    cache: "no-store",
-  });
-  if (!res.ok) throw new ApiError(res.status, res.statusText);
-  return parsePage(await res.json());
 }
